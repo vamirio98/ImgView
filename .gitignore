@@ -9,3 +9,15 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+
+# Cache file.
+.cache
+
+# Build cache.
+build
+
+# Zon.Identifier files.
+*:Zone.Identifier
+
+# Test file.
+test
