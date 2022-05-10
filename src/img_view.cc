@@ -2,7 +2,7 @@
  * img_view.cc
  *
  * Created by vamirio on 2022 Apr 25
- * Last Modified: 2022 May 05 15:06:03
+ * Last Modified: 2022 May 10 17:38:25
  */
 #include "img_view.h"
 
@@ -35,6 +35,7 @@ void ImgView::init()
 	m_display = m_ui->m_imageArea;
 	setupSlots();
 	setupShortCut();
+
 	log::Logger::initInstance();
 	log::Logger::setLogFilter(log::LogLevel::Debug);
 }

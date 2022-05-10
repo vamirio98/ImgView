@@ -2,7 +2,7 @@
  * img_area.h
  *
  * Created by vamirio on 2022 May 01
- * Last Modified: 2022 May 10 12:33:10
+ * Last Modified: 2022 May 10 18:08:50
  */
 #ifndef IMG_AREA_H
 #define IMG_AREA_H
@@ -88,6 +88,14 @@ public:
 	 */
 	void showImage();
 
+	/**
+	 * @brief Move the image a distance (@dx, @dy) from the current position
+	 *
+	 * @param dx X-axis offset in pixel
+	 * @param dy Y-axis offset in pixel
+	 */
+	void moveImage(const double &dx, const double &dy);
+
 private:
 	/**
 	 * @brief Set m_image as specified image
@@ -108,6 +116,8 @@ private:
 protected:
 	void wheelEvent(QWheelEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
 	bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
@@ -116,6 +126,8 @@ private:
 	QGridLayout *m_displayLayout = nullptr;
 	QLabel *m_label = nullptr;
 	QImage *m_image = nullptr;
+	QPoint *m_mousePos = nullptr;
+	bool m_mouseHold = false;
 
 	/* Initial scale factor of an image, it is 1.0 in general, but will be a
 	 * proper value to let the full image shown in the screen when the image

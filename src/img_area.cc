@@ -2,7 +2,7 @@
  * img_area.cc
  *
  * Created by vamirio on 2022 May 01
- * Last Modified: 2022 May 10 12:56:47
+ * Last Modified: 2022 May 10 18:26:16
  */
 #include "img_area.h"
 
@@ -27,6 +27,7 @@ ImgArea::ImgArea(QWidget *parent)
 
 ImgArea::~ImgArea()
 {
+	delete m_mousePos;
 }
 
 void ImgArea::init()
@@ -36,6 +37,7 @@ void ImgArea::init()
 	m_displayLayout = new QGridLayout(m_displayArea);
 	m_label = new QLabel(m_displayArea);
 	m_image = new QImage();
+	m_mousePos = new QPoint();
 
 	setVisible(true);
 	setLayout(new QGridLayout());
@@ -45,6 +47,8 @@ void ImgArea::init()
 	m_scrollArea->setBackgroundRole(QPalette::Base);
 	m_scrollArea->setWidget(m_displayArea);
 	m_scrollArea->setAlignment(Qt::AlignCenter);
+	m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_scrollArea->viewport()->installEventFilter(this);
 
 	m_displayArea->setLayout(m_displayLayout);
@@ -78,12 +82,12 @@ bool ImgArea::loadImageAndShow(const QString &filename)
 
 void ImgArea::zoomInAndShow()
 {
-	scaleImageAndShow(m_scaleFactor + 0.1);
+	scaleImageAndShow(m_scaleFactor + 0.05);
 }
 
 void ImgArea::zoomOutAndShow()
 {
-	scaleImageAndShow(m_scaleFactor - 0.1);
+	scaleImageAndShow(m_scaleFactor - 0.05);
 }
 
 void ImgArea::scaleImageAndShow(const double &factor)
@@ -122,14 +126,12 @@ void ImgArea::limitToWindow()
 			&& image_size.height() < window_size.height())
 		return;
 
-	int w_diff = image_size.width() - window_size.width();
-	int h_diff = image_size.height() - window_size.height();
+	double w_ratio = 1.0 * window_size.width() / image_size.width();
+	double h_ratio = 1.0 * window_size.height() / image_size.height();
 
 	/* The image may be a little larger than the window if the constant is
 	 * 1.0. */
-	m_initScaleFactor = w_diff > h_diff
-		? 0.99 * window_size.width() / image_size.width()
-		: 0.99 * window_size.height() / image_size.height();
+	m_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
 }
 
 void ImgArea::showImage()
@@ -167,6 +169,15 @@ void ImgArea::loadNextImageAndShow()
 	//logDebug("Call goToNextImage.");
 }
 
+void ImgArea::moveImage(const double &dx, const double &dy)
+{
+	QScrollBar *h = m_scrollArea->horizontalScrollBar();
+	QScrollBar *v = m_scrollArea->verticalScrollBar();
+
+	h->setValue(h->value() + dx);
+	v->setValue(v->value() + dy);
+}
+
 /* Events. */
 /* TODO: zoom the image around the cursor. */
 void ImgArea::wheelEvent(QWheelEvent *event)
@@ -186,6 +197,9 @@ void ImgArea::wheelEvent(QWheelEvent *event)
 
 void ImgArea::mousePressEvent(QMouseEvent *event)
 {
+	m_mouseHold = true;
+	*m_mousePos = event->pos();
+
 	switch (event->button()) {
 	case Qt::MiddleButton:
 		scaleImageAndShow(1.0);
@@ -193,6 +207,23 @@ void ImgArea::mousePressEvent(QMouseEvent *event)
 	default:
 		break;
 	}
+
+	event->accept();
+}
+
+void ImgArea::mouseMoveEvent(QMouseEvent *event)
+{
+	QPoint pos = event->pos();
+	double dx = pos.x() - m_mousePos->x();
+	double dy = pos.y() - m_mousePos->y();
+	moveImage(-dx, -dy);
+
+	*m_mousePos = pos;
+}
+
+void ImgArea::mouseReleaseEvent(QMouseEvent *event)
+{
+	m_mouseHold = false;
 
 	event->accept();
 }
