@@ -2,7 +2,7 @@
  * img_view_ui.cc
  *
  * Created by vamirio on 2022 Apr 25
- * Last Modified: 2022 May 02 23:30:58
+ * Last Modified: 2022 May 09 23:49:53
  */
 #include "ui/img_view_ui.h"
 
@@ -104,23 +104,6 @@ void ImgViewUi::retranslateHelpMenuUi()
 
 void ImgViewUi::setupCentralWidgetUi(QMainWindow *ImgView)
 {
-	//m_image_area = new QWidget(ImgView);
-	//m_scroll_area = new QScrollArea(ImgView);
-	//m_label = new QLabel(ImgView);
-	//m_image = new QImage();
-
-	////ImgView->setCentralWidget(m_scroll_area);
-	//ImgView->setCentralWidget(m_image_area);
-	//m_image_area->setLayout(new QGridLayout());
-	//m_image_area->layout()->addWidget(m_scroll_area);
-
-	//m_scroll_area->setBackgroundRole(QPalette::Base);
-	//m_scroll_area->setVisible(false);
-	//m_scroll_area->setWidget(m_label);
-	//m_scroll_area->setAlignment(Qt::AlignCenter);
-
-	//m_label->setBackgroundRole(QPalette::Dark);
-	//m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	m_imageArea = new ImgArea(ImgView);
 	m_imageArea->init();
 	ImgView->setCentralWidget(m_imageArea);

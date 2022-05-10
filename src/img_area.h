@@ -2,7 +2,7 @@
  * img_area.h
  *
  * Created by vamirio on 2022 May 01
- * Last Modified: 2022 May 09 15:43:18
+ * Last Modified: 2022 May 10 12:33:10
  */
 #ifndef IMG_AREA_H
 #define IMG_AREA_H
@@ -19,21 +19,96 @@ class ImgArea : public QWidget {
 public:
 	explicit ImgArea(QWidget *parent = nullptr);
 	~ImgArea();
+
+	/**
+	 * @brief Initialize instance, MUST be called before any other member
+	 *        functions called
+	 */
 	void init();
-	bool loadFile(const QString &filename);
+
+	/**
+	 * @brief Load an image and show it
+	 *
+	 * @param filename The image file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadImageAndShow(const QString &filename);
+
+	/**
+	 * @brief Close current image and hide the display area
+	 */
 	void closeImage();
-	void zoomIn();
-	void zoomOut();
+
+	/**
+	 * @brief Zoom in image 10%, then show it
+	 */
+	void zoomInAndShow();
+
+	/**
+	 * @brief Zoom out image 10%, then show it
+	 */
+	void zoomOutAndShow();
+
+	/**
+	 * @brief Scale the image to @factor
+	 *
+	 * @param factor The aimed scale factor
+	 */
 	void scaleImage(const double &factor);
-	void goToPrevImage();
-	void goToNextImage();
+
+	/**
+	 * @brief Scale the image to @factor then show it
+	 *
+	 * @param factor The aimed scale factor
+	 */
+	void scaleImageAndShow(const double &factor);
+
+	/**
+	 * @brief Load the previous image of current directory then show it
+	 */
+	void loadPrevImageAndShow();
+
+	/**
+	 * @brief Load the next image of current directory then show it
+	 */
+	void loadNextImageAndShow();
+
+	/**
+	 * @brief Limit the image to show it fully in the display area
+	 *
+	 * If the image size is smaller than display area, show it in origin size;
+	 * else show it in display area size while keeping its aspect.
+	 * NOTE: this function may change m_initScaleFactor
+	 */
+	void limitToWindow();
+
+	/**
+	 * @brief Show image, should be called after any changes to image
+	 */
+	void showImage();
 
 private:
+	/**
+	 * @brief Set m_image as specified image
+	 *
+	 * @param image Handle to the image
+	 */
 	void setImage(const QImage &image);
+
+	/**
+	 * @brief Adjust the scroll bar position according to the image size, keep
+	 *        the display area is the same part of the image
+	 *
+	 * @param scroll_bar Scroll bar to be changed
+	 * @param factor The radio of the current size and origin size
+	 */
 	void adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor);
 
 protected:
 	void wheelEvent(QWheelEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
 	QScrollArea *m_scrollArea = nullptr;
@@ -41,7 +116,20 @@ private:
 	QGridLayout *m_displayLayout = nullptr;
 	QLabel *m_label = nullptr;
 	QImage *m_image = nullptr;
+
+	/* Initial scale factor of an image, it is 1.0 in general, but will be a
+	 * proper value to let the full image shown in the screen when the image
+	 * is too big.
+	 */
+	double m_initScaleFactor = 1.0;
+	/* Scale factor which control the image size, the actual size of an image
+	 * is originSize * m_initScaleFactor * m_scaleFactor.
+	 */
 	double m_scaleFactor = 1.0;
+
+	/* Max and min scale factors. */
+	static constexpr double kMaxScaleFactor = 3.0;
+	static constexpr double kMinScaleFactor = 0.333;
 };
 
 }  /* namespace img_view */

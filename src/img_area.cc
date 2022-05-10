@@ -2,7 +2,7 @@
  * img_area.cc
  *
  * Created by vamirio on 2022 May 01
- * Last Modified: 2022 May 09 15:55:39
+ * Last Modified: 2022 May 10 12:56:47
  */
 #include "img_area.h"
 
@@ -13,6 +13,7 @@
 #include <QApplication>
 #include <QColorSpace>
 #include <QScrollBar>
+#include <QMouseEvent>
 #include <QKeyEvent>
 #include <QKeyCombination>
 
@@ -36,7 +37,7 @@ void ImgArea::init()
 	m_label = new QLabel(m_displayArea);
 	m_image = new QImage();
 
-	setVisible(false);
+	setVisible(true);
 	setLayout(new QGridLayout());
 	layout()->addWidget(m_scrollArea);
 	layout()->setContentsMargins(0, 0, 0, 0);
@@ -44,6 +45,7 @@ void ImgArea::init()
 	m_scrollArea->setBackgroundRole(QPalette::Base);
 	m_scrollArea->setWidget(m_displayArea);
 	m_scrollArea->setAlignment(Qt::AlignCenter);
+	m_scrollArea->viewport()->installEventFilter(this);
 
 	m_displayArea->setLayout(m_displayLayout);
 	m_displayArea->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -54,7 +56,7 @@ void ImgArea::init()
 	m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
-bool ImgArea::loadFile(const QString &filename)
+bool ImgArea::loadImageAndShow(const QString &filename)
 {
 	QImageReader reader(filename);
 	reader.setAutoTransform(true);
@@ -68,33 +70,34 @@ bool ImgArea::loadFile(const QString &filename)
 	}
 
 	setImage(img);
+	limitToWindow();
+	showImage();
 
 	return true;
 }
 
-/* TODO: limit scale range. */
-void ImgArea::zoomIn()
+void ImgArea::zoomInAndShow()
 {
-	scaleImage(1.1);
+	scaleImageAndShow(m_scaleFactor + 0.1);
 }
 
-void ImgArea::zoomOut()
+void ImgArea::zoomOutAndShow()
 {
-	scaleImage(0.9);
+	scaleImageAndShow(m_scaleFactor - 0.1);
 }
 
-void ImgArea::scaleImage(const double &factor)
+void ImgArea::scaleImageAndShow(const double &factor)
 {
-	m_scaleFactor *= factor;
-	m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
-				m_image->size() * m_scaleFactor,
-				Qt::KeepAspectRatio,
-				Qt::SmoothTransformation)));
-	m_label->adjustSize();
-	m_displayArea->resize(m_label->size());
+	double prev_factor = m_scaleFactor;
+	m_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
+		: (factor < kMinScaleFactor ? kMinScaleFactor : factor);
 
-	adjustScrollBarPos(m_scrollArea->horizontalScrollBar(), factor);
-	adjustScrollBarPos(m_scrollArea->verticalScrollBar(), factor);
+	showImage();
+
+	adjustScrollBarPos(m_scrollArea->horizontalScrollBar(),
+			m_scaleFactor / prev_factor);
+	adjustScrollBarPos(m_scrollArea->verticalScrollBar(),
+			m_scaleFactor / prev_factor);
 }
 
 void ImgArea::setImage(const QImage &image)
@@ -107,13 +110,36 @@ void ImgArea::setImage(const QImage &image)
 	m_image = new QImage(image);
 	if (m_image->colorSpace().isValid())
 		m_image->convertToColorSpace(QColorSpace::SRgb);
-	m_label->setPixmap(QPixmap::fromImage(*m_image));
-	m_scaleFactor = 1.0;
+}
 
+void ImgArea::limitToWindow()
+{
+	QSize window_size = size();
+	QSize image_size = m_image->size();
+	m_initScaleFactor = m_scaleFactor = 1.0;
+
+	if (image_size.width() < window_size.width()
+			&& image_size.height() < window_size.height())
+		return;
+
+	int w_diff = image_size.width() - window_size.width();
+	int h_diff = image_size.height() - window_size.height();
+
+	/* The image may be a little larger than the window if the constant is
+	 * 1.0. */
+	m_initScaleFactor = w_diff > h_diff
+		? 0.99 * window_size.width() / image_size.width()
+		: 0.99 * window_size.height() / image_size.height();
+}
+
+void ImgArea::showImage()
+{
+	m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
+				m_image->size() * m_initScaleFactor * m_scaleFactor,
+				Qt::KeepAspectRatio,
+				Qt::SmoothTransformation)));
 	m_label->adjustSize();
 	m_displayArea->resize(m_label->size());
-
-	setVisible(true);
 }
 
 void ImgArea::closeImage()
@@ -123,8 +149,6 @@ void ImgArea::closeImage()
 		m_image = nullptr;
 	}
 	m_label->setPixmap(QPixmap());
-
-	setVisible(false);
 }
 
 void ImgArea::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
@@ -133,17 +157,18 @@ void ImgArea::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
 				+ (factor - 1) * scroll_bar->pageStep() / 2));
 }
 
-void ImgArea::goToPrevImage()
+void ImgArea::loadPrevImageAndShow()
 {
-	logDebug("Call goToPrevImage.");
+	//logDebug("Call goToPrevImage.");
 }
 
-void ImgArea::goToNextImage()
+void ImgArea::loadNextImageAndShow()
 {
-	logDebug("Call goToNextImage.");
+	//logDebug("Call goToNextImage.");
 }
 
 /* Events. */
+/* TODO: zoom the image around the cursor. */
 void ImgArea::wheelEvent(QWheelEvent *event)
 {
 	/* Most mouse type work in steps of 15 degrees, so the delta value is a
@@ -151,12 +176,40 @@ void ImgArea::wheelEvent(QWheelEvent *event)
 	 */
 	int step = event->angleDelta().y() / 120;
 	if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
-		step > 0 ? zoomIn() : zoomOut();
+		step > 0 ? zoomInAndShow() : zoomOutAndShow();
 	} else {
-		step > 0 ? goToPrevImage() : goToNextImage();
+		step > 0 ? loadPrevImageAndShow() : loadNextImageAndShow();
 	}
 
 	event->accept();
+}
+
+void ImgArea::mousePressEvent(QMouseEvent *event)
+{
+	switch (event->button()) {
+	case Qt::MiddleButton:
+		scaleImageAndShow(1.0);
+		break;
+	default:
+		break;
+	}
+
+	event->accept();
+}
+
+bool ImgArea::eventFilter(QObject *obj, QEvent *event)
+{
+	if (obj == m_scrollArea->viewport()) {
+		if (event->type() == QEvent::Wheel) {
+			event->ignore();  /* Pass event to its parent object. */
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		/* Pass the event on to the parent class. */
+		return QWidget::eventFilter(obj, event);
+	}
 }
 
 }  /* namespace img_view */
