@@ -2,7 +2,6 @@
  * logger.cc
  *
  * Created by vamirio on 2022 May 04
- * Last Modified: 2022 May 07 16:38:04
  */
 #include "logger.h"
 
@@ -13,6 +12,7 @@
 #include <QTextStream>
 
 #include <cstdio>
+#include <cstdarg>
 
 namespace img_view {
 
@@ -69,7 +69,7 @@ void Logger::setLogFilter(const LogLevel &level)
 	}
 }
 
-void Logger::addLog(const QString &msg, const LogLevel &level,
+void Logger::addLog(const char *const msg, const LogLevel &level,
 		const LogPosSet &pos)
 {
 	if (!(m_logFilter & level))
@@ -78,56 +78,163 @@ void Logger::addLog(const QString &msg, const LogLevel &level,
 	QWriteLocker locker(&m_lock);
 
 	const Log log = { m_id++, level, QDateTime::currentMSecsSinceEpoch(), msg };
-	QString log_msg =
-		QDateTime::fromMSecsSinceEpoch(log.timestamp)
-		.toString("yyyy/MM/dd hh:mm:ss.zzz")
-		+ " - "
-		+ log.message;
-	if (pos & LogPos::File) {
-		m_logFile.open(QIODevice::ReadWrite | QIODevice::Text
-				| QIODevice::Append);
-		QTextStream fs(&m_logFile);
-		fs << log_msg << "\n";
-		m_logFile.close();
-	}
-	if (pos & LogPos::Stdout)
-		fprintf(stdout, "%s\n", log_msg.toUtf8().constData());
-	if (pos & LogPos::Stderr)
-		fprintf(stderr, "%s\n", log_msg.toUtf8().constData());
+	QString log_msg = convertLogToString(log);
+	if (pos & LogPos::File)
+		printToFile(log_msg);
+	if (pos & LogPos::Screen)
+		printToScreen(log_msg);
 
 	locker.unlock();
 }
 
+void Logger::addLog(const QString &msg, const LogLevel &level,
+		const LogPosSet &pos)
+{
+	addLog(msg.toUtf8().constData(), level, pos);
+}
+
+QString Logger::convertLogToString(const Log &log)
+{
+	return QDateTime::fromMSecsSinceEpoch(log.timestamp)
+		.toString("yyyy/MM/dd hh:mm:ss.zzz")
+		+ " - "
+		+ getLogLevelStr(log.level)
+		+ " - "
+		+ log.message;
+}
+
+QString Logger::getLogLevelStr(const LogLevel &level)
+{
+	switch (level) {
+	case LogLevel::Debug :
+		return "DEBUG";
+	case LogLevel::Info :
+		return "INFO";
+	case LogLevel::Warn :
+		return "WARN";
+	case LogLevel::Error :
+		return "ERROR";
+	case LogLevel::Fatal :
+		return "FATAL";
+	default:
+		return "";
+	}
+	return "";
+}
+
+void Logger::printToFile(const QString &msg)
+{
+	m_logFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+	QTextStream fs(&m_logFile);
+	fs << msg << "\n";
+	m_logFile.close();
+}
+
+void Logger::printToScreen(const QString &msg)
+{
+	printf("%s\n", msg.toUtf8().constData());
+	fflush(stdout);
+}
+
 }  /* namespace log */
 
-void logDebug(const QString &msg, const log::LogPosSet &pos)
+void logDebug(const char *format, ...)
 {
-	log::Logger::instance()->addLog("DEBUG - " + msg, log::LogLevel::Debug,
-			pos | log::LogPos::Stdout);
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Debug,
+			log::LogPos::Screen);
+	delete[] buf;
 }
 
-void logInfo(const QString &msg, const log::LogPosSet &pos)
+void logDebugToFile(const char *format, ...)
 {
-	log::Logger::instance()->addLog("INFO - " + msg, log::LogLevel::Info,
-			pos | log::LogPos::Stdout);
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Debug,
+			log::LogPos::Screen | log::LogPos::File);
+	delete[] buf;
 }
 
-void logWarn(const QString &msg, const log::LogPosSet &pos)
+void logInfo(const char *format, ...)
 {
-	log::Logger::instance()->addLog("WARN - " + msg, log::LogLevel::Warn,
-			pos | log::LogPos::Stderr);
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Info,
+			log::LogPos::Screen);
+	delete[] buf;
 }
 
-void logError(const QString &msg, const log::LogPosSet &pos)
+void logInfoToFile(const char *format, ...)
 {
-	log::Logger::instance()->addLog("ERROR - " + msg, log::LogLevel::Debug,
-			pos | log::LogPos::Stderr);
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Info,
+			log::LogPos::Screen | log::LogPos::File);
+	delete[] buf;
 }
 
-void logFatal(const QString &msg, const log::LogPosSet &pos)
+void logWarn(const char *format, ...)
 {
-	log::Logger::instance()->addLog("FATAL - " + msg, log::LogLevel::Debug,
-			pos | log::LogPos::Stderr | log::LogPos::File);
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Warn,
+			log::LogPos::Screen);
+	delete[] buf;
+}
+
+void logWarnToFile(const char *format, ...)
+{
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Warn,
+			log::LogPos::Screen | log::LogPos::File);
+	delete[] buf;
+}
+
+void logError(const char *format, ...)
+{
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Error,
+			log::LogPos::Screen);
+	delete[] buf;
+}
+
+void logErrorToFile(const char *format, ...)
+{
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Error,
+			log::LogPos::Screen | log::LogPos::File);
+	delete[] buf;
+}
+
+void logFatal(const char *format, ...)
+{
+	char *buf = new char[MAX_MSG_LEN];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, MAX_MSG_LEN, format, args);
+	log::Logger::instance()->addLog(buf, log::LogLevel::Fatal,
+			log::LogPos::Screen);
+	delete[] buf;
 }
 
 }  /* namespace img_view */

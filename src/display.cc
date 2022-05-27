@@ -2,9 +2,8 @@
  * img_area.cc
  *
  * Created by vamirio on 2022 May 01
- * Last Modified: 2022 May 10 18:26:16
  */
-#include "img_area.h"
+#include "display.h"
 
 #include <QGridLayout>
 #include <QImageReader>
@@ -18,19 +17,28 @@
 #include <QKeyCombination>
 
 #include "logger.h"
+#include "img_info.h"
 
 namespace img_view {
 
-ImgArea::ImgArea(QWidget *parent)
+/* TODO: add support for webp. */
+const QList<QByteArray> Display::kSupportedMineTypes = {
+	"image/bmp",
+	"image/jpeg",
+	"image/png",
+};
+
+
+Display::Display(QWidget *parent)
 {
 }
 
-ImgArea::~ImgArea()
+Display::~Display()
 {
 	delete m_mousePos;
 }
 
-void ImgArea::init()
+void Display::init()
 {
 	m_scrollArea = new QScrollArea(this);
 	m_displayArea = new QWidget(m_scrollArea);
@@ -60,10 +68,13 @@ void ImgArea::init()
 	m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
-bool ImgArea::loadImageAndShow(const QString &filename)
+/* TODO: check image format and load. */
+bool Display::loadAndShowImage(const QString &filename)
 {
-	QImageReader reader(filename);
+	logDebug("Format: %s\n", getImgFormatStr(getImgFormat(filename)));
+	QImageReader reader(filename, getImgFormatStr(getImgFormat(filename)));
 	reader.setAutoTransform(true);
+	reader.setAutoDetectImageFormat(false);
 	const QImage img = reader.read();
 
 	if (img.isNull()) {
@@ -80,17 +91,17 @@ bool ImgArea::loadImageAndShow(const QString &filename)
 	return true;
 }
 
-void ImgArea::zoomInAndShow()
+void Display::zoomInAndShow()
 {
 	scaleImageAndShow(m_scaleFactor + 0.05);
 }
 
-void ImgArea::zoomOutAndShow()
+void Display::zoomOutAndShow()
 {
 	scaleImageAndShow(m_scaleFactor - 0.05);
 }
 
-void ImgArea::scaleImageAndShow(const double &factor)
+void Display::scaleImageAndShow(const double &factor)
 {
 	double prev_factor = m_scaleFactor;
 	m_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
@@ -104,7 +115,7 @@ void ImgArea::scaleImageAndShow(const double &factor)
 			m_scaleFactor / prev_factor);
 }
 
-void ImgArea::setImage(const QImage &image)
+void Display::setImage(const QImage &image)
 {
 	if (m_image) {
 		delete m_image;
@@ -116,7 +127,7 @@ void ImgArea::setImage(const QImage &image)
 		m_image->convertToColorSpace(QColorSpace::SRgb);
 }
 
-void ImgArea::limitToWindow()
+void Display::limitToWindow()
 {
 	QSize window_size = size();
 	QSize image_size = m_image->size();
@@ -134,7 +145,7 @@ void ImgArea::limitToWindow()
 	m_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
 }
 
-void ImgArea::showImage()
+void Display::showImage()
 {
 	m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
 				m_image->size() * m_initScaleFactor * m_scaleFactor,
@@ -144,7 +155,7 @@ void ImgArea::showImage()
 	m_displayArea->resize(m_label->size());
 }
 
-void ImgArea::closeImage()
+void Display::closeImage()
 {
 	if (m_image) {
 		delete m_image;
@@ -153,23 +164,23 @@ void ImgArea::closeImage()
 	m_label->setPixmap(QPixmap());
 }
 
-void ImgArea::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
+void Display::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
 {
 	scroll_bar->setValue(static_cast<int>(scroll_bar->value() * factor
 				+ (factor - 1) * scroll_bar->pageStep() / 2));
 }
 
-void ImgArea::loadPrevImageAndShow()
+void Display::loadPrevImageAndShow()
 {
 	//logDebug("Call goToPrevImage.");
 }
 
-void ImgArea::loadNextImageAndShow()
+void Display::loadNextImageAndShow()
 {
 	//logDebug("Call goToNextImage.");
 }
 
-void ImgArea::moveImage(const double &dx, const double &dy)
+void Display::moveImage(const double &dx, const double &dy)
 {
 	QScrollBar *h = m_scrollArea->horizontalScrollBar();
 	QScrollBar *v = m_scrollArea->verticalScrollBar();
@@ -178,9 +189,14 @@ void ImgArea::moveImage(const double &dx, const double &dy)
 	v->setValue(v->value() + dy);
 }
 
+QList<QByteArray> Display::supportedMimeTypes()
+{
+	return kSupportedMineTypes;
+}
+
 /* Events. */
 /* TODO: zoom the image around the cursor. */
-void ImgArea::wheelEvent(QWheelEvent *event)
+void Display::wheelEvent(QWheelEvent *event)
 {
 	/* Most mouse type work in steps of 15 degrees, so the delta value is a
 	 * multiple of 120.
@@ -195,7 +211,7 @@ void ImgArea::wheelEvent(QWheelEvent *event)
 	event->accept();
 }
 
-void ImgArea::mousePressEvent(QMouseEvent *event)
+void Display::mousePressEvent(QMouseEvent *event)
 {
 	m_mouseHold = true;
 	*m_mousePos = event->pos();
@@ -211,7 +227,7 @@ void ImgArea::mousePressEvent(QMouseEvent *event)
 	event->accept();
 }
 
-void ImgArea::mouseMoveEvent(QMouseEvent *event)
+void Display::mouseMoveEvent(QMouseEvent *event)
 {
 	QPoint pos = event->pos();
 	double dx = pos.x() - m_mousePos->x();
@@ -221,14 +237,14 @@ void ImgArea::mouseMoveEvent(QMouseEvent *event)
 	*m_mousePos = pos;
 }
 
-void ImgArea::mouseReleaseEvent(QMouseEvent *event)
+void Display::mouseReleaseEvent(QMouseEvent *event)
 {
 	m_mouseHold = false;
 
 	event->accept();
 }
 
-bool ImgArea::eventFilter(QObject *obj, QEvent *event)
+bool Display::eventFilter(QObject *obj, QEvent *event)
 {
 	if (obj == m_scrollArea->viewport()) {
 		if (event->type() == QEvent::Wheel) {

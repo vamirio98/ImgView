@@ -2,7 +2,6 @@
  * img_area.h
  *
  * Created by vamirio on 2022 May 01
- * Last Modified: 2022 May 10 18:08:50
  */
 #ifndef IMG_AREA_H
 #define IMG_AREA_H
@@ -15,10 +14,10 @@
 
 namespace img_view {
 
-class ImgArea : public QWidget {
+class Display : public QWidget {
 public:
-	explicit ImgArea(QWidget *parent = nullptr);
-	~ImgArea();
+	explicit Display(QWidget *parent = nullptr);
+	~Display();
 
 	/**
 	 * @brief Initialize instance, MUST be called before any other member
@@ -33,7 +32,7 @@ public:
 	 *
 	 * @return True when succeeding
 	 */
-	bool loadImageAndShow(const QString &filename);
+	bool loadAndShowImage(const QString &filename);
 
 	/**
 	 * @brief Close current image and hide the display area
@@ -96,6 +95,13 @@ public:
 	 */
 	void moveImage(const double &dx, const double &dy);
 
+	/**
+	 * @brief Get the supported MIME types
+	 *
+	 * @return The list of supported MIME types
+	 */
+	static QList<QByteArray> supportedMimeTypes();
+
 private:
 	/**
 	 * @brief Set m_image as specified image
@@ -142,6 +148,9 @@ private:
 	/* Max and min scale factors. */
 	static constexpr double kMaxScaleFactor = 3.0;
 	static constexpr double kMinScaleFactor = 0.333;
+
+	/* Supported MIME types. */
+	static const QList<QByteArray> kSupportedMineTypes;
 };
 
 }  /* namespace img_view */

@@ -2,7 +2,6 @@
  * logger.h
  *
  * Created by vamirio on 2022 May 04
- * Last Modified: 2022 May 05 12:47:58
  */
 #ifndef LOGGER_H
 #define LOGGER_H
@@ -11,6 +10,9 @@
 #include <QReadWriteLock>
 #include <QString>
 #include <QFile>
+
+/* Max length of the message logged to file or screen. */
+#define MAX_MSG_LEN  8192
 
 namespace img_view {
 
@@ -31,15 +33,14 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LogLevelSet)
 enum LogPos {
 	None = 0,
 	File = 0x1,
-	Stdout = 0x2,
-	Stderr = 0x4
+	Screen = 0x2,
 };
 Q_DECLARE_FLAGS(LogPosSet, LogPos)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LogPosSet)
 
 struct Log {
 	int id;
-	LogLevel type;
+	LogLevel level;
 	qint64 timestamp;
 	QString message;
 };
@@ -57,10 +58,16 @@ public:
 	static void setLogFilter(const LogLevel &level);
 	void addLog(const QString &msg, const LogLevel &level = LogLevel::Info,
 			const LogPosSet &pos = LogPos::None);
+	void addLog(const char *const msg, const LogLevel &level = LogLevel::Info,
+			const LogPosSet &pos = LogPos::None);
+	QString convertLogToString(const Log &log);
+	QString getLogLevelStr(const LogLevel &level);
 
 private:
 	Logger();
 	~Logger();
+	void printToFile(const QString &msg);
+	void printToScreen(const QString &msg);
 
 private:
 	static Logger *m_instance;
@@ -73,16 +80,15 @@ private:
 }  /* namespace img_view::log */
 
 /* Helper functions. */
-void logDebug(const QString &msg,
-		const log::LogPosSet &pos = log::LogPos::None);
-void logInfo(const QString &msg,
-		const log::LogPosSet &pos = log::LogPos::None);
-void logWarn(const QString &msg,
-		const log::LogPosSet &pos = log::LogPos::None);
-void logError(const QString &msg,
-		const log::LogPosSet &pos = log::LogPos::None);
-void logFatal(const QString &msg,
-		const log::LogPosSet &pos = log::LogPos::None);
+void logDebug(const char *format, ...);
+void logDebugToFile(const char *format, ...);
+void logInfo(const char *format, ...);
+void logInfoToFile(const char *format, ...);
+void logWarn(const char *format, ...);
+void logWarnToFile(const char *format, ...);
+void logError(const char *format, ...);
+void logErrorToFile(const char *format, ...);
+void logFatal(const char *format, ...);
 
 }  /* namespace img_view */
 

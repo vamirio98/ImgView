@@ -2,7 +2,6 @@
  * img_view_ui.h
  *
  * Created by vamirio on 2022 Apr 25
- * Last Modified: 2022 May 03 22:51:46
  */
 #ifndef IMG_VIEW_UI_H
 #define IMG_VIEW_UI_H
@@ -18,7 +17,7 @@
 #include <QGridLayout>
 #include <QScrollArea>
 
-#include "img_area.h"
+#include "display.h"
 
 namespace img_view::ui {
 
@@ -43,11 +42,7 @@ public:
 	QToolBar *m_toolbar = nullptr;
 
 	/* Central widget. */
-	//QWidget *m_image_area = nullptr;
-	//QScrollArea *m_scroll_area = nullptr;
-	//QLabel *m_label = nullptr;
-	//QImage *m_image = nullptr;
-	ImgArea *m_imageArea = nullptr;
+	Display *m_display = nullptr;
 
 	/* Left navigation area. */
 	QDockWidget *m_navigation = nullptr;

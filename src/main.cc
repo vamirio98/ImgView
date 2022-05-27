@@ -2,7 +2,6 @@
  * main.cc
  *
  * Created by vamirio on 2022 Apr 25
- * Last Modified: 2022 May 07 16:39:09
  */
 #include <QApplication>
 #include <QCommandLineParser>
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
 
 	img_view::ImgView ImgView;
 	ImgView.init();
-	img_view::logInfo("ImgView start up", img_view::log::LogPos::File);
+	img_view::logInfoToFile("ImgView start up");
 
 	if (!cmd_parser.positionalArguments().isEmpty()
 			&& !ImgView.loadFile(cmd_parser.positionalArguments().constFirst()))

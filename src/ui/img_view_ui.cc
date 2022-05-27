@@ -2,7 +2,6 @@
  * img_view_ui.cc
  *
  * Created by vamirio on 2022 Apr 25
- * Last Modified: 2022 May 09 23:49:53
  */
 #include "ui/img_view_ui.h"
 
@@ -104,9 +103,9 @@ void ImgViewUi::retranslateHelpMenuUi()
 
 void ImgViewUi::setupCentralWidgetUi(QMainWindow *ImgView)
 {
-	m_imageArea = new ImgArea(ImgView);
-	m_imageArea->init();
-	ImgView->setCentralWidget(m_imageArea);
+	m_display = new Display(ImgView);
+	m_display->init();
+	ImgView->setCentralWidget(m_display);
 }
 
 void ImgViewUi::setupToolbarUi(QMainWindow *ImgView)

@@ -2,7 +2,6 @@
  * img_view.cc
  *
  * Created by vamirio on 2022 Apr 25
- * Last Modified: 2022 May 10 17:38:25
  */
 #include "img_view.h"
 
@@ -32,7 +31,7 @@ ImgView::~ImgView()
 void ImgView::init()
 {
 	m_ui->setupUi(this);
-	m_display = m_ui->m_imageArea;
+	m_display = m_ui->m_display;
 	setupSlots();
 	setupShortCut();
 
@@ -42,7 +41,7 @@ void ImgView::init()
 
 bool ImgView::loadFile(const QString &filename)
 {
-	return m_display->loadImageAndShow(filename);
+	return m_display->loadAndShowImage(filename);
 }
 
 void ImgView::scaleImage(const double &factor)
@@ -50,8 +49,6 @@ void ImgView::scaleImage(const double &factor)
 	m_scaleFactor *= factor;
 	m_scaleFactor = m_scaleFactor > 3.0 ? 3.0 : (m_scaleFactor < 0.333
 			? 0.333 : m_scaleFactor);
-	//m_ui->m_label->resize(m_scale_factor
-	//		* m_ui->m_label->pixmap(Qt::ReturnByValue).size());
 }
 
 void ImgView::setupSlots()
@@ -68,7 +65,7 @@ void ImgView::onFileOpen()
 	QFileDialog dialog(this, tr("Open"));
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
-		m_display->loadImageAndShow(dialog.selectedFiles().constFirst());
+		m_display->loadAndShowImage(dialog.selectedFiles().constFirst());
 		m_lastOpenPos = dialog.directory().absolutePath();
 	}
 }
@@ -105,15 +102,11 @@ void ImgView::initImgFileDialog(QFileDialog *dialog,
 	if (!m_lastOpenPos.isEmpty())
 		dialog->setDirectory(m_lastOpenPos);
 	QStringList mime_type_filters;
-	const QByteArrayList supported_mime_types =
-		accept_mode == QFileDialog::AcceptOpen
-		? QImageReader::supportedMimeTypes()
-		: QImageWriter::supportedMimeTypes();
-	for (const QByteArray &mime_type_name : supported_mime_types)
+	for (const QByteArray &mime_type_name : Display::supportedMimeTypes())
 		mime_type_filters.append(mime_type_name);
+	mime_type_filters.append("application/octet-stream");  /* All files. */
 	mime_type_filters.sort();
 	dialog->setMimeTypeFilters(mime_type_filters);
-	dialog->selectMimeTypeFilter("image/jpeg");
 	dialog->setAcceptMode(accept_mode);
 	if (accept_mode == QFileDialog::AcceptSave)
 		dialog->setDefaultSuffix("jpg");
