@@ -177,6 +177,10 @@ ImgInfo::ImgInfo(const QString &filepath)
 	initImgInfo(filepath);
 }
 
+ImgInfo::ImgInfo()
+{
+}
+
 /* TODO: check the encode. */
 void ImgInfo::initImgInfo(const QString &filepath)
 {
@@ -249,6 +253,11 @@ qint64 ImgInfo::width() const
 qint64 ImgInfo::height() const
 {
 	return m_height;
+}
+
+QSize ImgInfo::dimensions() const
+{
+	return QSize(m_width, m_height);
 }
 
 qint64 ImgInfo::pixels() const

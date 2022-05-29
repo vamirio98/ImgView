@@ -15,6 +15,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QKeyCombination>
+#include <QMovie>
 
 #include "logger.h"
 #include "img_info.h"
@@ -24,8 +25,16 @@ namespace img_view {
 /* TODO: add support for webp. */
 const QList<QByteArray> Display::kSupportedMineTypes = {
 	"image/bmp",
+	"image/gif",
 	"image/jpeg",
-	"image/png",
+	"image/png"
+};
+
+const QSet<const QByteArray> Display::kSupportedFormats = {
+	"bmp",
+	"gif",
+	"jpeg",
+	"png"
 };
 
 
@@ -36,6 +45,8 @@ Display::Display(QWidget *parent)
 Display::~Display()
 {
 	delete m_mousePos;
+	delete m_image;
+	delete m_imageInfo;
 }
 
 void Display::init()
@@ -44,7 +55,7 @@ void Display::init()
 	m_displayArea = new QWidget(m_scrollArea);
 	m_displayLayout = new QGridLayout(m_displayArea);
 	m_label = new QLabel(m_displayArea);
-	m_image = new QImage();
+	m_imageInfo = new ImgInfo();
 	m_mousePos = new QPoint();
 
 	setVisible(true);
@@ -68,28 +79,116 @@ void Display::init()
 	m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
+bool Display::isDynamicImage() const
+{
+	return m_imageInfo->format() == gif;
+}
+
 /* TODO: check image format and load. */
 bool Display::loadAndShowImage(const QString &filename)
 {
-	logDebug("Format: %s\n", getImgFormatStr(getImgFormat(filename)));
-	QImageReader reader(filename, getImgFormatStr(getImgFormat(filename)));
+	//logDebug("Format: %s\n", getImgFormatStr(getImgFormat(filename)));
+	m_imageInfo->setImage(filename);
+	const QByteArray format = getImgFormatStr(m_imageInfo->format());
+	if (kSupportedFormats.find(format) == kSupportedFormats.end()) {
+		QMessageBox::information(this, QApplication::applicationDisplayName(),
+				tr("Unsupported format: %1") .arg(format));
+		return false;
+	}
+
+	bool ret = false;
+	switch (m_imageInfo->format()) {
+	case bmp:
+	case jpeg:
+	case png:
+	case webp:
+		ret = loadAndShowStaticImage(m_imageInfo->absPath(), format);
+		break;
+	case gif:
+		ret = loadAndShowDynamicImage(m_imageInfo->absPath());
+		break;
+	default:
+		ret = false;
+		break;
+	}
+
+	return ret;
+}
+
+bool Display::loadAndShowStaticImage(const QString &filename,
+		const char *format)
+{
+	QImageReader reader(filename, format);
 	reader.setAutoTransform(true);
 	reader.setAutoDetectImageFormat(false);
-	const QImage img = reader.read();
+	QImage image = reader.read();
 
-	if (img.isNull()) {
+	if (image.isNull()) {
 		QMessageBox::information(this, QApplication::applicationDisplayName(),
 				tr("Can't load %1: %2")
 				.arg(QDir::toNativeSeparators(filename), reader.errorString()));
 		return false;
 	}
+	if (image.colorSpace().isValid())
+		image.convertToColorSpace(QColorSpace(QColorSpace::SRgb));
 
-	setImage(img);
+	logDebug("Image origin size: %d, %d\n", m_imageInfo->dimensions().width(),
+			m_imageInfo->dimensions().height());
+	if (m_image) {
+		delete m_image;
+		m_image = nullptr;
+	}
+	m_image = new QImage(image);
+
 	limitToWindow();
 	showImage();
 
 	return true;
 }
+
+bool Display::loadAndShowDynamicImage(const QString &filename)
+{
+	QMovie *movie = new QMovie(filename);
+	if (!movie->isValid()) {
+		QMessageBox::information(this, QApplication::applicationDisplayName(),
+				tr("Can't load %1: %2")
+				.arg(QDir::toNativeSeparators(filename),
+					movie->lastErrorString()));
+		return false;
+	}
+
+	m_label->setMovie(movie);
+	limitToWindow();
+	showImage();
+
+	return true;
+}
+
+bool Display::loadAndShowBmp(const QString &filename)
+{
+	return loadAndShowStaticImage(filename, "bmp");
+}
+
+bool Display::loadAndShowGif(const QString &filename)
+{
+	return loadAndShowDynamicImage(filename);
+}
+
+bool Display::loadAndShowJpeg(const QString &filename)
+{
+	return loadAndShowStaticImage(filename, "jpeg");
+}
+
+bool Display::loadAndShowPng(const QString &filename)
+{
+	return loadAndShowStaticImage(filename, "png");
+}
+
+bool Display::loadAndShowWebp(const QString &filename)
+{
+	return loadAndShowStaticImage(filename, "webp");
+}
+
 
 void Display::zoomInAndShow()
 {
@@ -115,22 +214,10 @@ void Display::scaleImageAndShow(const double &factor)
 			m_scaleFactor / prev_factor);
 }
 
-void Display::setImage(const QImage &image)
-{
-	if (m_image) {
-		delete m_image;
-		m_image = nullptr;
-	}
-
-	m_image = new QImage(image);
-	if (m_image->colorSpace().isValid())
-		m_image->convertToColorSpace(QColorSpace::SRgb);
-}
-
 void Display::limitToWindow()
 {
 	QSize window_size = size();
-	QSize image_size = m_image->size();
+	QSize image_size = m_imageInfo->dimensions();
 	m_initScaleFactor = m_scaleFactor = 1.0;
 
 	if (image_size.width() < window_size.width()
@@ -143,15 +230,27 @@ void Display::limitToWindow()
 	/* The image may be a little larger than the window if the constant is
 	 * 1.0. */
 	m_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
+	logDebug("Initial scale factor: %f", m_initScaleFactor);
 }
 
 void Display::showImage()
 {
-	m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
-				m_image->size() * m_initScaleFactor * m_scaleFactor,
-				Qt::KeepAspectRatio,
-				Qt::SmoothTransformation)));
-	m_label->adjustSize();
+	logDebug("Image origin size: %d, %d", m_imageInfo->dimensions().width(),
+			m_imageInfo->dimensions().height());
+	if (!isDynamicImage()) {
+		m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
+					m_imageInfo->dimensions()
+					* m_initScaleFactor * m_scaleFactor,
+					Qt::KeepAspectRatio,
+					Qt::SmoothTransformation)));
+	} else {
+		m_label->movie()->setScaledSize(
+					m_imageInfo->dimensions()
+					* m_initScaleFactor * m_scaleFactor);
+		m_label->movie()->start();
+	}
+	m_label->resize(m_imageInfo->dimensions()
+			* m_initScaleFactor * m_scaleFactor);
 	m_displayArea->resize(m_label->size());
 }
 
@@ -161,6 +260,10 @@ void Display::closeImage()
 		delete m_image;
 		m_image = nullptr;
 	}
+	QMovie *movie = m_label->movie();
+	if (movie)
+		delete movie;
+	m_label->setMovie(nullptr);
 	m_label->setPixmap(QPixmap());
 }
 
@@ -189,7 +292,7 @@ void Display::moveImage(const double &dx, const double &dy)
 	v->setValue(v->value() + dy);
 }
 
-QList<QByteArray> Display::supportedMimeTypes()
+const QList<QByteArray> Display::supportedMimeTypes()
 {
 	return kSupportedMineTypes;
 }

@@ -84,6 +84,11 @@ public:
 	qint64 height() const;
 
 	/**
+	 * @brief Get the dimensions of the image
+	 */
+	QSize dimensions() const;
+
+	/**
 	 * @brief Get the image size in pixels
 	 */
 	qint64 pixels() const;

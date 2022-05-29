@@ -10,7 +10,8 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QLabel>
-#include <QImage>
+
+#include "img_info.h"
 
 namespace img_view {
 
@@ -35,6 +36,70 @@ public:
 	bool loadAndShowImage(const QString &filename);
 
 	/**
+	 * @brief Load a static image and show it
+	 *
+	 * @param filename The static image file name
+	 * @paran format The static image format, e.g. "jpeg"
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowStaticImage(const QString &filename, const char *format);
+
+	/**
+	 * @brief Load a dynamic image and show it
+	 *
+	 * @param filename The dynamic image file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowDynamicImage(const QString &filename);
+
+	/**
+	 * @brief Load an bmp file and show it
+	 *
+	 * @param filename The bmp file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowBmp(const QString &filename);
+
+	/**
+	 * @brief Load an gif file and show it
+	 *
+	 * @param filename The gif file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowGif(const QString &filename);
+
+	/**
+	 * @brief Load an jpeg file and show it
+	 *
+	 * @param filename The jpeg file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowJpeg(const QString &filename);
+
+	/**
+	 * @brief Load an png file and show it
+	 *
+	 * @param filename The png file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowPng(const QString &filename);
+
+	/**
+	 * @brief Load an webp file and show it
+	 *
+	 * @param filename The png file name
+	 *
+	 * @return True when succeeding
+	 */
+	bool loadAndShowWebp(const QString &filename);
+
+	/**
 	 * @brief Close current image and hide the display area
 	 */
 	void closeImage();
@@ -48,13 +113,6 @@ public:
 	 * @brief Zoom out image 10%, then show it
 	 */
 	void zoomOutAndShow();
-
-	/**
-	 * @brief Scale the image to @factor
-	 *
-	 * @param factor The aimed scale factor
-	 */
-	void scaleImage(const double &factor);
 
 	/**
 	 * @brief Scale the image to @factor then show it
@@ -100,16 +158,9 @@ public:
 	 *
 	 * @return The list of supported MIME types
 	 */
-	static QList<QByteArray> supportedMimeTypes();
+	static const QList<QByteArray> supportedMimeTypes();
 
 private:
-	/**
-	 * @brief Set m_image as specified image
-	 *
-	 * @param image Handle to the image
-	 */
-	void setImage(const QImage &image);
-
 	/**
 	 * @brief Adjust the scroll bar position according to the image size, keep
 	 *        the display area is the same part of the image
@@ -118,6 +169,13 @@ private:
 	 * @param factor The radio of the current size and origin size
 	 */
 	void adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor);
+
+	/**
+	 * @brief Check if the current image is a dynamic image
+	 *
+	 * @return True when it is a dynamic image
+	 */
+	bool isDynamicImage() const;
 
 protected:
 	void wheelEvent(QWheelEvent *event) override;
@@ -133,6 +191,7 @@ private:
 	QLabel *m_label = nullptr;
 	QImage *m_image = nullptr;
 	QPoint *m_mousePos = nullptr;
+	ImgInfo *m_imageInfo = nullptr;
 	bool m_mouseHold = false;
 
 	/* Initial scale factor of an image, it is 1.0 in general, but will be a
@@ -151,6 +210,8 @@ private:
 
 	/* Supported MIME types. */
 	static const QList<QByteArray> kSupportedMineTypes;
+	/* Supported image format. */
+	static const QSet<const QByteArray> kSupportedFormats;
 };
 
 }  /* namespace img_view */
