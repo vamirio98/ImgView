@@ -33,7 +33,7 @@ public:
 	 *
 	 * @return True when succeeding
 	 */
-	bool loadAndShowImage(const QString &filename);
+	bool loadImage(const QString &filename);
 
 	/**
 	 * @brief Load a static image and show it
@@ -43,7 +43,7 @@ public:
 	 *
 	 * @return True when succeeding
 	 */
-	bool loadAndShowStaticImage(const QString &filename, const char *format);
+	bool loadStaticImage(const QString &filename, const char *format);
 
 	/**
 	 * @brief Load a dynamic image and show it
@@ -52,52 +52,7 @@ public:
 	 *
 	 * @return True when succeeding
 	 */
-	bool loadAndShowDynamicImage(const QString &filename);
-
-	/**
-	 * @brief Load an bmp file and show it
-	 *
-	 * @param filename The bmp file name
-	 *
-	 * @return True when succeeding
-	 */
-	bool loadAndShowBmp(const QString &filename);
-
-	/**
-	 * @brief Load an gif file and show it
-	 *
-	 * @param filename The gif file name
-	 *
-	 * @return True when succeeding
-	 */
-	bool loadAndShowGif(const QString &filename);
-
-	/**
-	 * @brief Load an jpeg file and show it
-	 *
-	 * @param filename The jpeg file name
-	 *
-	 * @return True when succeeding
-	 */
-	bool loadAndShowJpeg(const QString &filename);
-
-	/**
-	 * @brief Load an png file and show it
-	 *
-	 * @param filename The png file name
-	 *
-	 * @return True when succeeding
-	 */
-	bool loadAndShowPng(const QString &filename);
-
-	/**
-	 * @brief Load an webp file and show it
-	 *
-	 * @param filename The png file name
-	 *
-	 * @return True when succeeding
-	 */
-	bool loadAndShowWebp(const QString &filename);
+	bool loadDynamicImage(const QString &filename);
 
 	/**
 	 * @brief Close current image and hide the display area
@@ -107,29 +62,29 @@ public:
 	/**
 	 * @brief Zoom in image 10%, then show it
 	 */
-	void zoomInAndShow();
+	void zoomIn();
 
 	/**
 	 * @brief Zoom out image 10%, then show it
 	 */
-	void zoomOutAndShow();
+	void zoomOut();
 
 	/**
 	 * @brief Scale the image to @factor then show it
 	 *
 	 * @param factor The aimed scale factor
 	 */
-	void scaleImageAndShow(const double &factor);
+	void scaleImage(const double &factor);
 
 	/**
 	 * @brief Load the previous image of current directory then show it
 	 */
-	void loadPrevImageAndShow();
+	void loadPrevImage();
 
 	/**
 	 * @brief Load the next image of current directory then show it
 	 */
-	void loadNextImageAndShow();
+	void loadNextImage();
 
 	/**
 	 * @brief Limit the image to show it fully in the display area

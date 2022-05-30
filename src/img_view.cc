@@ -41,7 +41,7 @@ void ImgView::init()
 
 bool ImgView::loadFile(const QString &filename)
 {
-	return m_display->loadAndShowImage(filename);
+	return m_display->loadImage(filename);
 }
 
 void ImgView::scaleImage(const double &factor)
@@ -65,7 +65,7 @@ void ImgView::onFileOpen()
 	QFileDialog dialog(this, tr("Open"));
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
-		m_display->loadAndShowImage(dialog.selectedFiles().constFirst());
+		m_display->loadImage(dialog.selectedFiles().constFirst());
 		m_lastOpenPos = dialog.directory().absolutePath();
 	}
 }
@@ -122,12 +122,12 @@ void ImgView::setupShortCut()
 
 void ImgView::onCtrlPlus()
 {
-	m_display->zoomInAndShow();
+	m_display->zoomIn();
 }
 
 void ImgView::onCtrlMinus()
 {
-	m_display->zoomOutAndShow();
+	m_display->zoomOut();
 }
 
 }  /* namespace img_view */

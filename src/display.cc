@@ -85,9 +85,9 @@ bool Display::isDynamicImage() const
 }
 
 /* TODO: check image format and load. */
-bool Display::loadAndShowImage(const QString &filename)
+bool Display::loadImage(const QString &filename)
 {
-	//logDebug("Format: %s\n", getImgFormatStr(getImgFormat(filename)));
+	logDebug("Format: %s\n", getImgFormatStr(getImgFormat(filename)));
 	m_imageInfo->setImage(filename);
 	const QByteArray format = getImgFormatStr(m_imageInfo->format());
 	if (kSupportedFormats.find(format) == kSupportedFormats.end()) {
@@ -102,10 +102,10 @@ bool Display::loadAndShowImage(const QString &filename)
 	case jpeg:
 	case png:
 	case webp:
-		ret = loadAndShowStaticImage(m_imageInfo->absPath(), format);
+		ret = loadStaticImage(m_imageInfo->absPath(), format);
 		break;
 	case gif:
-		ret = loadAndShowDynamicImage(m_imageInfo->absPath());
+		ret = loadDynamicImage(m_imageInfo->absPath());
 		break;
 	default:
 		ret = false;
@@ -115,7 +115,7 @@ bool Display::loadAndShowImage(const QString &filename)
 	return ret;
 }
 
-bool Display::loadAndShowStaticImage(const QString &filename,
+bool Display::loadStaticImage(const QString &filename,
 		const char *format)
 {
 	QImageReader reader(filename, format);
@@ -146,7 +146,7 @@ bool Display::loadAndShowStaticImage(const QString &filename,
 	return true;
 }
 
-bool Display::loadAndShowDynamicImage(const QString &filename)
+bool Display::loadDynamicImage(const QString &filename)
 {
 	QMovie *movie = new QMovie(filename);
 	if (!movie->isValid()) {
@@ -164,43 +164,17 @@ bool Display::loadAndShowDynamicImage(const QString &filename)
 	return true;
 }
 
-bool Display::loadAndShowBmp(const QString &filename)
+void Display::zoomIn()
 {
-	return loadAndShowStaticImage(filename, "bmp");
+	scaleImage(m_scaleFactor + 0.05);
 }
 
-bool Display::loadAndShowGif(const QString &filename)
+void Display::zoomOut()
 {
-	return loadAndShowDynamicImage(filename);
+	scaleImage(m_scaleFactor - 0.05);
 }
 
-bool Display::loadAndShowJpeg(const QString &filename)
-{
-	return loadAndShowStaticImage(filename, "jpeg");
-}
-
-bool Display::loadAndShowPng(const QString &filename)
-{
-	return loadAndShowStaticImage(filename, "png");
-}
-
-bool Display::loadAndShowWebp(const QString &filename)
-{
-	return loadAndShowStaticImage(filename, "webp");
-}
-
-
-void Display::zoomInAndShow()
-{
-	scaleImageAndShow(m_scaleFactor + 0.05);
-}
-
-void Display::zoomOutAndShow()
-{
-	scaleImageAndShow(m_scaleFactor - 0.05);
-}
-
-void Display::scaleImageAndShow(const double &factor)
+void Display::scaleImage(const double &factor)
 {
 	double prev_factor = m_scaleFactor;
 	m_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
@@ -235,8 +209,6 @@ void Display::limitToWindow()
 
 void Display::showImage()
 {
-	logDebug("Image origin size: %d, %d", m_imageInfo->dimensions().width(),
-			m_imageInfo->dimensions().height());
 	if (!isDynamicImage()) {
 		m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
 					m_imageInfo->dimensions()
@@ -273,14 +245,12 @@ void Display::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
 				+ (factor - 1) * scroll_bar->pageStep() / 2));
 }
 
-void Display::loadPrevImageAndShow()
+void Display::loadPrevImage()
 {
-	//logDebug("Call goToPrevImage.");
 }
 
-void Display::loadNextImageAndShow()
+void Display::loadNextImage()
 {
-	//logDebug("Call goToNextImage.");
 }
 
 void Display::moveImage(const double &dx, const double &dy)
@@ -306,9 +276,9 @@ void Display::wheelEvent(QWheelEvent *event)
 	 */
 	int step = event->angleDelta().y() / 120;
 	if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
-		step > 0 ? zoomInAndShow() : zoomOutAndShow();
+		step > 0 ? zoomIn() : zoomOut();
 	} else {
-		step > 0 ? loadPrevImageAndShow() : loadNextImageAndShow();
+		step > 0 ? loadPrevImage() : loadNextImage();
 	}
 
 	event->accept();
@@ -321,7 +291,7 @@ void Display::mousePressEvent(QMouseEvent *event)
 
 	switch (event->button()) {
 	case Qt::MiddleButton:
-		scaleImageAndShow(1.0);
+		scaleImage(1.0);
 		break;
 	default:
 		break;
