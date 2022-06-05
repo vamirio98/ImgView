@@ -1,2 +1,2 @@
 # ImgView
-A simple image viewer.
+A simple image viewer based on Qt.
