@@ -16,6 +16,7 @@
 #include <QKeyEvent>
 #include <QKeyCombination>
 #include <QMovie>
+#include <QPainter>
 
 #include "logger.h"
 #include "img_info.h"
@@ -216,11 +217,16 @@ void Display::limitToWindow()
 void Display::showImage()
 {
 	if (!isDynamicImage()) {
-		m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
+		/* TODO: improve performance. */
+		QPixmap pixmap = QPixmap::fromImage(m_image->scaled(
 					m_book->currPageInfo().dimensions()
 					* m_initScaleFactor * m_scaleFactor,
 					Qt::KeepAspectRatio,
-					Qt::SmoothTransformation)));
+					Qt::SmoothTransformation
+					));
+		QPainter painter(&pixmap);
+		painter.setRenderHint(QPainter::Antialiasing, true);
+		m_label->setPixmap(pixmap);
 	} else {
 		m_label->movie()->setScaledSize(
 					m_book->currPageInfo().dimensions()
