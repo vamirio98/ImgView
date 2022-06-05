@@ -12,6 +12,7 @@
 #include <QLabel>
 
 #include "img_info.h"
+#include "book.h"
 
 namespace img_view {
 
@@ -27,13 +28,18 @@ public:
 	void init();
 
 	/**
-	 * @brief Load an image and show it
+	 * @brief Set the current book(directory) to the specified book
 	 *
-	 * @param filename The image file name
+	 * The Display does NOT take ownership of the Book
+	 */
+	void setBook(Book *const book);
+
+	/**
+	 * @brief Load current page(iamge) and show it
 	 *
 	 * @return True when succeeding
 	 */
-	bool loadImage(const QString &filename);
+	bool loadCurrPage();
 
 	/**
 	 * @brief Load a static image and show it
@@ -113,7 +119,7 @@ public:
 	 *
 	 * @return The list of supported MIME types
 	 */
-	static const QList<QByteArray> supportedMimeTypes();
+	static const QList<QByteArray> &supportedMimeTypes();
 
 private:
 	/**
@@ -146,7 +152,7 @@ private:
 	QLabel *m_label = nullptr;
 	QImage *m_image = nullptr;
 	QPoint *m_mousePos = nullptr;
-	ImgInfo *m_imageInfo = nullptr;
+	Book *m_book = nullptr;
 	bool m_mouseHold = false;
 
 	/* Initial scale factor of an image, it is 1.0 in general, but will be a

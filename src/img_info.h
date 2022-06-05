@@ -22,25 +22,89 @@ enum ImgFormat {
 	webp
 };
 
+/**
+ * @brief Get the image format of the @filepath
+ *
+ * @return The image format
+ */
 ImgFormat getImgFormat(const QString &filepath);
+
+/**
+ * @brief Get the image format of the data stream @data
+ *
+ * @return The image format
+ */
 ImgFormat getImgFormat(QDataStream &data);
-const char *getImgFormatStr(const ImgFormat &format);
+
+/**
+ * @brief Covert the ImgFormat to string
+ *
+ * @return The pointer to the format string, do NOT modify or delete it, make a
+ *         deep copy of it if you want to modify it
+ */
+const char *imgFormatToStr(const ImgFormat &format);
+
+/**
+ * @brief Check if the file @filepath is a bmp file
+ */
 bool isBmp(const QString &filepath);
+
+/**
+ * @brief Check if the file @filepath is a bmp file
+ */
 bool isBmp(QDataStream &data);
+
+/**
+ * @brief Check if the file @filepath is a gif file
+ */
 bool isGif(const QString &filepath);
+
+/**
+ * @brief Check if the file @filepath is a gif file
+ */
 bool isGif(QDataStream &data);
+
+/**
+ * @brief Check if the file @filepath is a jpeg file
+ */
 bool isJpeg(const QString &filepath);
+
+/**
+ * @brief Check if the file @filepath is a jpeg file
+ */
 bool isJpeg(QDataStream &data);
+
+/**
+ * @brief Check if the file @filepath is a png file
+ */
 bool isPng(const QString &filepath);
+
+/**
+ * @brief Check if the file @filepath is a png file
+ */
 bool isPng(QDataStream &data);
+
+/**
+ * @brief Check if the file @filepath is a webp file
+ */
 bool isWebp(const QString &filepath);
+
+/**
+ * @brief Check if the file @filepath is a webp file
+ */
 bool isWebp(QDataStream &data);
 
 class ImgInfo {
+	friend bool operator==(const ImgInfo &lhs, const ImgInfo &rhs);
+	friend bool operator!=(const ImgInfo &lhs, const ImgInfo &rhs);
 
 public:
-	ImgInfo(const QString &filepath);
 	ImgInfo();
+	ImgInfo(const QString &filepath);
+	ImgInfo(const ImgInfo &rhs);
+	ImgInfo operator=(const ImgInfo &rhs);
+	ImgInfo(ImgInfo &&rhs) noexcept;
+	ImgInfo operator=(ImgInfo &&rhs) noexcept;
 	~ImgInfo();
 
 	/**
@@ -121,6 +185,9 @@ private:
 	qint64 m_height = 0;
 	int m_depth = 0;
 };
+
+bool operator==(const ImgInfo &lhs, const ImgInfo &rhs);
+bool operator!=(const ImgInfo &lhs, const ImgInfo &rhs);
 
 }  /* namespace img_view */
 

@@ -19,6 +19,7 @@
 
 #include "logger.h"
 #include "img_info.h"
+#include "book.h"
 
 namespace img_view {
 
@@ -44,9 +45,9 @@ Display::Display(QWidget *parent)
 
 Display::~Display()
 {
+	/* Do NOT delete m_book. */
 	delete m_mousePos;
 	delete m_image;
-	delete m_imageInfo;
 }
 
 void Display::init()
@@ -55,7 +56,6 @@ void Display::init()
 	m_displayArea = new QWidget(m_scrollArea);
 	m_displayLayout = new QGridLayout(m_displayArea);
 	m_label = new QLabel(m_displayArea);
-	m_imageInfo = new ImgInfo();
 	m_mousePos = new QPoint();
 
 	setVisible(true);
@@ -79,38 +79,44 @@ void Display::init()
 	m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
-bool Display::isDynamicImage() const
+void Display::setBook(Book *const book)
 {
-	return m_imageInfo->format() == gif;
+	m_book = book;
 }
 
-/* TODO: check image format and load. */
-bool Display::loadImage(const QString &filename)
+bool Display::isDynamicImage() const
 {
-	logDebug("Format: %s\n", getImgFormatStr(getImgFormat(filename)));
-	m_imageInfo->setImage(filename);
-	const QByteArray format = getImgFormatStr(m_imageInfo->format());
+	return m_book->currPageInfo().format() == gif;
+}
+
+bool Display::loadCurrPage()
+{
+	D(("Start loading page %s...\n",
+				m_book->currPageInfo().filename().toUtf8().constData()));
+	const QByteArray format = imgFormatToStr(m_book->currPageInfo().format());
 	if (kSupportedFormats.find(format) == kSupportedFormats.end()) {
 		QMessageBox::information(this, QApplication::applicationDisplayName(),
-				tr("Unsupported format: %1") .arg(format));
+				tr("Can't open image %1: unsupported format %2")
+				.arg(m_book->currPageInfo().filename(), format));
 		return false;
 	}
 
 	bool ret = false;
-	switch (m_imageInfo->format()) {
+	switch (m_book->currPageInfo().format()) {
 	case bmp:
 	case jpeg:
 	case png:
 	case webp:
-		ret = loadStaticImage(m_imageInfo->absPath(), format);
+		ret = loadStaticImage(m_book->currPageInfo().absPath(), format);
 		break;
 	case gif:
-		ret = loadDynamicImage(m_imageInfo->absPath());
+		ret = loadDynamicImage(m_book->currPageInfo().absPath());
 		break;
 	default:
 		ret = false;
 		break;
 	}
+	D(("Loading %s.\n", (ret ? "succeeded" : "failed")));
 
 	return ret;
 }
@@ -132,8 +138,6 @@ bool Display::loadStaticImage(const QString &filename,
 	if (image.colorSpace().isValid())
 		image.convertToColorSpace(QColorSpace(QColorSpace::SRgb));
 
-	logDebug("Image origin size: %d, %d\n", m_imageInfo->dimensions().width(),
-			m_imageInfo->dimensions().height());
 	if (m_image) {
 		delete m_image;
 		m_image = nullptr;
@@ -191,7 +195,7 @@ void Display::scaleImage(const double &factor)
 void Display::limitToWindow()
 {
 	QSize window_size = size();
-	QSize image_size = m_imageInfo->dimensions();
+	QSize image_size = m_book->currPageInfo().dimensions();
 	m_initScaleFactor = m_scaleFactor = 1.0;
 
 	if (image_size.width() < window_size.width()
@@ -204,6 +208,8 @@ void Display::limitToWindow()
 	/* The image may be a little larger than the window if the constant is
 	 * 1.0. */
 	m_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
+	logDebug("Window size: %d, %d", window_size.width(), window_size.height());
+	logDebug("Image size: %d, %d", image_size.width(), image_size.height());
 	logDebug("Initial scale factor: %f", m_initScaleFactor);
 }
 
@@ -211,17 +217,17 @@ void Display::showImage()
 {
 	if (!isDynamicImage()) {
 		m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
-					m_imageInfo->dimensions()
+					m_book->currPageInfo().dimensions()
 					* m_initScaleFactor * m_scaleFactor,
 					Qt::KeepAspectRatio,
 					Qt::SmoothTransformation)));
 	} else {
 		m_label->movie()->setScaledSize(
-					m_imageInfo->dimensions()
+					m_book->currPageInfo().dimensions()
 					* m_initScaleFactor * m_scaleFactor);
 		m_label->movie()->start();
 	}
-	m_label->resize(m_imageInfo->dimensions()
+	m_label->resize(m_book->currPageInfo().dimensions()
 			* m_initScaleFactor * m_scaleFactor);
 	m_displayArea->resize(m_label->size());
 }
@@ -247,10 +253,18 @@ void Display::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
 
 void Display::loadPrevImage()
 {
+	if (m_book->noPage())
+		return;
+	m_book->toPrevPage();
+	loadCurrPage();
 }
 
 void Display::loadNextImage()
 {
+	if (m_book->noPage())
+		return;
+	m_book->toNextPage();
+	loadCurrPage();
 }
 
 void Display::moveImage(const double &dx, const double &dy)
@@ -262,7 +276,7 @@ void Display::moveImage(const double &dx, const double &dy)
 	v->setValue(v->value() + dy);
 }
 
-const QList<QByteArray> Display::supportedMimeTypes()
+const QList<QByteArray> &Display::supportedMimeTypes()
 {
 	return kSupportedMineTypes;
 }

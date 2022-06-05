@@ -14,9 +14,16 @@
 /* Max length of the message logged to file or screen. */
 #define MAX_MSG_LEN  8192
 
-namespace img_view {
+#define D(s) \
+{ \
+	if (img_view::Logger::logFilter() | img_view::LogLevel::Debug) { \
+		printf("%-12s +%-4u %-20s : ", __FILE__, __LINE__, __FUNCTION__); \
+		printf s; \
+		fflush(stdout); \
+   	} \
+}
 
-namespace log {
+namespace img_view {
 
 enum LogLevel {
 	All = -1,
@@ -51,33 +58,86 @@ class Logger : public QObject {
 	Q_OBJECT
 	Q_DISABLE_COPY_MOVE(Logger)
 
+friend void logDebug(const char *format, ...);
+friend void logDebugToFile(const char *format, ...);
+friend void logInfo(const char *format, ...);
+friend void logInfoToFile(const char *format, ...);
+friend void logWarn(const char *format, ...);
+friend void logWarnToFile(const char *format, ...);
+friend void logError(const char *format, ...);
+friend void logErrorToFile(const char *format, ...);
+friend void logFatal(const char *format, ...);
+
 public:
+	/**
+	 * @brief Initialize the Logger instance
+	 */
 	static void initInstance();
+
+	/**
+	 * @brief Free the Logger instance
+	 */
 	static void freeInstance();
+
+	/**
+	 * @brief Get the Logger instance
+	 */
 	static Logger *instance();
+
+	/**
+	 * @brief Set the log filter
+	 */
 	static void setLogFilter(const LogLevel &level);
+
+	/**
+	 * @brief Get the log filter
+	 */
+	static LogLevelSet logFilter();
+
+	/**
+	 * @brief Add a @level level log @msg to position @pos
+	 */
 	void addLog(const QString &msg, const LogLevel &level = LogLevel::Info,
 			const LogPosSet &pos = LogPos::None);
+
+	/**
+	 * @brief Add a @level level log @msg to position @pos
+	 */
 	void addLog(const char *const msg, const LogLevel &level = LogLevel::Info,
 			const LogPosSet &pos = LogPos::None);
-	QString convertLogToString(const Log &log);
-	QString getLogLevelStr(const LogLevel &level);
+
+	/**
+	 * @brief Convert the Log @log to string, format: time - level - message
+	 */
+	QString logToStr(const Log &log);
+
+	/**
+	 * @brief Convert the LogLevel @level to string
+	 */
+	QString logLevelToStr(const LogLevel &level);
 
 private:
 	Logger();
 	~Logger();
+
+	/**
+	 * @brief Print the message @msg to file
+	 */
 	void printToFile(const QString &msg);
+
+	/**
+	 * @brief Print the message @msg to screen(stdout)
+	 */
 	void printToScreen(const QString &msg);
 
 private:
-	static Logger *m_instance;
-	static QFile m_logFile;
-	static LogLevelSet m_logFilter;
-	mutable QReadWriteLock m_lock;
-	int m_id = 0;
+	static Logger *m_instance;       /* The logger instance. */
+	static char *m_msgBuf;           /* For helper function. */
+	static QFile m_logFile;          /* The log file. */
+	static LogLevelSet m_logFilter;  /* The log filter. */
+	mutable QReadWriteLock m_lock;   /* To avoid read and write races. */
+	int m_id = 0;                    /* The log ID. */
 };
-
-}  /* namespace img_view::log */
 
 /* Helper functions. */
 void logDebug(const char *format, ...);

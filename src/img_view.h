@@ -10,6 +10,7 @@
 #include <QFileDialog>
 
 #include "display.h"
+#include "book.h"
 
 namespace img_view {
 
@@ -38,7 +39,6 @@ private slots:
 private:
 	void setupSlots();
 	void setupShortCut();
-	void scaleImage(const double &factor);
 
 	static void initImgFileDialog(QFileDialog *dialog,
 			const QFileDialog::AcceptMode accept_mode);
@@ -47,8 +47,7 @@ private:
 	static QString m_lastOpenPos;
 	ui::ImgViewUi *m_ui = nullptr;
 	Display *m_display = nullptr;
-
-	double m_scaleFactor = 1.0;
+	Book *m_book = nullptr;
 };
 
 }  /* namespace img_view */

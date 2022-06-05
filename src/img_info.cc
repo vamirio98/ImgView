@@ -10,6 +10,8 @@
 #include <QVector>
 #include <QMap>
 
+#include "logger.h"
+
 namespace img_view {
 
 /* kFormat and kCheckFormat hould have the same order. */
@@ -29,6 +31,12 @@ const QMap<ImgFormat, const char *> kFormatStr {
 	{ webp, "webp" }
 };
 
+/**
+ * @brief Compare @len bytes raw data between @data that offsets @offset bytes
+ *        from the beginning and @buf
+ *
+ * @return True when they are same
+ */
 bool compare(QDataStream &data, const qint64 &offset,
 		const qint64 &len, const char *const buf);
 
@@ -65,7 +73,7 @@ ImgFormat getImgFormat(QDataStream &data)
 	return unknown;
 }
 
-const char *getImgFormatStr(const ImgFormat &format)
+const char *imgFormatToStr(const ImgFormat &format)
 {
 	return kFormatStr[format];
 }
@@ -172,13 +180,13 @@ bool isWebp(QDataStream &data)
 	return ret;
 }
 
+ImgInfo::ImgInfo()
+{
+}
+
 ImgInfo::ImgInfo(const QString &filepath)
 {
 	initImgInfo(filepath);
-}
-
-ImgInfo::ImgInfo()
-{
 }
 
 /* TODO: check the encode. */
@@ -200,15 +208,78 @@ void ImgInfo::initImgInfo(const QString &filepath)
 
 	m_format = getImgFormat(filepath);
 
-	QImage image(filepath, getImgFormatStr(m_format));
+	QImage image(filepath, imgFormatToStr(m_format));
 	m_width = image.width();
 	m_height = image.height();
 	m_depth = image.depth();
 }
 
+ImgInfo::ImgInfo(const ImgInfo &rhs) : m_size(rhs.m_size),
+	m_lastModified(rhs.m_lastModified), m_format(rhs.m_format),
+	m_width(rhs.m_width), m_height(rhs.m_height), m_depth(rhs.m_depth)
+{
+	m_path = new char[strlen(rhs.m_path) + 1];
+	strcpy(m_path, rhs.m_path);
+	m_filename = m_path + strlen(m_path) - strlen(rhs.m_filename);
+	m_extension = m_path + strlen(m_path) - strlen(rhs.m_extension);
+}
+
+ImgInfo ImgInfo::operator=(const ImgInfo &rhs)
+{
+	if (this == &rhs)
+		return *this;
+
+	char *newdata = new char[strlen(rhs.m_path) + 1];
+	if (m_path) {
+		delete[] m_path;
+		m_path = m_filename = m_extension = nullptr;
+	}
+	strcpy(m_path, rhs.m_path);
+	m_filename = m_path + strlen(m_path) - strlen(rhs.m_filename);
+	m_extension = m_path + strlen(m_path) - strlen(rhs.m_extension);
+	m_size = rhs.m_size;
+	m_lastModified = rhs.m_lastModified;
+	m_format = rhs.m_format;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_depth = rhs.m_depth;
+
+	return *this;
+}
+
+ImgInfo::ImgInfo(ImgInfo &&rhs) noexcept : m_path(rhs.m_path),
+	m_filename(rhs.m_filename), m_extension(rhs.m_extension),
+	m_size(rhs.m_size), m_lastModified(rhs.m_lastModified),
+	m_format(rhs.m_format), m_width(rhs.m_width), m_height(rhs.m_height),
+	m_depth(rhs.m_depth)
+{
+	rhs.m_path = rhs.m_filename = rhs.m_extension = nullptr;
+}
+
+ImgInfo ImgInfo::operator=(ImgInfo &&rhs) noexcept
+{
+	if (this == &rhs)
+		return *this;
+
+	m_path = rhs.m_path;
+	m_filename = rhs.m_filename;
+	m_extension = rhs.m_extension;
+	m_size = rhs.m_size;
+	m_lastModified = rhs.m_lastModified;
+	m_format = rhs.m_format;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_depth = rhs.m_depth;
+
+	rhs.m_path = rhs.m_filename = rhs.m_extension = nullptr;
+
+	return *this;
+}
+
 ImgInfo::~ImgInfo()
 {
-	delete[] m_path;
+	if (m_path)
+		delete[] m_path;
 }
 
 void ImgInfo::setImage(const QString &filepath)
@@ -273,6 +344,16 @@ qint64 ImgInfo::lastModified() const
 int ImgInfo::depth() const
 {
 	return m_depth;
+}
+
+bool operator==(const ImgInfo &lhs, const ImgInfo &rhs)
+{
+	return strcmp(lhs.m_path, rhs.m_path) == 0;
+}
+
+bool operator!=(const ImgInfo &lhs, const ImgInfo &rhs)
+{
+	return !(lhs == rhs);
 }
 
 }  /* namespace img_view */

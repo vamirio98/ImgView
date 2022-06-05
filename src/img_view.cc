@@ -26,29 +26,32 @@ ImgView::ImgView(QWidget *parent) : QMainWindow(parent), m_ui(new ui::ImgViewUi)
 
 ImgView::~ImgView()
 {
+	delete m_book;
 }
 
 void ImgView::init()
 {
 	m_ui->setupUi(this);
+	m_book = new Book();
 	m_display = m_ui->m_display;
+	m_display->setBook(m_book);
 	setupSlots();
 	setupShortCut();
-
-	log::Logger::initInstance();
-	log::Logger::setLogFilter(log::LogLevel::Debug);
 }
 
 bool ImgView::loadFile(const QString &filename)
 {
-	return m_display->loadImage(filename);
-}
-
-void ImgView::scaleImage(const double &factor)
-{
-	m_scaleFactor *= factor;
-	m_scaleFactor = m_scaleFactor > 3.0 ? 3.0 : (m_scaleFactor < 0.333
-			? 0.333 : m_scaleFactor);
+	D(("Loading file %s.\n", filename.toUtf8().constData()));
+	QFileInfo info(filename);
+	if (!info.exists())
+		return false;
+	if (info.isDir()) {
+		m_book->setBook(info.canonicalFilePath());
+	} else {
+		m_book->setBook(info.canonicalPath());
+		m_book->setCurrPage(info.canonicalFilePath());
+	}
+	return !m_book->noPage() && m_display->loadCurrPage();
 }
 
 void ImgView::setupSlots()
@@ -65,8 +68,10 @@ void ImgView::onFileOpen()
 	QFileDialog dialog(this, tr("Open"));
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
-		m_display->loadImage(dialog.selectedFiles().constFirst());
 		m_lastOpenPos = dialog.directory().absolutePath();
+		m_book->setBook(m_lastOpenPos);
+		m_book->setCurrPage(dialog.selectedFiles().constFirst());
+		m_display->loadCurrPage();
 	}
 }
 

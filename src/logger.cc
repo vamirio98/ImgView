@@ -16,9 +16,8 @@
 
 namespace img_view {
 
-namespace log {
-
 Logger *Logger::m_instance = nullptr;
+char *Logger::m_msgBuf = nullptr;
 QFile Logger::m_logFile = QFile();
 LogLevelSet Logger::m_logFilter = Off;
 
@@ -42,6 +41,7 @@ void Logger::initInstance()
 		return;
 
 	m_instance = new Logger();
+	m_msgBuf = new char[MAX_MSG_LEN];
 
 	QString log_filename = QApplication::applicationDirPath() + "/log.txt";
 	m_logFile.setFileName(log_filename);
@@ -54,7 +54,9 @@ void Logger::freeInstance()
 {
 	if (m_instance) {
 		delete m_instance;
+		delete[] m_msgBuf;
 		m_instance = nullptr;
+		m_msgBuf = nullptr;
 	}
 }
 
@@ -69,6 +71,11 @@ void Logger::setLogFilter(const LogLevel &level)
 	}
 }
 
+LogLevelSet Logger::logFilter()
+{
+	return m_logFilter;
+}
+
 void Logger::addLog(const char *const msg, const LogLevel &level,
 		const LogPosSet &pos)
 {
@@ -78,7 +85,7 @@ void Logger::addLog(const char *const msg, const LogLevel &level,
 	QWriteLocker locker(&m_lock);
 
 	const Log log = { m_id++, level, QDateTime::currentMSecsSinceEpoch(), msg };
-	QString log_msg = convertLogToString(log);
+	QString log_msg = logToStr(log);
 	if (pos & LogPos::File)
 		printToFile(log_msg);
 	if (pos & LogPos::Screen)
@@ -93,17 +100,17 @@ void Logger::addLog(const QString &msg, const LogLevel &level,
 	addLog(msg.toUtf8().constData(), level, pos);
 }
 
-QString Logger::convertLogToString(const Log &log)
+QString Logger::logToStr(const Log &log)
 {
 	return QDateTime::fromMSecsSinceEpoch(log.timestamp)
 		.toString("yyyy/MM/dd hh:mm:ss.zzz")
 		+ " - "
-		+ getLogLevelStr(log.level)
+		+ logLevelToStr(log.level)
 		+ " - "
 		+ log.message;
 }
 
-QString Logger::getLogLevelStr(const LogLevel &level)
+QString Logger::logLevelToStr(const LogLevel &level)
 {
 	switch (level) {
 	case LogLevel::Debug :
@@ -136,105 +143,85 @@ void Logger::printToScreen(const QString &msg)
 	fflush(stdout);
 }
 
-}  /* namespace log */
-
 void logDebug(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Debug,
-			log::LogPos::Screen);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Debug,
+			LogPos::Screen);
 }
 
 void logDebugToFile(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Debug,
-			log::LogPos::Screen | log::LogPos::File);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Debug,
+			LogPos::Screen | LogPos::File);
 }
 
 void logInfo(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Info,
-			log::LogPos::Screen);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Info,
+			LogPos::Screen);
 }
 
 void logInfoToFile(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Info,
-			log::LogPos::Screen | log::LogPos::File);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Info,
+			LogPos::Screen | LogPos::File);
 }
 
 void logWarn(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Warn,
-			log::LogPos::Screen);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Warn,
+			LogPos::Screen);
 }
 
 void logWarnToFile(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Warn,
-			log::LogPos::Screen | log::LogPos::File);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Warn,
+			LogPos::Screen | LogPos::File);
 }
 
 void logError(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Error,
-			log::LogPos::Screen);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Error,
+			LogPos::Screen);
 }
 
 void logErrorToFile(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Error,
-			log::LogPos::Screen | log::LogPos::File);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Error,
+			LogPos::Screen | LogPos::File);
 }
 
 void logFatal(const char *format, ...)
 {
-	char *buf = new char[MAX_MSG_LEN];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buf, MAX_MSG_LEN, format, args);
-	log::Logger::instance()->addLog(buf, log::LogLevel::Fatal,
-			log::LogPos::Screen);
-	delete[] buf;
+	vsnprintf(Logger::m_msgBuf, MAX_MSG_LEN, format, args);
+	Logger::instance()->addLog(Logger::m_msgBuf, LogLevel::Fatal,
+			LogPos::Screen);
 }
 
 }  /* namespace img_view */
