@@ -127,6 +127,8 @@ void ImgViewUi::setupNavigationUi(QMainWindow *ImgView)
 	m_navigation->setAllowedAreas(Qt::LeftDockWidgetArea);
 	m_navigation->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	m_navigation->setStyleSheet("QDockWidget { background: #E0E0E0 }");
+	/* TODO: adjust the ui. */
+	m_navigation->setVisible(false);
 	ImgView->addDockWidget(Qt::LeftDockWidgetArea, m_navigation);
 
 	QAction *m_navi_book = new QAction(ImgView);
@@ -139,11 +141,14 @@ void ImgViewUi::setupNavigationUi(QMainWindow *ImgView)
 	QAction *m_navi_history = new QAction(ImgView);
 }
 
+/* TODO: adjust the ui. */
 void ImgViewUi::setupInfoUi(QMainWindow *ImgView)
 {
 	m_info = new QDockWidget(ImgView);
 	m_info->setAllowedAreas(Qt::RightDockWidgetArea);
 	m_info->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	/* TODO: adjust the ui. */
+	m_info->setVisible(false);
 	ImgView->addDockWidget(Qt::RightDockWidgetArea, m_info);
 }
 
