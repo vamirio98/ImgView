@@ -26,15 +26,13 @@ ImgView::ImgView(QWidget *parent) : QMainWindow(parent), m_ui(new ui::ImgViewUi)
 
 ImgView::~ImgView()
 {
-	delete m_book;
 }
 
 void ImgView::init()
 {
 	m_ui->setupUi(this);
-	m_book = new Book();
 	m_display = m_ui->m_display;
-	m_display->setBook(m_book);
+	m_display->setBook(&m_book);
 	setupSlots();
 	setupShortCut();
 }
@@ -46,12 +44,12 @@ bool ImgView::loadFile(const QString &filename)
 	if (!info.exists())
 		return false;
 	if (info.isDir()) {
-		m_book->setBook(info.canonicalFilePath());
+		m_book.setBook(info.canonicalFilePath());
 	} else {
-		m_book->setBook(info.canonicalPath());
-		m_book->setCurrPage(info.canonicalFilePath());
+		m_book.setBook(info.canonicalPath());
+		m_book.setCurrPage(info.canonicalFilePath());
 	}
-	return !m_book->noPage() && m_display->loadCurrPage();
+	return !m_book.noPage() && m_display->loadCurrPage();
 }
 
 void ImgView::setupSlots()
@@ -69,9 +67,12 @@ void ImgView::onFileOpen()
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
 		m_lastOpenPos = dialog.directory().absolutePath();
-		m_book->setBook(m_lastOpenPos);
-		m_book->setCurrPage(dialog.selectedFiles().constFirst());
+		m_book.setBook(m_lastOpenPos);
+		D(("Book: %ld\n", (long)&m_book));
+		m_book.setCurrPage(dialog.selectedFiles().constFirst());
+		D(("Starting loadCurrPage().\n"));
 		m_display->loadCurrPage();
+		D(("Finished loadCurrPage().\n"));
 	}
 }
 
@@ -127,12 +128,12 @@ void ImgView::setupShortCut()
 
 void ImgView::onCtrlPlus()
 {
-	m_display->zoomIn();
+	m_display->zoomIn(0.01);
 }
 
 void ImgView::onCtrlMinus()
 {
-	m_display->zoomOut();
+	m_display->zoomOut(0.01);
 }
 
 }  /* namespace img_view */

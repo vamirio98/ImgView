@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QLabel>
+#include <opencv2/opencv.hpp>
 
 #include "img_info.h"
 #include "book.h"
@@ -45,11 +46,10 @@ public:
 	 * @brief Load a static image and show it
 	 *
 	 * @param filename The static image file name
-	 * @paran format The static image format, e.g. "jpeg"
 	 *
 	 * @return True when succeeding
 	 */
-	bool loadStaticImage(const QString &filename, const char *format);
+	bool loadStaticImage(const QString &filename);
 
 	/**
 	 * @brief Load a dynamic image and show it
@@ -66,14 +66,18 @@ public:
 	void closeImage();
 
 	/**
-	 * @brief Zoom in image 10%, then show it
+	 * @brief Zoom in image @step, then show it
+	 *
+	 * @param step Zoom in step, must be non-negative
 	 */
-	void zoomIn();
+	void zoomIn(const double &step);
 
 	/**
-	 * @brief Zoom out image 10%, then show it
+	 * @brief Zoom out image @step, then show it
+	 *
+	 * @param step Zoom out step, must be non-negative
 	 */
-	void zoomOut();
+	void zoomOut(const double &step);
 
 	/**
 	 * @brief Scale the image to @factor then show it
@@ -132,6 +136,13 @@ private:
 	void adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor);
 
 	/**
+	 * @brief Check if the current image is a static image
+	 *
+	 * @return True when it is a static image
+	 */
+	bool isStaticImage() const;
+
+	/**
 	 * @brief Check if the current image is a dynamic image
 	 *
 	 * @return True when it is a dynamic image
@@ -150,8 +161,8 @@ private:
 	QWidget *m_displayArea = nullptr;
 	QGridLayout *m_displayLayout = nullptr;
 	QLabel *m_label = nullptr;
-	QImage *m_image = nullptr;
-	QPoint *m_mousePos = nullptr;
+	cv::Mat m_image;
+	QPoint m_mousePos;
 	Book *m_book = nullptr;
 	bool m_mouseHold = false;
 
@@ -167,7 +178,7 @@ private:
 
 	/* Max and min scale factors. */
 	static constexpr double kMaxScaleFactor = 3.0;
-	static constexpr double kMinScaleFactor = 0.333;
+	static constexpr double kMinScaleFactor = 0.5;
 
 	/* Supported MIME types. */
 	static const QList<QByteArray> kSupportedMineTypes;

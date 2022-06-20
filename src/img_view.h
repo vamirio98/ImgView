@@ -47,7 +47,7 @@ private:
 	static QString m_lastOpenPos;
 	ui::ImgViewUi *m_ui = nullptr;
 	Display *m_display = nullptr;
-	Book *m_book = nullptr;
+	Book m_book;
 };
 
 }  /* namespace img_view */

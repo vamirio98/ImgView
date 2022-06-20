@@ -28,14 +28,16 @@ const QList<QByteArray> Display::kSupportedMineTypes = {
 	"image/bmp",
 	"image/gif",
 	"image/jpeg",
-	"image/png"
+	"image/png",
+	"image/webp"
 };
 
 const QSet<const QByteArray> Display::kSupportedFormats = {
 	"bmp",
 	"gif",
 	"jpeg",
-	"png"
+	"png",
+	"webp"
 };
 
 
@@ -45,9 +47,7 @@ Display::Display(QWidget *parent)
 
 Display::~Display()
 {
-	/* Do NOT delete m_book. */
-	delete m_mousePos;
-	delete m_image;
+	/* Do not delete m_book. */
 }
 
 void Display::init()
@@ -56,7 +56,6 @@ void Display::init()
 	m_displayArea = new QWidget(m_scrollArea);
 	m_displayLayout = new QGridLayout(m_displayArea);
 	m_label = new QLabel(m_displayArea);
-	m_mousePos = new QPoint();
 
 	setVisible(true);
 	setLayout(new QGridLayout());
@@ -75,13 +74,18 @@ void Display::init()
 	m_displayLayout->addWidget(m_label, 0, 0, Qt::AlignCenter);
 	m_displayLayout->setContentsMargins(0, 0, 0, 0);
 
-	m_label->setBackgroundRole(QPalette::Dark);
+	m_label->setBackgroundRole(QPalette::Base);
 	m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
 void Display::setBook(Book *const book)
 {
 	m_book = book;
+}
+
+bool Display::isStaticImage() const
+{
+	return !isDynamicImage();
 }
 
 bool Display::isDynamicImage() const
@@ -91,13 +95,15 @@ bool Display::isDynamicImage() const
 
 bool Display::loadCurrPage()
 {
+	if (m_book->noPage())
+		return false;
 	D(("Start loading page %s...\n",
 				m_book->currPageInfo().filename().toUtf8().constData()));
 	const QByteArray format = imgFormatToStr(m_book->currPageInfo().format());
 	if (kSupportedFormats.find(format) == kSupportedFormats.end()) {
 		QMessageBox::information(this, QApplication::applicationDisplayName(),
-				tr("Can't open image %1: unsupported format %2")
-				.arg(m_book->currPageInfo().filename(), format));
+				tr("Can't open image %1: unsupported format.")
+				.arg(m_book->currPageInfo().filename()));
 		return false;
 	}
 
@@ -107,7 +113,7 @@ bool Display::loadCurrPage()
 	case jpeg:
 	case png:
 	case webp:
-		ret = loadStaticImage(m_book->currPageInfo().absPath(), format);
+		ret = loadStaticImage(m_book->currPageInfo().absPath());
 		break;
 	case gif:
 		ret = loadDynamicImage(m_book->currPageInfo().absPath());
@@ -121,29 +127,19 @@ bool Display::loadCurrPage()
 	return ret;
 }
 
-bool Display::loadStaticImage(const QString &filename,
-		const char *format)
+/* TODO: open file which path contains Chinese character. */
+bool Display::loadStaticImage(const QString &filename)
 {
-	QImageReader reader(filename, format);
-	reader.setAutoTransform(true);
-	reader.setAutoDetectImageFormat(false);
-	QImage image = reader.read();
+	cv::Mat image = cv::imread(filename.toUtf8().constData());
 
-	if (image.isNull()) {
+	if (image.empty()) {
 		QMessageBox::information(this, QApplication::applicationDisplayName(),
-				tr("Can't load %1: %2")
-				.arg(QDir::toNativeSeparators(filename), reader.errorString()));
+				tr("Could not load %1.")
+				.arg(QDir::toNativeSeparators(filename)));
 		return false;
 	}
-	if (image.colorSpace().isValid())
-		image.convertToColorSpace(QColorSpace(QColorSpace::SRgb));
 
-	if (m_image) {
-		delete m_image;
-		m_image = nullptr;
-	}
-	m_image = new QImage(image);
-
+	m_image = image;
 	limitToWindow();
 	showImage();
 
@@ -168,14 +164,14 @@ bool Display::loadDynamicImage(const QString &filename)
 	return true;
 }
 
-void Display::zoomIn()
+void Display::zoomIn(const double &step)
 {
-	scaleImage(m_scaleFactor + 0.05);
+	scaleImage(m_scaleFactor * (1 + step));
 }
 
-void Display::zoomOut()
+void Display::zoomOut(const double &step)
 {
-	scaleImage(m_scaleFactor - 0.05);
+	scaleImage(m_scaleFactor * (1 - step));
 }
 
 void Display::scaleImage(const double &factor)
@@ -215,29 +211,26 @@ void Display::limitToWindow()
 
 void Display::showImage()
 {
-	if (!isDynamicImage()) {
-		m_label->setPixmap(QPixmap::fromImage(m_image->scaled(
-					m_book->currPageInfo().dimensions()
-					* m_initScaleFactor * m_scaleFactor,
-					Qt::KeepAspectRatio,
-					Qt::SmoothTransformation)));
+	double factor = m_initScaleFactor * m_scaleFactor;
+	if (isStaticImage()) {
+		cv::Mat tmp;
+		cv::resize(m_image, tmp, cv::Size(0, 0), factor, factor,
+				factor <= 1 ? cv::INTER_AREA : cv::INTER_CUBIC);
+		QImage image(tmp.data, tmp.cols, tmp.rows, tmp.step,
+				QImage::Format_BGR888);
+		m_label->setPixmap(QPixmap::fromImage(image));
 	} else {
 		m_label->movie()->setScaledSize(
-					m_book->currPageInfo().dimensions()
-					* m_initScaleFactor * m_scaleFactor);
+					m_book->currPageInfo().dimensions() * factor);
 		m_label->movie()->start();
 	}
-	m_label->resize(m_book->currPageInfo().dimensions()
-			* m_initScaleFactor * m_scaleFactor);
+	m_label->resize(m_book->currPageInfo().dimensions() * factor);
 	m_displayArea->resize(m_label->size());
 }
 
 void Display::closeImage()
 {
-	if (m_image) {
-		delete m_image;
-		m_image = nullptr;
-	}
+	m_image = cv::Mat();
 	QMovie *movie = m_label->movie();
 	if (movie)
 		delete movie;
@@ -290,7 +283,7 @@ void Display::wheelEvent(QWheelEvent *event)
 	 */
 	int step = event->angleDelta().y() / 120;
 	if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
-		step > 0 ? zoomIn() : zoomOut();
+		step > 0 ? zoomIn(0.1) : zoomOut(0.1);
 	} else {
 		step > 0 ? loadPrevImage() : loadNextImage();
 	}
@@ -301,7 +294,7 @@ void Display::wheelEvent(QWheelEvent *event)
 void Display::mousePressEvent(QMouseEvent *event)
 {
 	m_mouseHold = true;
-	*m_mousePos = event->pos();
+	m_mousePos = event->pos();
 
 	switch (event->button()) {
 	case Qt::MiddleButton:
@@ -317,11 +310,12 @@ void Display::mousePressEvent(QMouseEvent *event)
 void Display::mouseMoveEvent(QMouseEvent *event)
 {
 	QPoint pos = event->pos();
-	double dx = pos.x() - m_mousePos->x();
-	double dy = pos.y() - m_mousePos->y();
-	moveImage(-dx, -dy);
+	double dx = pos.x() - m_mousePos.x();
+	double dy = pos.y() - m_mousePos.y();
+	if (m_mouseHold)
+		moveImage(-dx, -dy);
 
-	*m_mousePos = pos;
+	m_mousePos = pos;
 }
 
 void Display::mouseReleaseEvent(QMouseEvent *event)

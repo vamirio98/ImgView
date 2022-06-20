@@ -12,7 +12,6 @@
 
 namespace img_view {
 
-/* TODO: add support for bmp and webp. */
 enum ImgFormat {
 	unknown = 0,
 	bmp,
