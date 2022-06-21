@@ -7,7 +7,7 @@
 #include <QCommandLineParser>
 #include <QImageReader>
 
-#include "img_view.h"
+#include "main_window.h"
 #include "logger.h"
 
 int main(int argc, char *argv[])
@@ -20,11 +20,11 @@ int main(int argc, char *argv[])
 
 	QCommandLineParser cmd_parser;
 	cmd_parser.addHelpOption();
-	cmd_parser.addPositionalArgument(img_view::ImgView::tr("[file]"),
-			img_view::ImgView::tr("Image file to open."));
+	cmd_parser.addPositionalArgument(img_view::MainWindow::tr("[file]"),
+			img_view::MainWindow::tr("Image file to open."));
 	cmd_parser.process(QApplication::arguments());
 
-	img_view::ImgView ImgView;
+	img_view::MainWindow ImgView;
 	ImgView.init();
 	img_view::logInfoToFile("ImgView start up");
 

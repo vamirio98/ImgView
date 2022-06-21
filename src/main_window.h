@@ -1,30 +1,30 @@
 /**
- * img_view.h
+ * main_window.h
  *
  * Created by vamirio on 2022 Apr 25
  */
-#ifndef IMG_VIEW_H
-#define IMG_VIEW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <QMainWindow>
 #include <QFileDialog>
 
-#include "display.h"
+#include "drawing_board.h"
 #include "book.h"
 
 namespace img_view {
 
 namespace ui {
-	class ImgViewUi;
+	class MainWindowUi;
 }  /* namespace img_view::ui */
 
-class ImgView : public QMainWindow {
+class MainWindow : public QMainWindow {
 
 	Q_OBJECT
 
 public:
-	explicit ImgView(QWidget *parent = nullptr);
-	~ImgView();
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow();
 	void init();
 	bool loadFile(const QString &filename);
 
@@ -45,11 +45,11 @@ private:
 
 private:
 	static QString m_lastOpenPos;
-	ui::ImgViewUi *m_ui = nullptr;
-	Display *m_display = nullptr;
+	ui::MainWindowUi *m_ui = nullptr;
+	DrawingBoard *m_display = nullptr;
 	Book m_book;
 };
 
 }  /* namespace img_view */
 
-#endif /* ifndef IMG_VIEW_H */
+#endif /* ifndef MAIN_WINDOW_H */

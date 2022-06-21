@@ -1,10 +1,10 @@
 /**
- * img_area.h
+ * drawing_board.h
  *
  * Created by vamirio on 2022 May 01
  */
-#ifndef IMG_AREA_H
-#define IMG_AREA_H
+#ifndef DRAWING_BOARD_H
+#define DRAWING_BOARD_H
 
 #include <QWidget>
 #include <QGridLayout>
@@ -17,10 +17,10 @@
 
 namespace img_view {
 
-class Display : public QWidget {
+class DrawingBoard : public QWidget {
 public:
-	explicit Display(QWidget *parent = nullptr);
-	~Display();
+	explicit DrawingBoard(QWidget *parent = nullptr);
+	~DrawingBoard();
 
 	/**
 	 * @brief Initialize instance, MUST be called before any other member
@@ -188,4 +188,4 @@ private:
 
 }  /* namespace img_view */
 
-#endif /* ifndef IMG_AREA_H */
+#endif /* ifndef DRAWING_BOARD_H */

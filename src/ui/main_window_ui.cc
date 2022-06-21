@@ -1,16 +1,16 @@
 /**
- * img_view_ui.cc
+ * main_window_ui.cc
  *
  * Created by vamirio on 2022 Apr 25
  */
-#include "ui/img_view_ui.h"
+#include "ui/main_window_ui.h"
 
 namespace img_view::ui {
 
 static int sInitWidth = 800;
 static int sInitHeight = 600;
 
-void ImgViewUi::setupUi(QMainWindow *ImgView)
+void MainWindowUi::setupUi(QMainWindow *ImgView)
 {
 	if (ImgView->objectName().isEmpty())
 		ImgView->setObjectName("ImgView");
@@ -25,7 +25,7 @@ void ImgViewUi::setupUi(QMainWindow *ImgView)
 	retranslateUi(ImgView);
 }
 
-void ImgViewUi::retranslateUi(QMainWindow *ImgView)
+void MainWindowUi::retranslateUi(QMainWindow *ImgView)
 {
 	ImgView->setWindowTitle(QString::fromUtf8("ImgView"));
 
@@ -33,7 +33,7 @@ void ImgViewUi::retranslateUi(QMainWindow *ImgView)
 	retranslateHelpMenuUi();
 }
 
-void ImgViewUi::setupMenubarUi(QMainWindow *ImgView)
+void MainWindowUi::setupMenubarUi(QMainWindow *ImgView)
 {
 	m_menubar = new QMenuBar(ImgView);
 	m_menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -45,7 +45,7 @@ void ImgViewUi::setupMenubarUi(QMainWindow *ImgView)
 	setupHelpMenuUi(ImgView);
 }
 
-void ImgViewUi::setupFileMenuUi(QMainWindow *ImgView)
+void MainWindowUi::setupFileMenuUi(QMainWindow *ImgView)
 {
 	QString (*str)(QByteArrayView) = QString::fromUtf8;
 
@@ -66,7 +66,7 @@ void ImgViewUi::setupFileMenuUi(QMainWindow *ImgView)
 	m_fileMenu->addAction(m_fileExit);
 }
 
-void ImgViewUi::setupHelpMenuUi(QMainWindow *ImgView)
+void MainWindowUi::setupHelpMenuUi(QMainWindow *ImgView)
 {
 	QString (*str)(QByteArrayView) = QString::fromUtf8;
 
@@ -79,7 +79,7 @@ void ImgViewUi::setupHelpMenuUi(QMainWindow *ImgView)
 	m_helpMenu->addAction(m_helpAbout);
 }
 
-void ImgViewUi::retranslateFileMenuUi()
+void MainWindowUi::retranslateFileMenuUi()
 {
 	auto tr = [](const char *utf8) { return QObject::tr(utf8); };
 
@@ -92,7 +92,7 @@ void ImgViewUi::retranslateFileMenuUi()
 	m_fileExit->setText(tr("Exit(&X)"));
 }
 
-void ImgViewUi::retranslateHelpMenuUi()
+void MainWindowUi::retranslateHelpMenuUi()
 {
 	auto tr = [](const char *utf8) { return QObject::tr(utf8); };
 
@@ -101,14 +101,14 @@ void ImgViewUi::retranslateHelpMenuUi()
 	m_helpAbout->setText(tr("About(&A)"));
 }
 
-void ImgViewUi::setupCentralWidgetUi(QMainWindow *ImgView)
+void MainWindowUi::setupCentralWidgetUi(QMainWindow *ImgView)
 {
-	m_display = new Display(ImgView);
-	m_display->init();
-	ImgView->setCentralWidget(m_display);
+	m_board = new DrawingBoard(ImgView);
+	m_board->init();
+	ImgView->setCentralWidget(m_board);
 }
 
-void ImgViewUi::setupToolbarUi(QMainWindow *ImgView)
+void MainWindowUi::setupToolbarUi(QMainWindow *ImgView)
 {
 	QString (*str)(QByteArrayView) = QString::fromUtf8;
 
@@ -119,7 +119,7 @@ void ImgViewUi::setupToolbarUi(QMainWindow *ImgView)
 	ImgView->addToolBar(Qt::ToolBarArea::TopToolBarArea, m_toolbar);
 }
 
-void ImgViewUi::setupNavigationUi(QMainWindow *ImgView)
+void MainWindowUi::setupNavigationUi(QMainWindow *ImgView)
 {
 	QString (*str)(QByteArrayView) = QString::fromUtf8;
 
@@ -142,7 +142,7 @@ void ImgViewUi::setupNavigationUi(QMainWindow *ImgView)
 }
 
 /* TODO: adjust the ui. */
-void ImgViewUi::setupInfoUi(QMainWindow *ImgView)
+void MainWindowUi::setupInfoUi(QMainWindow *ImgView)
 {
 	m_info = new QDockWidget(ImgView);
 	m_info->setAllowedAreas(Qt::RightDockWidgetArea);

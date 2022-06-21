@@ -1,9 +1,9 @@
 /**
- * img_view.cc
+ * main_window.cc
  *
  * Created by vamirio on 2022 Apr 25
  */
-#include "img_view.h"
+#include "main_window.h"
 
 #include <QStandardPaths>
 #include <QImageReader>
@@ -13,31 +13,32 @@
 #include <QColorSpace>
 #include <QShortcut>
 
-#include "ui/img_view_ui.h"
+#include "ui/main_window_ui.h"
 #include "logger.h"
 
 namespace img_view {
 
-QString ImgView::m_lastOpenPos = "";
+QString MainWindow::m_lastOpenPos = "";
 
-ImgView::ImgView(QWidget *parent) : QMainWindow(parent), m_ui(new ui::ImgViewUi)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
+	m_ui(new ui::MainWindowUi)
 {
 }
 
-ImgView::~ImgView()
+MainWindow::~MainWindow()
 {
 }
 
-void ImgView::init()
+void MainWindow::init()
 {
 	m_ui->setupUi(this);
-	m_display = m_ui->m_display;
+	m_display = m_ui->m_board;
 	m_display->setBook(&m_book);
 	setupSlots();
 	setupShortCut();
 }
 
-bool ImgView::loadFile(const QString &filename)
+bool MainWindow::loadFile(const QString &filename)
 {
 	D(("Loading file %s.\n", filename.toUtf8().constData()));
 	QFileInfo info(filename);
@@ -52,16 +53,20 @@ bool ImgView::loadFile(const QString &filename)
 	return !m_book.noPage() && m_display->loadCurrPage();
 }
 
-void ImgView::setupSlots()
+void MainWindow::setupSlots()
 {
-	connect(m_ui->m_fileOpen, &QAction::triggered, this, &ImgView::onFileOpen);
-	connect(m_ui->m_fileClose, &QAction::triggered, this, &ImgView::onFileClose);
-	connect(m_ui->m_fileExit, &QAction::triggered, this, &ImgView::onFileExit);
+	connect(m_ui->m_fileOpen, &QAction::triggered,
+			this, &MainWindow::onFileOpen);
+	connect(m_ui->m_fileClose, &QAction::triggered,
+			this, &MainWindow::onFileClose);
+	connect(m_ui->m_fileExit, &QAction::triggered,
+			this, &MainWindow::onFileExit);
 
-	connect(m_ui->m_helpAbout, &QAction::triggered, this, &ImgView::onHelpAbout);
+	connect(m_ui->m_helpAbout, &QAction::triggered,
+			this, &MainWindow::onHelpAbout);
 }
 
-void ImgView::onFileOpen()
+void MainWindow::onFileOpen()
 {
 	QFileDialog dialog(this, tr("Open"));
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
@@ -76,24 +81,24 @@ void ImgView::onFileOpen()
 	}
 }
 
-void ImgView::onFileClose()
+void MainWindow::onFileClose()
 {
 	m_display->closeImage();
 }
 
-void ImgView::onFileExit()
+void MainWindow::onFileExit()
 {
 	qApp->quit();
 }
 
-void ImgView::onHelpAbout()
+void MainWindow::onHelpAbout()
 {
 	QMessageBox::about(this, tr("About ImgView"),
 			tr("<p>A simple image viewer programmed in C++, based on Qt "
 				"toolkit.</p>"));
 }
 
-void ImgView::initImgFileDialog(QFileDialog *dialog,
+void MainWindow::initImgFileDialog(QFileDialog *dialog,
 		const QFileDialog::AcceptMode accept_mode)
 {
 	static bool first_dialog = true;
@@ -108,7 +113,7 @@ void ImgView::initImgFileDialog(QFileDialog *dialog,
 	if (!m_lastOpenPos.isEmpty())
 		dialog->setDirectory(m_lastOpenPos);
 	QStringList mime_type_filters;
-	for (const QByteArray &mime_type_name : Display::supportedMimeTypes())
+	for (const QByteArray &mime_type_name : DrawingBoard::supportedMimeTypes())
 		mime_type_filters.append(mime_type_name);
 	mime_type_filters.append("application/octet-stream");  /* All files. */
 	mime_type_filters.sort();
@@ -118,20 +123,20 @@ void ImgView::initImgFileDialog(QFileDialog *dialog,
 		dialog->setDefaultSuffix("jpg");
 }
 
-void ImgView::setupShortCut()
+void MainWindow::setupShortCut()
 {
 	QShortcut *zoom_in = new QShortcut(QKeySequence::ZoomIn, this);
-	connect(zoom_in, &QShortcut::activated, this, &ImgView::onCtrlPlus);
+	connect(zoom_in, &QShortcut::activated, this, &MainWindow::onCtrlPlus);
 	QShortcut *zoom_out = new QShortcut(QKeySequence::ZoomOut, this);
-	connect(zoom_out, &QShortcut::activated, this, &ImgView::onCtrlMinus);
+	connect(zoom_out, &QShortcut::activated, this, &MainWindow::onCtrlMinus);
 }
 
-void ImgView::onCtrlPlus()
+void MainWindow::onCtrlPlus()
 {
 	m_display->zoomIn(0.01);
 }
 
-void ImgView::onCtrlMinus()
+void MainWindow::onCtrlMinus()
 {
 	m_display->zoomOut(0.01);
 }

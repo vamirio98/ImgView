@@ -1,9 +1,9 @@
 /**
- * img_area.cc
+ * drawing_board.cc
  *
  * Created by vamirio on 2022 May 01
  */
-#include "display.h"
+#include "drawing_board.h"
 
 #include <QGridLayout>
 #include <QImageReader>
@@ -24,7 +24,7 @@
 namespace img_view {
 
 /* TODO: add support for webp. */
-const QList<QByteArray> Display::kSupportedMineTypes = {
+const QList<QByteArray> DrawingBoard::kSupportedMineTypes = {
 	"image/bmp",
 	"image/gif",
 	"image/jpeg",
@@ -32,7 +32,7 @@ const QList<QByteArray> Display::kSupportedMineTypes = {
 	"image/webp"
 };
 
-const QSet<const QByteArray> Display::kSupportedFormats = {
+const QSet<const QByteArray> DrawingBoard::kSupportedFormats = {
 	"bmp",
 	"gif",
 	"jpeg",
@@ -41,16 +41,16 @@ const QSet<const QByteArray> Display::kSupportedFormats = {
 };
 
 
-Display::Display(QWidget *parent)
+DrawingBoard::DrawingBoard(QWidget *parent)
 {
 }
 
-Display::~Display()
+DrawingBoard::~DrawingBoard()
 {
 	/* Do not delete m_book. */
 }
 
-void Display::init()
+void DrawingBoard::init()
 {
 	m_scrollArea = new QScrollArea(this);
 	m_displayArea = new QWidget(m_scrollArea);
@@ -78,22 +78,22 @@ void Display::init()
 	m_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
-void Display::setBook(Book *const book)
+void DrawingBoard::setBook(Book *const book)
 {
 	m_book = book;
 }
 
-bool Display::isStaticImage() const
+bool DrawingBoard::isStaticImage() const
 {
 	return !isDynamicImage();
 }
 
-bool Display::isDynamicImage() const
+bool DrawingBoard::isDynamicImage() const
 {
 	return m_book->currPageInfo().format() == gif;
 }
 
-bool Display::loadCurrPage()
+bool DrawingBoard::loadCurrPage()
 {
 	if (m_book->noPage())
 		return false;
@@ -128,7 +128,7 @@ bool Display::loadCurrPage()
 }
 
 /* TODO: open file which path contains Chinese character. */
-bool Display::loadStaticImage(const QString &filename)
+bool DrawingBoard::loadStaticImage(const QString &filename)
 {
 	cv::Mat image = cv::imread(filename.toUtf8().constData());
 
@@ -146,7 +146,7 @@ bool Display::loadStaticImage(const QString &filename)
 	return true;
 }
 
-bool Display::loadDynamicImage(const QString &filename)
+bool DrawingBoard::loadDynamicImage(const QString &filename)
 {
 	QMovie *movie = new QMovie(filename);
 	if (!movie->isValid()) {
@@ -164,17 +164,17 @@ bool Display::loadDynamicImage(const QString &filename)
 	return true;
 }
 
-void Display::zoomIn(const double &step)
+void DrawingBoard::zoomIn(const double &step)
 {
 	scaleImage(m_scaleFactor * (1 + step));
 }
 
-void Display::zoomOut(const double &step)
+void DrawingBoard::zoomOut(const double &step)
 {
 	scaleImage(m_scaleFactor * (1 - step));
 }
 
-void Display::scaleImage(const double &factor)
+void DrawingBoard::scaleImage(const double &factor)
 {
 	double prev_factor = m_scaleFactor;
 	m_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
@@ -188,7 +188,7 @@ void Display::scaleImage(const double &factor)
 			m_scaleFactor / prev_factor);
 }
 
-void Display::limitToWindow()
+void DrawingBoard::limitToWindow()
 {
 	QSize window_size = size();
 	QSize image_size = m_book->currPageInfo().dimensions();
@@ -209,7 +209,7 @@ void Display::limitToWindow()
 	logDebug("Initial scale factor: %f", m_initScaleFactor);
 }
 
-void Display::showImage()
+void DrawingBoard::showImage()
 {
 	double factor = m_initScaleFactor * m_scaleFactor;
 	if (isStaticImage()) {
@@ -228,7 +228,7 @@ void Display::showImage()
 	m_displayArea->resize(m_label->size());
 }
 
-void Display::closeImage()
+void DrawingBoard::closeImage()
 {
 	m_image = cv::Mat();
 	QMovie *movie = m_label->movie();
@@ -238,13 +238,13 @@ void Display::closeImage()
 	m_label->setPixmap(QPixmap());
 }
 
-void Display::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
+void DrawingBoard::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
 {
 	scroll_bar->setValue(static_cast<int>(scroll_bar->value() * factor
 				+ (factor - 1) * scroll_bar->pageStep() / 2));
 }
 
-void Display::loadPrevImage()
+void DrawingBoard::loadPrevImage()
 {
 	if (m_book->noPage())
 		return;
@@ -252,7 +252,7 @@ void Display::loadPrevImage()
 	loadCurrPage();
 }
 
-void Display::loadNextImage()
+void DrawingBoard::loadNextImage()
 {
 	if (m_book->noPage())
 		return;
@@ -260,7 +260,7 @@ void Display::loadNextImage()
 	loadCurrPage();
 }
 
-void Display::moveImage(const double &dx, const double &dy)
+void DrawingBoard::moveImage(const double &dx, const double &dy)
 {
 	QScrollBar *h = m_scrollArea->horizontalScrollBar();
 	QScrollBar *v = m_scrollArea->verticalScrollBar();
@@ -269,14 +269,14 @@ void Display::moveImage(const double &dx, const double &dy)
 	v->setValue(v->value() + dy);
 }
 
-const QList<QByteArray> &Display::supportedMimeTypes()
+const QList<QByteArray> &DrawingBoard::supportedMimeTypes()
 {
 	return kSupportedMineTypes;
 }
 
 /* Events. */
 /* TODO: zoom the image around the cursor. */
-void Display::wheelEvent(QWheelEvent *event)
+void DrawingBoard::wheelEvent(QWheelEvent *event)
 {
 	/* Most mouse type work in steps of 15 degrees, so the delta value is a
 	 * multiple of 120.
@@ -291,7 +291,7 @@ void Display::wheelEvent(QWheelEvent *event)
 	event->accept();
 }
 
-void Display::mousePressEvent(QMouseEvent *event)
+void DrawingBoard::mousePressEvent(QMouseEvent *event)
 {
 	m_mouseHold = true;
 	m_mousePos = event->pos();
@@ -307,7 +307,7 @@ void Display::mousePressEvent(QMouseEvent *event)
 	event->accept();
 }
 
-void Display::mouseMoveEvent(QMouseEvent *event)
+void DrawingBoard::mouseMoveEvent(QMouseEvent *event)
 {
 	QPoint pos = event->pos();
 	double dx = pos.x() - m_mousePos.x();
@@ -318,14 +318,14 @@ void Display::mouseMoveEvent(QMouseEvent *event)
 	m_mousePos = pos;
 }
 
-void Display::mouseReleaseEvent(QMouseEvent *event)
+void DrawingBoard::mouseReleaseEvent(QMouseEvent *event)
 {
 	m_mouseHold = false;
 
 	event->accept();
 }
 
-bool Display::eventFilter(QObject *obj, QEvent *event)
+bool DrawingBoard::eventFilter(QObject *obj, QEvent *event)
 {
 	if (obj == m_scrollArea->viewport()) {
 		if (event->type() == QEvent::Wheel) {

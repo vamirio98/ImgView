@@ -1,10 +1,10 @@
 /**
- * img_view_ui.h
+ * main_window_ui.h
  *
  * Created by vamirio on 2022 Apr 25
  */
-#ifndef IMG_VIEW_UI_H
-#define IMG_VIEW_UI_H
+#ifndef MAIN_WINDOW_UI_H
+#define MAIN_WINDOW_UI_H
 
 #include <QMainWindow>
 #include <QWidget>
@@ -17,11 +17,11 @@
 #include <QGridLayout>
 #include <QScrollArea>
 
-#include "display.h"
+#include "drawing_board.h"
 
 namespace img_view::ui {
 
-class ImgViewUi {
+class MainWindowUi {
 public:
 	/* Menu bar. */
 	QMenuBar *m_menubar = nullptr;
@@ -42,7 +42,7 @@ public:
 	QToolBar *m_toolbar = nullptr;
 
 	/* Central widget. */
-	Display *m_display = nullptr;
+	DrawingBoard *m_board = nullptr;
 
 	/* Left navigation area. */
 	QDockWidget *m_navigation = nullptr;
@@ -72,4 +72,4 @@ private:
 
 }
 
-#endif /* ifndef IMG_VIEW_UI_H */
+#endif /* ifndef MAIN_WINDOW_UI_H */
