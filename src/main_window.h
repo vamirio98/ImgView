@@ -50,6 +50,6 @@ private:
 	Book m_book;
 };
 
-}  /* namespace img_view */
+}  /* img_view */
 
 #endif /* ifndef MAIN_WINDOW_H */

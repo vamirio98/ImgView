@@ -141,4 +141,4 @@ void MainWindow::onCtrlMinus()
 	m_display->zoomOut(0.01);
 }
 
-}  /* namespace img_view */
+}  /* img_view */

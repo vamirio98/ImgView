@@ -186,6 +186,6 @@ private:
 	static const QSet<const QByteArray> kSupportedFormats;
 };
 
-}  /* namespace img_view */
+}  /* img_view */
 
 #endif /* ifndef DRAWING_BOARD_H */

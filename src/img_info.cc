@@ -356,4 +356,4 @@ bool operator!=(const ImgInfo &lhs, const ImgInfo &rhs)
 	return !(lhs == rhs);
 }
 
-}  /* namespace img_view */
+}  /* img_view */

@@ -224,4 +224,4 @@ void logFatal(const char *format, ...)
 			LogPos::Screen);
 }
 
-}  /* namespace img_view */
+}  /* img_view */

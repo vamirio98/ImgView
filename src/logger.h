@@ -150,6 +150,6 @@ void logError(const char *format, ...);
 void logErrorToFile(const char *format, ...);
 void logFatal(const char *format, ...);
 
-}  /* namespace img_view */
+}  /* img_view */
 
 #endif /* ifndef LOGGER_H */

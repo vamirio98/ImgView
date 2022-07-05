@@ -340,4 +340,4 @@ bool DrawingBoard::eventFilter(QObject *obj, QEvent *event)
 	}
 }
 
-}  /* namespace img_view */
+}  /* img_view */

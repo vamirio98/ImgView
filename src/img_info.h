@@ -188,6 +188,6 @@ private:
 bool operator==(const ImgInfo &lhs, const ImgInfo &rhs);
 bool operator!=(const ImgInfo &lhs, const ImgInfo &rhs);
 
-}  /* namespace img_view */
+}  /* img_view */
 
 #endif /* ifndef IMG_INFO_H */

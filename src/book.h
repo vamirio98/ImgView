@@ -118,6 +118,6 @@ private:
 	QList<ImgInfo>::iterator m_currPage;
 };
 
-}  /* namespace img_view */
+}  /* img_view */
 
 #endif /* ifndef BOOK_H */

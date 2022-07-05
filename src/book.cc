@@ -142,4 +142,4 @@ bool Book::noPage() const
 	return m_pages.empty();
 }
 
-}  /* namespace img_view */
+}  /* img_view */
