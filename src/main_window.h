@@ -36,6 +36,20 @@ private slots:
 	void onCtrlPlus();
 	void onCtrlMinus();
 
+	/* Check and set actions' activation. */
+	void checkFileCloseEnabled();
+	void checkRecentBooksEnabled();
+	void checkFileSaveAsEnabled();
+	void checkFilePrintEnabled();
+	void checkJumpPrevPageEnabled();
+	void checkJumpNextPageEnabled();
+	void checkJumpFirstPageEnabled();
+	void checkJumpLastPageEnabled();
+	void checkJumpPrevBookEnabled();
+	void checkJumpNextBookEnabled();
+	void checkJumpPrevLocationEnabled();
+	void checkJumpNextLocationEnabled();
+
 private:
 	void setupSlots();
 	void setupShortCut();
