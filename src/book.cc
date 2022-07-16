@@ -10,136 +10,194 @@
 #include <QDir>
 #include <QFileInfo>
 
-#include "img_info.h"
 #include "logger.h"
 
 namespace img_view {
 
-BookInfo::BookInfo(const QString &path)
+bool BookInfo::browse(const QString &book)
 {
-	QDir dir(path);
-	if (!dir.exists())
-		return;
-	QFileInfo fileinfo(path);
-	m_path = dir.absolutePath();
-	m_lastModified = fileinfo.lastModified().toMSecsSinceEpoch();
+	QFileInfo info(book);
+	if (!info.exists() || !info.isDir() || !info.isReadable())
+		return false;
+	m_lastModified = info.lastModified().toMSecsSinceEpoch();
+
+	QDir dir(book);
+	m_absPath = dir.absolutePath().toUtf8();
+	m_bookname = dir.dirName().toUtf8();
 	QStringList filelist = dir.entryList(QDir::Files | QDir::Readable,
 			QDir::Name);
 	QString filepath;
 	for (const QString &filename : filelist) {
-		filepath = m_path + "/" + filename;
-		if (getImgFormat(filepath) == unknown)
+		filepath = dir.filePath(filename);
+		if (getImageFormat(filepath) == ImageFormat::unknown)
 			continue;
-		m_coverFilepath = filepath;
+		m_coverFilepath = filepath.toUtf8();
+		m_coverFilename = filename.toUtf8();
 		break;
 	}
+	return true;
+}
+
+bool BookInfo::empty() const
+{
+	return m_absPath.isEmpty();
+}
+
+QString BookInfo::absPath() const
+{
+	return m_absPath;
+}
+
+QString BookInfo::bookName() const
+{
+	return m_bookname;
+}
+
+QString BookInfo::coverFilepath() const
+{
+	return m_coverFilepath;
+}
+
+QString BookInfo::coverFilename() const
+{
+	return m_coverFilename;
+}
+
+qint64 BookInfo::lastModified() const
+{
+	return m_lastModified;
 }
 
 Book::Book()
 {
 }
 
-Book::Book(const QString &path)
-{
-	setBook(path);
-}
-
 Book::~Book()
 {
 }
 
-bool Book::setBook(const QString &path)
+bool Book::open(const QString &book)
 {
-	logDebug("Book.cc: starting setBook().\n");
+	logDebug("Opening book...\n");
 	/* Set m_info. */
-	m_info = BookInfo(path);
-	if (m_info.m_path.isEmpty())
+	if (!m_info.browse(book))
 		return false;
 
-	/* Set m_pages. */
-	QDir dir(path);
-	m_pages = QList<ImgInfo>();
+	QDir dir(book);
 	QStringList filelist = dir.entryList(QDir::Files | QDir::Readable,
 			QDir::Name);
 	QString filepath;
 	for (const QString &filename : filelist) {
-		filepath = dir.absolutePath() + "/" + filename;
-		if (getImgFormat(filepath) == unknown)
+		filepath = dir.filePath(filename);
+		ImageInfo info;
+		if (!info.browse(filepath))
 			continue;
-		m_pages.emplaceBack(filepath);
+		m_pageList.emplace_back(info);
 	}
-	m_currPage = m_pages.begin();
-
-	/* Set m_books. */
-	m_books = QList<BookInfo>();
-	QStringList dirlist = dir.entryList(QDir::Dirs | QDir::Readable,
-			QDir::Name);
-	for (const QString &dirname : dirlist)
-		m_books.emplaceBack(dirname);
-
-	logDebug("Book.cc: finished setBook().\n");
+	m_pageNum = 0;
+	logDebug("Finished opening.\n");
 
 	return true;
+}
+
+void Book::close()
+{
+	m_info = BookInfo();
+	m_pageList.clear();
+	m_pageNum = -1;
+}
+
+bool Book::empty() const
+{
+	return m_pageList.empty();
 }
 
 QString Book::bookName() const
 {
-	qsizetype pos = m_info.m_path.lastIndexOf('/');
-	if (pos == -1)
-		return m_info.m_path;
-	return m_info.m_path.sliced(pos + 1);
+	return m_info.bookName();
 }
 
 QString Book::absPath() const
 {
-	return m_info.m_path;
+	return m_info.absPath();
 }
 
-qint64 Book::lastModified() const
+QString Book::coverFilename() const
 {
-	return m_info.m_lastModified;
+	return m_info.coverFilename();
 }
 
 QString Book::coverFilepath() const
 {
-	return m_info.m_coverFilepath;
+	return m_info.coverFilepath();
 }
 
-const ImgInfo &Book::currPageInfo() const
+qint64 Book::lastModified() const
 {
-	return *m_currPage;
+	return m_info.lastModified();
 }
 
-bool Book::setCurrPage(const QString &filepath)
+const ImageInfo &Book::curPage() const
 {
-	QList<ImgInfo>::iterator iter = std::find(m_pages.begin(), m_pages.end(),
-			ImgInfo(filepath));
-	if (iter == m_pages.end())
+	return m_pageList.at(m_pageNum);
+}
+
+bool Book::setCurPage(const QString &pagename)
+{
+	auto iter = std::find_if(m_pageList.cbegin(), m_pageList.cend(),
+			[&pagename](const ImageInfo &info) {
+			return info.filename() == pagename; });
+	if (iter == m_pageList.cend())
 		return false;
-	m_currPage = iter;
+	m_pageNum = iter - m_pageList.cbegin();
 	return true;
 }
 
-QString Book::currPageFilepath() const
+const ImageInfo &Book::prevPage() const
 {
-	return m_currPage->absPath();
+	return m_pageList.at(m_pageNum - (m_pageNum == 0 ? 0 : 1));
 }
 
-QString Book::toPrevPage()
+const ImageInfo &Book::nextPage() const
 {
-	return m_currPage == m_pages.begin()
-			? m_currPage->absPath() : (--m_currPage)->absPath();
+	return m_pageList.at(m_pageNum
+			+ (m_pageNum == m_pageList.size() - 1 ? 0 : 1));
 }
 
-QString Book::toNextPage()
+QList<ImageInfo> Book::prevPages(int num) const
 {
-	return m_currPage == m_pages.end() - 1
-			? m_currPage->absPath() : (++m_currPage)->absPath();
+	QList<ImageInfo> ret;
+	int i = m_pageNum - num >= 0 ? m_pageNum - num : 0;
+	for (; i != m_pageNum && num > 0; ++i, --num)
+		ret.push_back(m_pageList.at(i));
+	return ret;
 }
 
-bool Book::noPage() const
+QList<ImageInfo> Book::nextPages(int num) const
 {
-	return m_pages.empty();
+	QList<ImageInfo> ret;
+	for (int i = m_pageNum + 1; i != m_pageList.size() && num > 0; ++i, --num)
+		ret.push_back(m_pageList.at(i));
+	return ret;
+}
+
+const ImageInfo &Book::toPrevPage()
+{
+	return m_pageNum == 0 ? m_pageList.at(m_pageNum)
+		: m_pageList.at(--m_pageNum);
+}
+
+const ImageInfo &Book::toNextPage()
+{
+	return m_pageNum == m_pageList.size() - 1 ? m_pageList.at(m_pageNum)
+		: m_pageList.at(++m_pageNum);
+}
+
+const ImageInfo &Book::toPage(int num)
+{
+	m_pageNum = num < 0 ? 0 :
+		(num >= m_pageList.size() ? m_pageList.size() - 1 : num);
+	return m_pageList.at(m_pageNum);
 }
 
 }  /* img_view */

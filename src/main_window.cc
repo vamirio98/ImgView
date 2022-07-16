@@ -58,10 +58,10 @@ bool MainWindow::loadFile(const QString &filename)
 	if (!info.exists())
 		return false;
 	if (info.isDir()) {
-		m_book.setBook(info.canonicalFilePath());
+		m_book.open(info.canonicalFilePath());
 	} else {
-		m_book.setBook(info.canonicalPath());
-		m_book.setCurrPage(info.canonicalFilePath());
+		m_book.open(info.canonicalPath());
+		m_book.setCurPage(info.canonicalFilePath());
 	}
 	return !m_book.noPage() && m_display->loadCurrPage();
 }
@@ -85,9 +85,9 @@ void MainWindow::onFileOpen()
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
 		m_lastOpenPos = dialog.directory().absolutePath();
-		m_book.setBook(m_lastOpenPos);
+		m_book.open(m_lastOpenPos);
 		D(("Book: %ld\n", (long)&m_book));
-		m_book.setCurrPage(dialog.selectedFiles().constFirst());
+		m_book.setCurPage(dialog.selectedFiles().constFirst());
 		D(("Starting loadCurrPage().\n"));
 		m_display->loadCurrPage();
 		D(("Finished loadCurrPage().\n"));
@@ -186,7 +186,7 @@ void MainWindow::initImgFileDialog(QFileDialog *dialog,
 	if (!m_lastOpenPos.isEmpty())
 		dialog->setDirectory(m_lastOpenPos);
 	QStringList mime_type_filters;
-	for (const QByteArray &mime_type_name : DrawingBoard::supportedMimeTypes())
+	for (const QByteArray &mime_type_name : Paper::supportedMimeTypes())
 		mime_type_filters.append(mime_type_name);
 	mime_type_filters.append("application/octet-stream");  /* All files. */
 	mime_type_filters.sort();

@@ -444,7 +444,7 @@ void MainWindowUi::retranslateHelpMenuUi()
 
 void MainWindowUi::setupCentralWidgetUi(QMainWindow *ImgView)
 {
-	m_board = new DrawingBoard(ImgView);
+	m_board = new Paper(ImgView);
 	m_board->init();
 	ImgView->setCentralWidget(m_board);
 }

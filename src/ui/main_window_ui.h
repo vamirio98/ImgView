@@ -17,7 +17,7 @@
 #include <QGridLayout>
 #include <QScrollArea>
 
-#include "drawing_board.h"
+#include "paper.h"
 
 namespace img_view::ui {
 
@@ -102,7 +102,7 @@ public:
 	QToolBar *m_toolbar = nullptr;
 
 	/* Central widget. */
-	DrawingBoard *m_board = nullptr;
+	Paper *m_board = nullptr;
 
 	/* Left navigation area. */
 	QDockWidget *m_navigation = nullptr;

@@ -9,7 +9,7 @@
 #include <QMainWindow>
 #include <QFileDialog>
 
-#include "drawing_board.h"
+#include "paper.h"
 #include "book.h"
 
 namespace img_view {
@@ -60,7 +60,7 @@ private:
 private:
 	static QString m_lastOpenPos;
 	ui::MainWindowUi *m_ui = nullptr;
-	DrawingBoard *m_display = nullptr;
+	Paper *m_display = nullptr;
 	Book m_book;
 };
 
