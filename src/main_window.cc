@@ -33,8 +33,7 @@ MainWindow::~MainWindow()
 void MainWindow::init()
 {
 	m_ui->setupUi(this);
-	m_display = m_ui->m_board;
-	m_display->setBook(&m_book);
+	m_paper = m_ui->m_paper;
 	setupSlots();
 	setupShortCut();
 	checkFileCloseEnabled();
@@ -63,7 +62,7 @@ bool MainWindow::loadFile(const QString &filename)
 		m_book.open(info.canonicalPath());
 		m_book.setCurPage(info.canonicalFilePath());
 	}
-	return !m_book.noPage() && m_display->loadCurrPage();
+	return !m_book.empty() && m_paper->browse(filename);
 }
 
 void MainWindow::setupSlots()
@@ -75,6 +74,9 @@ void MainWindow::setupSlots()
 	connect(m_ui->m_fileExit, &QAction::triggered,
 			this, &MainWindow::onFileExit);
 
+	connect(m_paper, &Paper::toPrevPage, this, &MainWindow::onToPrevPage);
+	connect(m_paper, &Paper::toNextPage, this, &MainWindow::onToNextPage);
+
 	connect(m_ui->m_helpAbout, &QAction::triggered,
 			this, &MainWindow::onHelpAbout);
 }
@@ -84,19 +86,21 @@ void MainWindow::onFileOpen()
 	QFileDialog dialog(this, tr("Open"));
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
+		QString image = dialog.selectedFiles().constFirst();
 		m_lastOpenPos = dialog.directory().absolutePath();
 		m_book.open(m_lastOpenPos);
 		D(("Book: %ld\n", (long)&m_book));
-		m_book.setCurPage(dialog.selectedFiles().constFirst());
-		D(("Starting loadCurrPage().\n"));
-		m_display->loadCurrPage();
+		m_book.setCurPage(image);
+		D(("Starting loadCurrPage(): %s.\n", image.toUtf8().data()));
+		if (m_paper->browse(image))
+			m_paper->draw();
 		D(("Finished loadCurrPage().\n"));
 	}
 }
 
 void MainWindow::onFileClose()
 {
-	m_display->closeImage();
+	m_paper->erase();
 }
 
 void MainWindow::onFileExit()
@@ -109,6 +113,20 @@ void MainWindow::onHelpAbout()
 	QMessageBox::about(this, tr("About ImgView"),
 			tr("<p>A simple image viewer programmed in C++, based on Qt "
 				"toolkit.</p>"));
+}
+
+void MainWindow::onToPrevPage()
+{
+	m_paper->erase();
+	if (m_paper->browse(m_book.toPrevPage().absPath()))
+		m_paper->draw();
+}
+
+void MainWindow::onToNextPage()
+{
+	m_paper->erase();
+	if (m_paper->browse(m_book.toNextPage().absPath()))
+		m_paper->draw();
 }
 
 void MainWindow::checkFileCloseEnabled()
@@ -206,12 +224,12 @@ void MainWindow::setupShortCut()
 
 void MainWindow::onCtrlPlus()
 {
-	m_display->zoomIn(0.01);
+	m_paper->zoomIn(0.01);
 }
 
 void MainWindow::onCtrlMinus()
 {
-	m_display->zoomOut(0.01);
+	m_paper->zoomOut(0.01);
 }
 
 }  /* img_view */

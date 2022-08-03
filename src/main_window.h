@@ -35,6 +35,8 @@ private slots:
 	void onHelpAbout();
 	void onCtrlPlus();
 	void onCtrlMinus();
+	void onToPrevPage();
+	void onToNextPage();
 
 	/* Check and set actions' activation. */
 	void checkFileCloseEnabled();
@@ -60,7 +62,7 @@ private:
 private:
 	static QString m_lastOpenPos;
 	ui::MainWindowUi *m_ui = nullptr;
-	Paper *m_display = nullptr;
+	Paper *m_paper = nullptr;
 	Book m_book;
 };
 

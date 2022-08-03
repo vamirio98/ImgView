@@ -14,60 +14,6 @@
 
 namespace img_view {
 
-bool BookInfo::browse(const QString &book)
-{
-	QFileInfo info(book);
-	if (!info.exists() || !info.isDir() || !info.isReadable())
-		return false;
-	m_lastModified = info.lastModified().toMSecsSinceEpoch();
-
-	QDir dir(book);
-	m_absPath = dir.absolutePath().toUtf8();
-	m_bookname = dir.dirName().toUtf8();
-	QStringList filelist = dir.entryList(QDir::Files | QDir::Readable,
-			QDir::Name);
-	QString filepath;
-	for (const QString &filename : filelist) {
-		filepath = dir.filePath(filename);
-		if (getImageFormat(filepath) == ImageFormat::unknown)
-			continue;
-		m_coverFilepath = filepath.toUtf8();
-		m_coverFilename = filename.toUtf8();
-		break;
-	}
-	return true;
-}
-
-bool BookInfo::empty() const
-{
-	return m_absPath.isEmpty();
-}
-
-QString BookInfo::absPath() const
-{
-	return m_absPath;
-}
-
-QString BookInfo::bookName() const
-{
-	return m_bookname;
-}
-
-QString BookInfo::coverFilepath() const
-{
-	return m_coverFilepath;
-}
-
-QString BookInfo::coverFilename() const
-{
-	return m_coverFilename;
-}
-
-qint64 BookInfo::lastModified() const
-{
-	return m_lastModified;
-}
-
 Book::Book()
 {
 }
@@ -110,6 +56,21 @@ void Book::close()
 bool Book::empty() const
 {
 	return m_pageList.empty();
+}
+
+const BookInfo &Book::info() const
+{
+	return m_info;
+}
+
+const QList<ImageInfo> &Book::pageList() const
+{
+	return m_pageList;
+}
+
+int Book::pageNum() const
+{
+	return m_pageNum;
 }
 
 QString Book::bookName() const
@@ -198,6 +159,56 @@ const ImageInfo &Book::toPage(int num)
 	m_pageNum = num < 0 ? 0 :
 		(num >= m_pageList.size() ? m_pageList.size() - 1 : num);
 	return m_pageList.at(m_pageNum);
+}
+
+void Book::sortPages(Sort sort)
+{
+	switch (sort) {
+	case Sort::NameAscending:
+		std::sort(m_pageList.begin(), m_pageList.end(),
+				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+					return lhs.filename() < rhs.filename();
+				});
+		break;
+	case Sort::NameDescending:
+		std::sort(m_pageList.begin(), m_pageList.end(),
+				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+					return lhs.filename() > rhs.filename();
+				});
+		break;
+	case Sort::DateAscending:
+		std::sort(m_pageList.begin(), m_pageList.end(),
+				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+					return lhs.lastModified() < rhs.lastModified();
+				});
+		break;
+	case Sort::DateDescending:
+		std::sort(m_pageList.begin(), m_pageList.end(),
+				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+					return lhs.lastModified() > rhs.lastModified();
+				});
+		break;
+	case Sort::SizeAscending:
+		std::sort(m_pageList.begin(), m_pageList.end(),
+				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+					return lhs.size() < rhs.size();
+				});
+		break;
+	case Sort::SizeDescending:
+		std::sort(m_pageList.begin(), m_pageList.end(),
+				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+					return lhs.size() > rhs.size();
+				});
+		break;
+	case Sort::Shuffle:
+		for (int j = m_pageList.size() - 1; j > 0; --j) {
+			int i = rand() % j;
+			std::swap(m_pageList[i], m_pageList[j]);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 }  /* img_view */

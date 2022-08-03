@@ -9,67 +9,11 @@
 #include <QList>
 #include <QImage>
 
+#include "book_info.h"
 #include "image_info.h"
+#include "options.h"
 
 namespace img_view {
-
-class BookInfo {
-public:
-	BookInfo() = default;
-	~BookInfo() = default;
-
-	/**
-	 * @brief Browse a book and get its information.
-	 *
-	 * @param book The directory path to browse
-	 *
-	 * @return True when succeeded, false when the path is not exist, is not a
-	 *         directory, or you don't have the permission to open it
-	 */
-	bool browse(const QString &book);
-
-	/**
-	 * @brief Check whether is no book has been browsed now.
-	 *
-	 * @return True when no book has been browsed
-	 */
-	bool empty() const;
-
-	/**
-	 * @brief Get the absolute path of the book.
-	 */
-	QString absPath() const;
-
-	/**
-	 * @brief Get the book basename.
-	 */
-	QString bookName() const;
-
-	/**
-	 * @brief Get the absolute path of the cover file, it is an empty string
-	 *        when there are no image files in the current book.
-	 */
-	QString coverFilepath() const;
-
-	/**
-	 * @brief Get the cover file basename.
-	 */
-	QString coverFilename() const;
-
-	/**
-	 * @brief Get the last modified timestamp (milliseconds since
-	 *        1970/01/01T00:00:00.000) of the book.
-	 */
-	qint64 lastModified() const;
-
-private:
-	QByteArray m_absPath;
-	QByteArray m_bookname;
-	/* The cover file is the first image file in the book (name ascending). */
-	QByteArray m_coverFilepath;
-	QByteArray m_coverFilename;
-	qint64 m_lastModified = 0;
-};
 
 /*
  * A directory is considered as a book, all images in it are considered as
@@ -100,6 +44,27 @@ public:
 	 * @return True when a book is empty
 	 */
 	bool empty() const;
+
+	/**
+	 * @brief Get the book's information.
+	 *
+	 * @return The book's information.
+	 */
+	const BookInfo &info() const;
+
+	/**
+	 * @brief Get the page list.
+	 *
+	 * @return The page list.
+	 */
+	const QList<ImageInfo> &pageList() const;
+
+	/**
+	 * @brief Get the current page number (start with 0).
+	 *
+	 * @return The current page number.
+	 */
+	int pageNum() const;
 
 	/**
 	 * @brief Get the book name, last part in path
@@ -208,6 +173,13 @@ public:
 	 * @return The information of the NUMth page.
 	 */
 	const ImageInfo &toPage(int num);
+
+	/**
+	 * @brief Sort pages by SORT.
+	 *
+	 * @param sort Sort option.
+	 */
+	void sortPages(Sort sort);
 
 private:
 

@@ -102,7 +102,7 @@ public:
 	QToolBar *m_toolbar = nullptr;
 
 	/* Central widget. */
-	Paper *m_board = nullptr;
+	Paper *m_paper = nullptr;
 
 	/* Left navigation area. */
 	QDockWidget *m_navigation = nullptr;
