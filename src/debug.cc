@@ -6,11 +6,10 @@
 #include "debug.h"
 
 #include <vector>
-
-#include <QDateTime>
-
 #include <cstdio>
 #include <cstdarg>
+
+#include <QDateTime>
 
 namespace img_view {
 
@@ -44,21 +43,6 @@ Debug::Debug(Debug&& rhs) : _lv(rhs._lv), _valid(true),
 {
 	_ts.setString(&_msg);
 	rhs._valid = false;
-}
-
-void Debug::setLogFile(const QString& filename)
-{
-	Logger::instance()->setLogFile(filename);
-}
-
-void Debug::setLogLv(const LogLv& lv)
-{
-	Logger::instance()->setLogLv(lv);
-}
-
-void Debug::setFileLogLv(const LogLv& lv)
-{
-	Logger::instance()->setFileLogLv(lv);
 }
 
 auto Debug::addMsg() -> Debug&&
