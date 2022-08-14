@@ -24,110 +24,110 @@ namespace img_view::ui {
 class MainWindowUi {
 public:
 	/* Menu bar. */
-	QMenuBar *m_menubar = nullptr;
+	QMenuBar* m_menubar = nullptr;
 
 	/* Menus. */
-	QMenu *m_fileMenu = nullptr;
-	QMenu *m_viewMenu = nullptr;
-	QMenu *m_imageMenu = nullptr;
-	QMenu *m_jumpMenu = nullptr;
-	QMenu *m_pageMenu = nullptr;
-	QMenu *m_optionMenu = nullptr;
-	QMenu *m_helpMenu = nullptr;
+	QMenu* _fileMenu = nullptr;
+	QMenu* _viewMenu = nullptr;
+	QMenu* _imageMenu = nullptr;
+	QMenu* _jumpMenu = nullptr;
+	QMenu* _pageMenu = nullptr;
+	QMenu* _optionMenu = nullptr;
+	QMenu* _helpMenu = nullptr;
 
 	/* File menu. */
-	QAction *m_fileOpen = nullptr;
-	QAction *m_fileClose = nullptr;
-	QMenu *m_fileRecentBooks = nullptr;
-	QAction *m_fileOpenFileLocation = nullptr;
-	QAction *m_fileSaveAs = nullptr;
-	QAction *m_filePrint = nullptr;
-	QAction *m_fileExit = nullptr;
+	QAction* _fileOpen = nullptr;
+	QAction* _fileClose = nullptr;
+	QMenu* _fileRecentBooks = nullptr;
+	QAction* _fileOpenFileLocation = nullptr;
+	QAction* _fileSaveAs = nullptr;
+	QAction* _filePrint = nullptr;
+	QAction* _fileExit = nullptr;
 
 	/* View menu. */
-	QAction *m_viewLibrary = nullptr;
-	QAction *m_viewPageList = nullptr;
-	QAction *m_viewHistory = nullptr;
-	QAction *m_viewInformation = nullptr;
-	QAction *m_viewAction = nullptr;
-	QAction *m_viewSideBar = nullptr;
+	QAction* _viewLibrary = nullptr;
+	QAction* _viewPageList = nullptr;
+	QAction* _viewHistory = nullptr;
+	QAction* _viewInformation = nullptr;
+	QAction* _viewAction = nullptr;
+	QAction* _viewSideBar = nullptr;
 
 	/* Image menu. */
-	QActionGroup *m_imageSizeGroup = nullptr;
-	QAction *m_imageOriginSize = nullptr;
-	QAction *m_imageFitToWindow = nullptr;
-	QAction *m_imageFitHeightToWindow = nullptr;
-	QAction *m_imageFitWidthToWindow = nullptr;
-	QActionGroup *m_imageBackgroundColorGroup = nullptr;
-	QAction *m_imageDarkBackground = nullptr;
-	QAction *m_imageLightBackground = nullptr;
-	QAction *m_imageCustomBackground = nullptr;
+	QActionGroup* _imageSizeGroup = nullptr;
+	QAction* _imageOriginSize = nullptr;
+	QAction* _imageFitToWindow = nullptr;
+	QAction* _imageFitHeightToWindow = nullptr;
+	QAction* _imageFitWidthToWindow = nullptr;
+	QActionGroup* _imageBackgroundColorGroup = nullptr;
+	QAction* _imageDarkBackground = nullptr;
+	QAction* _imageLightBackground = nullptr;
+	QAction* _imageCustomBackground = nullptr;
 
 	/* Jump menu. */
-	QAction *m_jumpPrevPage = nullptr;
-	QAction *m_jumpNextPage = nullptr;
-	QAction *m_jumpFirstPage = nullptr;
-	QAction *m_jumpLastPage = nullptr;
-	QAction *m_jumpPrevBook = nullptr;
-	QAction *m_jumpNextBook = nullptr;
-	QAction *m_jumpPrevLocation = nullptr;
-	QAction *m_jumpNextLocation = nullptr;
+	QAction* _jumpPrevPage = nullptr;
+	QAction* _jumpNextPage = nullptr;
+	QAction* _jumpFirstPage = nullptr;
+	QAction* _jumpLastPage = nullptr;
+	QAction* _jumpPrevBook = nullptr;
+	QAction* _jumpNextBook = nullptr;
+	QAction* _jumpPrevLocation = nullptr;
+	QAction* _jumpNextLocation = nullptr;
 
 	/* Page menu. */
-	QActionGroup *m_pagePageNumGroup = nullptr;
-	QAction *m_pageOnePage = nullptr;
-	QAction *m_pageTwoPage = nullptr;
-	QActionGroup *m_pageReadDirectionGroup = nullptr;
-	QAction *m_pageRightToLeft = nullptr;
-	QAction *m_pageLeftToRight = nullptr;
-	QActionGroup *m_pageSortOptionGroup = nullptr;
-	QAction *m_pageNameAscending = nullptr;
-	QAction *m_pageNameDescending = nullptr;
-	QAction *m_pageDateAscending = nullptr;
-	QAction *m_pageDateDescending = nullptr;
-	QAction *m_pageSizeAscending = nullptr;
-	QAction *m_pageSizeDescending = nullptr;
-	QAction *m_pageShuffle = nullptr;
+	QActionGroup* _pagePageNumGroup = nullptr;
+	QAction* _pageOnePage = nullptr;
+	QAction* _pageTwoPage = nullptr;
+	QActionGroup* _pageReadDirectionGroup = nullptr;
+	QAction* _pageRightToLeft = nullptr;
+	QAction* _pageLeftToRight = nullptr;
+	QActionGroup* _pageSortOptionGroup = nullptr;
+	QAction* _pageNameAscending = nullptr;
+	QAction* _pageNameDescending = nullptr;
+	QAction* _pageDateAscending = nullptr;
+	QAction* _pageDateDescending = nullptr;
+	QAction* _pageSizeAscending = nullptr;
+	QAction* _pageSizeDescending = nullptr;
+	QAction* _pageShuffle = nullptr;
 
 	/* Option menu. */
-	QAction *m_optionSettings = nullptr;
-	QAction *m_optionConfigureKeyboardShortcut = nullptr;
+	QAction* _optionSettings = nullptr;
+	QAction* _optionConfigureKeyboardShortcut = nullptr;
 
 	/* Help menu. */
-	QAction *m_helpMenuHelp = nullptr;
-	QAction *m_helpShortcutHelp = nullptr;
-	QAction *m_helpAbout = nullptr;
+	QAction* _helpMenuHelp = nullptr;
+	QAction* _helpShortcutHelp = nullptr;
+	QAction* _helpAbout = nullptr;
 
 	/* Tool bar. */
-	QToolBar *m_toolbar = nullptr;
+	QToolBar* _toolbar = nullptr;
 
 	/* Central widget. */
-	Paper *m_paper = nullptr;
+	Paper* _paper = nullptr;
 
 	/* Left navigation area. */
-	QDockWidget *m_navigation = nullptr;
-	QAction *m_naviBook = nullptr;
-	QAction *m_naviBooks = nullptr;
-	QAction *m_naviHistory = nullptr;
+	QDockWidget* _navigation = nullptr;
+	QAction* _naviBook = nullptr;
+	QAction* _naviBooks = nullptr;
+	QAction* _naviHistory = nullptr;
 
 	/* Right information area. */
-	QDockWidget *m_info = nullptr;
-	QAction *m_infoDetail = nullptr;
+	QDockWidget* _info = nullptr;
+	QAction* _infoDetail = nullptr;
 
 public:
-	void setupUi(QMainWindow *ImgView);
-	void retranslateUi(QMainWindow *ImgView);
+	void setupUi(QMainWindow* ImgView);
+	void retranslateUi(QMainWindow* ImgView);
 
 private:
-	void createActions(QMainWindow *ImgView);
-	void setupMenubarUi(QMainWindow *ImgView);
-	void setupFileMenuUi(QMainWindow *ImgView);
-	void setupViewMenuUi(QMainWindow *ImgView);
-	void setupImageMenuUi(QMainWindow *ImgView);
-	void setupJumpMenuUi(QMainWindow *ImgView);
-	void setupPageMenuUi(QMainWindow *ImgView);
-	void setupOptionMenuUi(QMainWindow *ImgView);
-	void setupHelpMenuUi(QMainWindow *ImgView);
+	void createActions(QMainWindow* ImgView);
+	void setupMenubarUi(QMainWindow* ImgView);
+	void setupFileMenuUi(QMainWindow* ImgView);
+	void setupViewMenuUi(QMainWindow* ImgView);
+	void setupImageMenuUi(QMainWindow* ImgView);
+	void setupJumpMenuUi(QMainWindow* ImgView);
+	void setupPageMenuUi(QMainWindow* ImgView);
+	void setupOptionMenuUi(QMainWindow* ImgView);
+	void setupHelpMenuUi(QMainWindow* ImgView);
 	void retranslateFileMenuUi();
 	void retranslateViewMenuUi();
 	void retranslateImageMenuUi();
@@ -135,10 +135,10 @@ private:
 	void retranslatePageMenuUi();
 	void retranslateOptionMenuUi();
 	void retranslateHelpMenuUi();
-	void setupCentralWidgetUi(QMainWindow *ImgView);
-	void setupToolbarUi(QMainWindow *ImgView);
-	void setupNavigationUi(QMainWindow *ImgView);
-	void setupInfoUi(QMainWindow *ImgView);
+	void setupCentralWidgetUi(QMainWindow* ImgView);
+	void setupToolbarUi(QMainWindow* ImgView);
+	void setupNavigationUi(QMainWindow* ImgView);
+	void setupInfoUi(QMainWindow* ImgView);
 };
 
 }  /* img_view::ui */

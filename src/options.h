@@ -82,7 +82,7 @@ public:
 	bool showAction() const;
 	bool showSideBar() const;
 	ImageSize imageSize() const;
-	const char *imageBgColor() const;
+	const char* imageBgColor() const;
 	bool isFirstPage() const;
 	bool isLastPage() const;
 	bool isFirstBook() const;
@@ -110,23 +110,23 @@ public:
 	void setShowInfo(const bool showInfo);
 	void setShowAction(const bool showAction);
 	void setShowSideBar(const bool showSideBar);
-	void setImageSize(const ImageSize &imageSize);
-	void setImageBgColor(const char *imageBgColor);
+	void setImageSize(const ImageSize& imageSize);
+	void setImageBgColor(const char* imageBgColor);
 	void setIsFirstPage(const bool isFirstPage);
 	void setIsLastPage(const bool isLastPage);
 	void setIsFirstBook(const bool isFirstBook);
 	void setIsLastBook(const bool isLastBook);
 	void setIsFirstLocation(const bool isFirstLocation);
 	void setIsLastLocation(const bool isLastLocation);
-	void setPageNum(const PageNum &pageNum);
-	void setReadDirection(const ReadDirection &readDirection);
+	void setPageNum(const PageNum& pageNum);
+	void setReadDirection(const ReadDirection& readDirection);
 	void setSplitWidePage(const bool splitWidePage);
 	void setFirstPageAlone(const bool firstPageAlone);
 	void setLastPageAlone(const bool lastPageAlone);
-	void setSortPage(const Sort &sortPage);
-	void setPageListStyle(const ListStyle &pageListStyle);
-	void setSortBook(const Sort &sortBook);
-	void setBookListStyle(const ListStyle &bookListStyle);
+	void setSortPage(const Sort& sortPage);
+	void setPageListStyle(const ListStyle& pageListStyle);
+	void setSortBook(const Sort& sortBook);
+	void setBookListStyle(const ListStyle& bookListStyle);
 	void setMinImage(const bool minImage);
 	void setMaxImage(const bool maxImage);
 	void setKeepScale(const bool keepScale);
@@ -162,44 +162,44 @@ signals:
 	void keepScaleChanged();
 
 private:
-	bool m_show = false;  /* Show image or not. */
-	bool m_hasHistory = false;
+	bool _show = false;  /* Show image or not. */
+	bool _hasHistory = false;
 
 	/* Component visibility. */
-	bool m_showLibrary = false;
-	bool m_showPageList = false;
-	bool m_showHistory = false;
-	bool m_showInfo = false;
-	bool m_showAction = false;
-	bool m_showSideBar = false;
+	bool _showLibrary = false;
+	bool _showPageList = false;
+	bool _showHistory = false;
+	bool _showInfo = false;
+	bool _showAction = false;
+	bool _showSideBar = false;
 
-	ImageSize m_imageSize = ImageSize::OriginSize;
-	char *m_imageBgColor = nullptr;  /* Image background color. */
+	ImageSize _imageSize = ImageSize::OriginSize;
+	char* _imageBgColor = nullptr;  /* Image background color. */
 
-	bool m_isFirstPage = true;
-	bool m_isLastPage = true;
-	bool m_isFirstBook = true;
-	bool m_isLastBook = true;
-	bool m_isFirstLocation = true;
-	bool m_isLastLocation = true;
+	bool _isFirstPage = true;
+	bool _isLastPage = true;
+	bool _isFirstBook = true;
+	bool _isLastBook = true;
+	bool _isFirstLocation = true;
+	bool _isLastLocation = true;
 
 	/* Pages options. */
-	PageNum m_pageNum = PageNum::OnePage;
-	ReadDirection m_readDirection = ReadDirection::RightToLeft;
-	bool m_splitWidePage = false;
-	bool m_firstPageAlone = false;
-	bool m_lastPageAlone = false;
-	Sort m_sortPage = Sort::NameAscending;
-	ListStyle m_pageListStyle = ListStyle::List;
+	PageNum _pageNum = PageNum::OnePage;
+	ReadDirection _readDirection = ReadDirection::RightToLeft;
+	bool _splitWidePage = false;
+	bool _firstPageAlone = false;
+	bool _lastPageAlone = false;
+	Sort _sortPage = Sort::NameAscending;
+	ListStyle _pageListStyle = ListStyle::List;
 
 	/* Books options. */
-	Sort m_sortBook = Sort::NameAscending;
-	ListStyle m_bookListStyle = ListStyle::List;
+	Sort _sortBook = Sort::NameAscending;
+	ListStyle _bookListStyle = ListStyle::List;
 
 	/* Scale option. */
-	bool m_minImage = true;
-	bool m_maxImage = true;
-	bool m_keepScale = false;
+	bool _minImage = true;
+	bool _maxImage = true;
+	bool _keepScale = false;
 };
 
 extern Options gOpt;

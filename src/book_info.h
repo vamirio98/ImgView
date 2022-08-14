@@ -23,7 +23,7 @@ public:
 	 * @return True when succeeded, false when the path is not exist, is not a
 	 *         directory, or you don't have the permission to open it
 	 */
-	bool browse(const QString &book);
+	bool browse(const QString& book);
 
 	/**
 	 * @brief Check whether is no book has been browsed now.
@@ -60,12 +60,12 @@ public:
 	qint64 lastModified() const;
 
 private:
-	QByteArray m_absPath;
-	QByteArray m_bookname;
+	QByteArray _absPath;
+	QByteArray _bookname;
 	/* The cover file is the first image file in the book (name ascending). */
-	QByteArray m_coverFilepath;
-	QByteArray m_coverFilename;
-	qint64 m_lastModified = 0;
+	QByteArray _coverFilepath;
+	QByteArray _coverFilename;
+	qint64 _lastModified = 0;
 };
 
 }  /* img_view */

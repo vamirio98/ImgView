@@ -8,15 +8,19 @@
 #include <QImageReader>
 
 #include "main_window.h"
+#include "debug.h"
 #include "logger.h"
 
-int main(int argc, char *argv[])
+using namespace img_view;
+
+int main(int argc, char* argv[])
 {
 	QApplication app(argc, argv);
 //	QApplication::addLibraryPath(app.applicationDirPath() + "/plugins");
 
-	img_view::Logger::initInstance();
-	img_view::Logger::setLogFilter(img_view::LogLevel::Debug);
+	Logger::initInstance();
+	Logger::instance()->setLogLv(LogLv::Debug);
+	Logger::instance()->setFileLogLv(LogLv::Info);
 
 	QCommandLineParser cmd_parser;
 	cmd_parser.addHelpOption();
@@ -24,11 +28,11 @@ int main(int argc, char *argv[])
 			img_view::MainWindow::tr("Image file to open."));
 	cmd_parser.process(QApplication::arguments());
 
-	img_view::MainWindow ImgView;
+	MainWindow ImgView;
 	ImgView.init();
-	img_view::logInfoToFile("ImgView start up");
-
 	ImgView.show();
+
+	gInfo() << "ImgView started up.";
 
 	if (!cmd_parser.positionalArguments().isEmpty())
 		ImgView.loadFile(cmd_parser.positionalArguments().constFirst());

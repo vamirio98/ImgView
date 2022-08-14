@@ -1,31 +1,18 @@
 /**
  * logger.h
  *
- * Created by vamirio on 2022 May 04
+ * Created by vamirio on 2022 Aug 14
  */
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <QObject>
-#include <QReadWriteLock>
-#include <QString>
 #include <QFile>
+#include <QReadWriteLock>
 
-/* Max length of the message logged to file or screen. */
-#define MAX_MSG_LEN  8192
+namespace img_view
+{
 
-#define D(s) \
-{ \
-	if (img_view::Logger::logFilter() | img_view::LogLevel::Debug) { \
-		printf("%-12s +%-4u %-20s : ", __FILE__, __LINE__, __FUNCTION__); \
-		printf s; \
-		fflush(stdout); \
-   	} \
-}
-
-namespace img_view {
-
-enum LogLevel {
+enum class LogLv {
 	All = -1,
 	Debug = 0x1,
 	Info = 0x2,
@@ -34,121 +21,68 @@ enum LogLevel {
 	Fatal = 0x10,
 	Off = 0
 };
-Q_DECLARE_FLAGS(LogLevelSet, LogLevel)
-Q_DECLARE_OPERATORS_FOR_FLAGS(LogLevelSet)
+Q_DECLARE_FLAGS(LogLvSet, LogLv)
+Q_DECLARE_OPERATORS_FOR_FLAGS(LogLvSet)
 
-enum LogPos {
-	None = 0,
-	File = 0x1,
-	Screen = 0x2,
-};
-Q_DECLARE_FLAGS(LogPosSet, LogPos)
-Q_DECLARE_OPERATORS_FOR_FLAGS(LogPosSet)
-
-struct Log {
-	int id;
-	LogLevel level;
-	qint64 timestamp;
-	QString message;
-};
-
-const int kMaxLogNum = 3000;
-
-class Logger : public QObject {
-	Q_OBJECT
-	Q_DISABLE_COPY_MOVE(Logger)
-
-friend void logDebug(const char *format, ...);
-friend void logDebugToFile(const char *format, ...);
-friend void logInfo(const char *format, ...);
-friend void logInfoToFile(const char *format, ...);
-friend void logWarn(const char *format, ...);
-friend void logWarnToFile(const char *format, ...);
-friend void logError(const char *format, ...);
-friend void logErrorToFile(const char *format, ...);
-friend void logFatal(const char *format, ...);
+class Logger {
 
 public:
-	/**
-	 * @brief Initialize the Logger instance
-	 */
 	static void initInstance();
+	static Logger* instance();
 
 	/**
-	 * @brief Free the Logger instance
+	 * @brief Set the Log file.
 	 */
-	static void freeInstance();
+	void setLogFile(const QString& filename);
 
 	/**
-	 * @brief Get the Logger instance
+	 * @brief Set the log level, only logs whose level above it will be
+	 *        recorded.
 	 */
-	static Logger *instance();
+	void setLogLv(const LogLv& lv);
 
 	/**
-	 * @brief Set the log filter
+	 * @brief Set the file log level, only logs whose level above it will be
+	 *        recorded in file.
 	 */
-	static void setLogFilter(const LogLevel &level);
+	void setFileLogLv(const LogLv& lv);
 
 	/**
-	 * @brief Get the log filter
+	 * @brief Get the log level.
 	 */
-	static LogLevelSet logFilter();
+	const LogLvSet& lv() const;
 
 	/**
-	 * @brief Add a @level level log @msg to position @pos
+	 * @brief Get the file log level.
 	 */
-	void addLog(const QString &msg, const LogLevel &level = LogLevel::Info,
-			const LogPosSet &pos = LogPos::None);
+	const LogLvSet& fileLv() const;
 
 	/**
-	 * @brief Add a @level level log @msg to position @pos
+	 * @brief Get the lock.
 	 */
-	void addLog(const char *const msg, const LogLevel &level = LogLevel::Info,
-			const LogPosSet &pos = LogPos::None);
-
-	/**
-	 * @brief Convert the Log @log to string, format: time - level - message
-	 */
-	QString logToStr(const Log &log);
+	QReadWriteLock& locker() const;
 
 	/**
 	 * @brief Convert the LogLevel @level to string
 	 */
-	QString logLevelToStr(const LogLevel &level);
+	QString logLvToStr(const LogLv& lv);
+
+	/**
+	 * @brief Append the message MSG to file
+	 */
+	void appendToFile(const QString& msg);
 
 private:
 	Logger();
 	~Logger();
 
-	/**
-	 * @brief Print the message @msg to file
-	 */
-	void printToFile(const QString &msg);
-
-	/**
-	 * @brief Print the message @msg to screen(stdout)
-	 */
-	void printToScreen(const QString &msg);
-
 private:
-	static Logger *m_instance;       /* The logger instance. */
-	static char *m_msgBuf;           /* For helper function. */
-	static QFile m_logFile;          /* The log file. */
-	static LogLevelSet m_logFilter;  /* The log filter. */
-	mutable QReadWriteLock m_lock;   /* To avoid read and write races. */
-	int m_id = 0;                    /* The log ID. */
-};
-
-/* Helper functions. */
-void logDebug(const char *format, ...);
-void logDebugToFile(const char *format, ...);
-void logInfo(const char *format, ...);
-void logInfoToFile(const char *format, ...);
-void logWarn(const char *format, ...);
-void logWarnToFile(const char *format, ...);
-void logError(const char *format, ...);
-void logErrorToFile(const char *format, ...);
-void logFatal(const char *format, ...);
+	static Logger* _instance;
+	static QFile _logFile;          /* The log file. */
+	static LogLvSet _logLv;         /* The log level. */
+	static LogLvSet _fileLv;        /* The file log level. */
+	mutable QReadWriteLock _locker; /* To avoid read and write races. */
+}; /* Logger */
 
 }  /* img_view */
 

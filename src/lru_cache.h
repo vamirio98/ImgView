@@ -37,26 +37,26 @@ public:
 	 * @return The value corresponding with the KEY, or LruCache::kNotFound when
 	 *         there is no value corresponding with the KEY
 	 */
-	const cv::Mat &get(const ImageInfo &key);
+	const cv::Mat& get(const ImageInfo& key);
 
 	/**
 	 * @brief Put the specified KEY - VALUE pair into cache.
 	 */
-	void put(const ImageInfo &key, const cv::Mat &value);
+	void put(const ImageInfo& key, const cv::Mat& value);
 
 private:
 	/* Add a new KEY - VALUE pair. */
-	void add(const ImageInfo &key, const cv::Mat &value);
+	void add(const ImageInfo& key, const cv::Mat& value);
 	/* Remove the the least recently used cache. */
 	void remove();
 	/* Update the KEY - VALUE pair, make it the most recently used. */
-	void update(const ImageInfo &key, const cv::Mat &value);
+	void update(const ImageInfo& key, const cv::Mat& value);
 
 private:
-	CacheList m_cacheList;
-	CacheMap m_cacheMap;
-	qint64 m_capacity = 0;
-	qint64 m_maxCapacity;
+	CacheList _cacheList;
+	CacheMap _cacheMap;
+	qint64 _capacity = 0;
+	qint64 _maxCapacity;
 };
 
 };  /* img_view */

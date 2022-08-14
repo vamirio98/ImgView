@@ -31,7 +31,7 @@ public:
 	 *
 	 * @return True when success
 	 */
-	bool open(const QString &book);
+	bool open(const QString& book);
 
 	/**
 	 * @brief Close book.
@@ -50,14 +50,14 @@ public:
 	 *
 	 * @return The book's information.
 	 */
-	const BookInfo &info() const;
+	const BookInfo& info() const;
 
 	/**
 	 * @brief Get the page list.
 	 *
 	 * @return The page list.
 	 */
-	const QList<ImageInfo> &pageList() const;
+	const QList<ImageInfo>& pageList() const;
 
 	/**
 	 * @brief Get the current page number (start with 0).
@@ -95,7 +95,7 @@ public:
 	/**
 	 * @brief The information of the current page (image)
 	 */
-	const ImageInfo &curPage() const;
+	const ImageInfo& curPage() const;
 
 	/**
 	 * @brief Set the current page (image file) to specified page
@@ -104,7 +104,7 @@ public:
 	 *
 	 * @return True when the page found in the book
 	 */
-	bool setCurPage(const QString &pagename);
+	bool setCurPage(const QString& pagename);
 
 	/**
 	 * @brief Get the previous page's information.
@@ -112,7 +112,7 @@ public:
 	 * @return The previous page's information, if the current page is the
 	 *         first page, return its information.
 	 */
-	const ImageInfo &prevPage() const;
+	const ImageInfo& prevPage() const;
 
 	/**
 	 * @brief Get the next page's information.
@@ -120,7 +120,7 @@ public:
 	 * @return The next page's information, if the current page is the last
 	 *         page, return its information.
 	 */
-	const ImageInfo &nextPage() const;
+	const ImageInfo& nextPage() const;
 
 	/**
 	 * @brief Get at most NUM pages' information before the current page.
@@ -151,7 +151,7 @@ public:
 	 * @return The information of the previous page, or of the current page
 	 *         if it is the first page
 	 */
-	const ImageInfo &toPrevPage();
+	const ImageInfo& toPrevPage();
 
 	/**
 	 * @brief Move to the next page(image), if the current page is the
@@ -162,7 +162,7 @@ public:
 	 * @return The information of the next page, or of the current page if
 	 *         it is the last page
 	 */
-	const ImageInfo &toNextPage();
+	const ImageInfo& toNextPage();
 
 	/**
 	 * @brief Move to the NUMth page, or the first page if NUM is negative and
@@ -172,7 +172,7 @@ public:
 	 *
 	 * @return The information of the NUMth page.
 	 */
-	const ImageInfo &toPage(int num);
+	const ImageInfo& toPage(int num);
 
 	/**
 	 * @brief Sort pages by SORT.
@@ -184,10 +184,10 @@ public:
 private:
 
 private:
-	BookInfo m_info;  /* This book's information. */
+	BookInfo _info;  /* This book's information. */
 	/* Information of all pages inside this book. */
-	QList<ImageInfo> m_pageList;
-	int m_pageNum = -1;
+	QList<ImageInfo> _pageList;
+	int _pageNum = -1;
 };
 
 }  /* img_view */

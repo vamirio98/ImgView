@@ -10,7 +10,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-#include "logger.h"
+#include "debug.h"
 
 namespace img_view {
 
@@ -22,188 +22,188 @@ Book::~Book()
 {
 }
 
-bool Book::open(const QString &book)
+bool Book::open(const QString& book)
 {
-	logDebug("Opening book...\n");
-	/* Set m_info. */
-	if (!m_info.browse(book))
+	gDebug() << "Opening book...";
+	/* Set _info. */
+	if (!_info.browse(book))
 		return false;
 
 	QDir dir(book);
 	QStringList filelist = dir.entryList(QDir::Files | QDir::Readable,
 			QDir::Name);
 	QString filepath;
-	for (const QString &filename : filelist) {
+	for (const QString& filename : filelist) {
 		filepath = dir.filePath(filename);
 		ImageInfo info;
 		if (!info.browse(filepath))
 			continue;
-		m_pageList.emplace_back(info);
+		_pageList.emplace_back(info);
 	}
-	m_pageNum = 0;
-	logDebug("Finished opening.\n");
+	_pageNum = 0;
+	gDebug() << "Finished opening.";
 
 	return true;
 }
 
 void Book::close()
 {
-	m_info = BookInfo();
-	m_pageList.clear();
-	m_pageNum = -1;
+	_info = BookInfo();
+	_pageList.clear();
+	_pageNum = -1;
 }
 
 bool Book::empty() const
 {
-	return m_pageList.empty();
+	return _pageList.empty();
 }
 
-const BookInfo &Book::info() const
+const BookInfo& Book::info() const
 {
-	return m_info;
+	return _info;
 }
 
-const QList<ImageInfo> &Book::pageList() const
+const QList<ImageInfo>& Book::pageList() const
 {
-	return m_pageList;
+	return _pageList;
 }
 
 int Book::pageNum() const
 {
-	return m_pageNum;
+	return _pageNum;
 }
 
 QString Book::bookName() const
 {
-	return m_info.bookName();
+	return _info.bookName();
 }
 
 QString Book::absPath() const
 {
-	return m_info.absPath();
+	return _info.absPath();
 }
 
 QString Book::coverFilename() const
 {
-	return m_info.coverFilename();
+	return _info.coverFilename();
 }
 
 QString Book::coverFilepath() const
 {
-	return m_info.coverFilepath();
+	return _info.coverFilepath();
 }
 
 qint64 Book::lastModified() const
 {
-	return m_info.lastModified();
+	return _info.lastModified();
 }
 
-const ImageInfo &Book::curPage() const
+const ImageInfo& Book::curPage() const
 {
-	return m_pageList.at(m_pageNum);
+	return _pageList.at(_pageNum);
 }
 
-bool Book::setCurPage(const QString &pagename)
+bool Book::setCurPage(const QString& pagename)
 {
-	auto iter = std::find_if(m_pageList.cbegin(), m_pageList.cend(),
-			[&pagename](const ImageInfo &info) {
+	auto iter = std::find_if(_pageList.cbegin(), _pageList.cend(),
+			[&pagename](const ImageInfo& info) {
 			return info.filename() == pagename; });
-	if (iter == m_pageList.cend())
+	if (iter == _pageList.cend())
 		return false;
-	m_pageNum = iter - m_pageList.cbegin();
+	_pageNum = iter - _pageList.cbegin();
 	return true;
 }
 
-const ImageInfo &Book::prevPage() const
+const ImageInfo& Book::prevPage() const
 {
-	return m_pageList.at(m_pageNum - (m_pageNum == 0 ? 0 : 1));
+	return _pageList.at(_pageNum - (_pageNum == 0 ? 0 : 1));
 }
 
-const ImageInfo &Book::nextPage() const
+const ImageInfo& Book::nextPage() const
 {
-	return m_pageList.at(m_pageNum
-			+ (m_pageNum == m_pageList.size() - 1 ? 0 : 1));
+	return _pageList.at(_pageNum
+			+ (_pageNum == _pageList.size() - 1 ? 0 : 1));
 }
 
 QList<ImageInfo> Book::prevPages(int num) const
 {
 	QList<ImageInfo> ret;
-	int i = m_pageNum - num >= 0 ? m_pageNum - num : 0;
-	for (; i != m_pageNum && num > 0; ++i, --num)
-		ret.push_back(m_pageList.at(i));
+	int i = _pageNum - num >= 0 ? _pageNum - num : 0;
+	for (; i != _pageNum && num > 0; ++i, --num)
+		ret.push_back(_pageList.at(i));
 	return ret;
 }
 
 QList<ImageInfo> Book::nextPages(int num) const
 {
 	QList<ImageInfo> ret;
-	for (int i = m_pageNum + 1; i != m_pageList.size() && num > 0; ++i, --num)
-		ret.push_back(m_pageList.at(i));
+	for (int i = _pageNum + 1; i != _pageList.size() && num > 0; ++i, --num)
+		ret.push_back(_pageList.at(i));
 	return ret;
 }
 
-const ImageInfo &Book::toPrevPage()
+const ImageInfo& Book::toPrevPage()
 {
-	return m_pageNum == 0 ? m_pageList.at(m_pageNum)
-		: m_pageList.at(--m_pageNum);
+	return _pageNum == 0 ? _pageList.at(_pageNum)
+		: _pageList.at(--_pageNum);
 }
 
-const ImageInfo &Book::toNextPage()
+const ImageInfo& Book::toNextPage()
 {
-	return m_pageNum == m_pageList.size() - 1 ? m_pageList.at(m_pageNum)
-		: m_pageList.at(++m_pageNum);
+	return _pageNum == _pageList.size() - 1 ? _pageList.at(_pageNum)
+		: _pageList.at(++_pageNum);
 }
 
-const ImageInfo &Book::toPage(int num)
+const ImageInfo& Book::toPage(int num)
 {
-	m_pageNum = num < 0 ? 0 :
-		(num >= m_pageList.size() ? m_pageList.size() - 1 : num);
-	return m_pageList.at(m_pageNum);
+	_pageNum = num < 0 ? 0 :
+		(num >= _pageList.size() ? _pageList.size() - 1 : num);
+	return _pageList.at(_pageNum);
 }
 
 void Book::sortPages(Sort sort)
 {
 	switch (sort) {
 	case Sort::NameAscending:
-		std::sort(m_pageList.begin(), m_pageList.end(),
-				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+		std::sort(_pageList.begin(), _pageList.end(),
+				[](const ImageInfo& lhs, const ImageInfo& rhs) {
 					return lhs.filename() < rhs.filename();
 				});
 		break;
 	case Sort::NameDescending:
-		std::sort(m_pageList.begin(), m_pageList.end(),
-				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+		std::sort(_pageList.begin(), _pageList.end(),
+				[](const ImageInfo& lhs, const ImageInfo& rhs) {
 					return lhs.filename() > rhs.filename();
 				});
 		break;
 	case Sort::DateAscending:
-		std::sort(m_pageList.begin(), m_pageList.end(),
-				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+		std::sort(_pageList.begin(), _pageList.end(),
+				[](const ImageInfo& lhs, const ImageInfo& rhs) {
 					return lhs.lastModified() < rhs.lastModified();
 				});
 		break;
 	case Sort::DateDescending:
-		std::sort(m_pageList.begin(), m_pageList.end(),
-				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+		std::sort(_pageList.begin(), _pageList.end(),
+				[](const ImageInfo& lhs, const ImageInfo& rhs) {
 					return lhs.lastModified() > rhs.lastModified();
 				});
 		break;
 	case Sort::SizeAscending:
-		std::sort(m_pageList.begin(), m_pageList.end(),
-				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+		std::sort(_pageList.begin(), _pageList.end(),
+				[](const ImageInfo& lhs, const ImageInfo& rhs) {
 					return lhs.size() < rhs.size();
 				});
 		break;
 	case Sort::SizeDescending:
-		std::sort(m_pageList.begin(), m_pageList.end(),
-				[](const ImageInfo &lhs, const ImageInfo &rhs) {
+		std::sort(_pageList.begin(), _pageList.end(),
+				[](const ImageInfo& lhs, const ImageInfo& rhs) {
 					return lhs.size() > rhs.size();
 				});
 		break;
 	case Sort::Shuffle:
-		for (int j = m_pageList.size() - 1; j > 0; --j) {
+		for (int j = _pageList.size() - 1; j > 0; --j) {
 			int i = rand() % j;
-			std::swap(m_pageList[i], m_pageList[j]);
+			std::swap(_pageList[i], _pageList[j]);
 		}
 		break;
 	default:

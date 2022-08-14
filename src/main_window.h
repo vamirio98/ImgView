@@ -23,10 +23,10 @@ class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 public:
-	explicit MainWindow(QWidget *parent = nullptr);
+	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
 	void init();
-	bool loadFile(const QString &filename);
+	bool loadFile(const QString& filename);
 
 private slots:
 	void onFileOpen();
@@ -56,14 +56,14 @@ private:
 	void setupSlots();
 	void setupShortCut();
 
-	static void initImgFileDialog(QFileDialog *dialog,
+	static void initImgFileDialog(QFileDialog* dialog,
 			const QFileDialog::AcceptMode accept_mode);
 
 private:
 	static QString m_lastOpenPos;
-	ui::MainWindowUi *m_ui = nullptr;
-	Paper *m_paper = nullptr;
-	Book m_book;
+	ui::MainWindowUi* _ui = nullptr;
+	Paper* _paper = nullptr;
+	Book _book;
 };
 
 }  /* img_view */

@@ -20,7 +20,7 @@
 #include <qboxlayout.h>
 #include <qwidget.h>
 
-#include "logger.h"
+#include "debug.h"
 #include "image_info.h"
 #include "book.h"
 
@@ -43,66 +43,62 @@ const QSet<const QByteArray> Paper::kSupportedFormats = {
 	"webp"
 };
 
-const QImage &AntialiasImage::image() const
+const QImage& AntialiasImage::image() const
 {
-	return m_image;
+	return _image;
 }
 
-void AntialiasImage::setImage(const QImage &image)
+void AntialiasImage::setImage(const QImage& image)
 {
-	D(("Set image.\n"));
-	m_image = image;
+	_image = image;
 	update();
 }
 
-void AntialiasImage::paintEvent(QPaintEvent *)
+void AntialiasImage::paintEvent(QPaintEvent*)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	painter.drawImage(rect(), m_image);
-
-	D(("Finished update\n"));
+	painter.drawImage(rect(), _image);
 }
 
 
-Paper::Paper(QWidget *parent)
+Paper::Paper(QWidget* parent)
 {
-	m_scrollArea = new QScrollArea(this);
-	m_container = new QWidget(m_scrollArea);
-	m_image = new AntialiasImage(m_scrollArea);
-	m_movie = new QLabel(m_scrollArea);
+	_scrollArea = new QScrollArea(this);
+	_container = new QWidget(_scrollArea);
+	_image = new AntialiasImage(_scrollArea);
+	_movie = new QLabel(_scrollArea);
 
 	setVisible(true);
 	setLayout(new QGridLayout());
-	layout()->addWidget(m_scrollArea);
+	layout()->addWidget(_scrollArea);
 	layout()->setContentsMargins(0, 0, 0, 0);
 
-	m_scrollArea->setBackgroundRole(QPalette::Base);
-	m_scrollArea->setAlignment(Qt::AlignCenter);
-	m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	m_scrollArea->viewport()->installEventFilter(this);
+	_scrollArea->setBackgroundRole(QPalette::Base);
+	_scrollArea->setAlignment(Qt::AlignCenter);
+	_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_scrollArea->viewport()->installEventFilter(this);
 
-	m_scrollArea->setWidget(m_container);
-	QVBoxLayout *lay = new QVBoxLayout(m_container);
-	lay->addWidget(m_image);
-	lay->addWidget(m_movie);
+	_scrollArea->setWidget(_container);
+	QVBoxLayout* lay = new QVBoxLayout(_container);
+	lay->addWidget(_image);
+	lay->addWidget(_movie);
 }
 
 Paper::~Paper()
 {
 }
 
-bool Paper::browse(const QString &image)
+bool Paper::browse(const QString& image)
 {
-	return m_imageInfo.browse(image)
-		&& kSupportedFormats.find(imageFormatToStr(m_imageInfo.format()))
+	return _imageInfo.browse(image)
+		&& kSupportedFormats.find(imageFormatToStr(_imageInfo.format()))
 				!= kSupportedFormats.end();
 }
 
 bool Paper::draw()
 {
-	D(("Draw image: %s\n", m_imageInfo.absPath().toUtf8().data()));
 	limitToWindow();
 	return isStaticImage() ? drawStaticImage() : drawDynamicImage();
 }
@@ -110,11 +106,11 @@ bool Paper::draw()
 void Paper::erase()
 {
 	if (isStaticImage()) {
-		m_image->setImage(QImage());
+		_image->setImage(QImage());
 	} else {
-		QMovie *movie = m_movie->movie();
+		QMovie* movie = _movie->movie();
 		if (movie) {
-			m_movie->setMovie(nullptr);
+			_movie->setMovie(nullptr);
 			delete movie;
 		}
 	}
@@ -123,88 +119,88 @@ void Paper::erase()
 /* TODO: open file which path contains Chinese character. */
 bool Paper::drawStaticImage()
 {
-	m_movie->hide();
-	m_image->show();
+	_movie->hide();
+	_image->show();
 
-	cv::Mat image_mat = m_cache.get(m_imageInfo);
+	cv::Mat image_mat = _cache.get(_imageInfo);
 	if (image_mat.empty()) {
-		image_mat = cv::imread(m_imageInfo.absPath().toUtf8().data());
+		image_mat = cv::imread(_imageInfo.absPath().toUtf8().data());
 		if (image_mat.empty())
 			return false;
-		m_cache.put(m_imageInfo, image_mat);
+		_cache.put(_imageInfo, image_mat);
 	}
 
 	cv::Mat tmp_mat = image_mat;
-	double factor = m_initScaleFactor * m_scaleFactor;
+	double factor = _initScaleFactor *  _scaleFactor;
 	if (factor != 1.0) {
 		cv::resize(image_mat, tmp_mat, cv::Size(0, 0), factor, factor,
 				factor < 1 ? cv::INTER_AREA : cv::INTER_CUBIC);
 	}
 	QImage image(tmp_mat.data, tmp_mat.cols, tmp_mat.rows, tmp_mat.step,
 			QImage::Format_BGR888);
-	m_container->resize(image.size());
-	m_image->resize(image.size());
-	m_image->setImage(image);
+	_container->resize(image.size());
+	_image->resize(image.size());
+	_image->setImage(image);
 
 	return true;
 }
 
 bool Paper::drawDynamicImage()
 {
-	m_image->hide();
-	m_movie->show();
+	_image->hide();
+	_movie->show();
 
-	if (m_movie->movie()) {
-		delete m_movie->movie();
-		m_movie->setMovie(nullptr);
+	if (_movie->movie()) {
+		delete _movie->movie();
+		_movie->setMovie(nullptr);
 	}
 
-	QMovie *movie = new QMovie(m_imageInfo.absPath());
+	QMovie* movie = new QMovie(_imageInfo.absPath());
 	if (!movie->isValid())
 		return false;
 
-	m_movie->setMovie(movie);
+	_movie->setMovie(movie);
 
-	double factor = m_initScaleFactor * m_scaleFactor;
-	m_container->resize(m_imageInfo.dimensions() * factor);
-	m_movie->resize(m_imageInfo.dimensions() * factor);
+	double factor = _initScaleFactor * _scaleFactor;
+	_container->resize(_imageInfo.dimensions() * factor);
+	_movie->resize(_imageInfo.dimensions() * factor);
 
-	m_movie->movie()->setScaledSize(m_imageInfo.dimensions() * factor);
+	_movie->movie()->setScaledSize(_imageInfo.dimensions() * factor);
 
-	m_movie->movie()->start();
+	_movie->movie()->start();
 
 	return true;
 }
 
-void Paper::zoomIn(const double &step)
+void Paper::zoomIn(const double& step)
 {
-	scale(m_scaleFactor * (1 + step));
+	scale(_scaleFactor * (1 + step));
 }
 
-void Paper::zoomOut(const double &step)
+void Paper::zoomOut(const double& step)
 {
-	scale(m_scaleFactor * (1 - step));
+	scale(_scaleFactor * (1 - step));
 }
 
-void Paper::scale(const double &factor)
+void Paper::scale(const double& factor)
 {
-	double prev_factor = m_scaleFactor;
-	m_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
+	double prev_factor = _scaleFactor;
+	_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
 		: (factor < kMinScaleFactor ? kMinScaleFactor : factor);
 
 	isStaticImage() ? drawStaticImage() : drawDynamicImage();
 
-	adjustScrollBarPos(m_scrollArea->horizontalScrollBar(),
-			m_scaleFactor / prev_factor);
-	adjustScrollBarPos(m_scrollArea->verticalScrollBar(),
-			m_scaleFactor / prev_factor);
+	adjustScrollBarPos(_scrollArea->horizontalScrollBar(),
+			_scaleFactor / prev_factor);
+	adjustScrollBarPos(_scrollArea->verticalScrollBar(),
+			_scaleFactor / prev_factor);
 }
 
 void Paper::limitToWindow()
 {
 	QSize window_size = size();
-	QSize image_size = m_imageInfo.dimensions();
-	m_initScaleFactor = m_scaleFactor = 1.0;
+	QSize image_size = _imageInfo.dimensions();
+	_initScaleFactor = _scaleFactor = 1.0;
 
 	if (image_size.width() < window_size.width()
 			&& image_size.height() < window_size.height())
@@ -215,28 +211,25 @@ void Paper::limitToWindow()
 
 	/* The image may be a little larger than the window if the constant is
 	 * 1.0. */
-	m_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
-	logDebug("Window size: %d, %d", window_size.width(), window_size.height());
-	logDebug("Image size: %d, %d", image_size.width(), image_size.height());
-	logDebug("Initial scale factor: %f", m_initScaleFactor);
+	_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
 }
 
-void Paper::adjustScrollBarPos(QScrollBar *scroll_bar, const double &factor)
+void Paper::adjustScrollBarPos(QScrollBar* scroll_bar, const double& factor)
 {
 	scroll_bar->setValue(static_cast<int>(scroll_bar->value() * factor
 				+ (factor - 1) * scroll_bar->pageStep() / 2));
 }
 
-void Paper::move(const double &dx, const double &dy)
+void Paper::move(const double& dx, const double& dy)
 {
-	QScrollBar *h = m_scrollArea->horizontalScrollBar();
-	QScrollBar *v = m_scrollArea->verticalScrollBar();
+	QScrollBar* h = _scrollArea->horizontalScrollBar();
+	QScrollBar* v = _scrollArea->verticalScrollBar();
 
 	h->setValue(h->value() + dx);
 	v->setValue(v->value() + dy);
 }
 
-const QList<QByteArray> &Paper::supportedMimeTypes()
+const QList<QByteArray>& Paper::supportedMimeTypes()
 {
 	return kSupportedMineTypes;
 }
@@ -248,13 +241,13 @@ bool Paper::isStaticImage() const
 
 bool Paper::isDynamicImage() const
 {
-	return m_imageInfo.format() == ImageFormat::gif;
+	return _imageInfo.format() == ImageFormat::gif;
 }
 
 
 /* Events. */
 /* TODO: zoom the image around the cursor. */
-void Paper::wheelEvent(QWheelEvent *event)
+void Paper::wheelEvent(QWheelEvent* event)
 {
 	/* Most mouse type work in steps of 15 degrees, so the delta value is a
 	 * multiple of 120.
@@ -269,9 +262,9 @@ void Paper::wheelEvent(QWheelEvent *event)
 	event->accept();
 }
 
-void Paper::mousePressEvent(QMouseEvent *event)
+void Paper::mousePressEvent(QMouseEvent* event)
 {
-	m_mousePos = event->pos();
+	_mousePos = event->pos();
 
 	switch (event->button()) {
 	case Qt::MiddleButton:
@@ -284,24 +277,24 @@ void Paper::mousePressEvent(QMouseEvent *event)
 	event->accept();
 }
 
-void Paper::mouseMoveEvent(QMouseEvent *event)
+void Paper::mouseMoveEvent(QMouseEvent* event)
 {
 	QPoint pos = event->pos();
-	double dx = pos.x() - m_mousePos.x();
-	double dy = pos.y() - m_mousePos.y();
+	double dx = pos.x() - _mousePos.x();
+	double dy = pos.y() - _mousePos.y();
 	move(-dx, -dy);
 
-	m_mousePos = pos;
+	_mousePos = pos;
 }
 
-void Paper::mouseReleaseEvent(QMouseEvent *event)
+void Paper::mouseReleaseEvent(QMouseEvent* event)
 {
 	event->accept();
 }
 
-bool Paper::eventFilter(QObject *obj, QEvent *event)
+bool Paper::eventFilter(QObject* obj, QEvent* event)
 {
-	if (obj == m_scrollArea->viewport()) {
+	if (obj == _scrollArea->viewport()) {
 		if (event->type() == QEvent::Wheel) {
 			event->ignore();  /* Pass event to its parent object. */
 			return true;

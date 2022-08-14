@@ -10,8 +10,6 @@
 #include <QVector>
 #include <QMap>
 
-#include "logger.h"
-
 namespace img_view {
 
 /* kFormat and kCheckFormat hould have the same order. */
@@ -22,11 +20,11 @@ const QVector<ImageFormat> kFormat {
 	ImageFormat::png,
 	ImageFormat::webp
 };
-const QVector<bool (*)(QDataStream &)> kCheckFormat {
+const QVector<bool (*)(QDataStream&)> kCheckFormat {
 	isBmp, isGif, isJpeg, isPng, isWebp
 };
 
-const QMap<ImageFormat, const char *> kFormatStr {
+const QMap<ImageFormat, const char* > kFormatStr {
 	{ ImageFormat::unknown, "unknown" },
 	{ ImageFormat::bmp, "bmp"},
 	{ ImageFormat::gif, "gif" },
@@ -44,15 +42,15 @@ const QMap<ImageFormat, const char *> kFormatStr {
  *
  * @return True when they are same
  */
-bool compare(QDataStream &data, const qint64 &offset,
-		const qint64 &len, const char *const buf);
+bool compare(QDataStream& data, const qint64& offset,
+		const qint64& len, const char* const buf);
 
-bool compare(QDataStream &data, const qint64 &offset,
-		const qint64 &len, const char *const buf)
+bool compare(QDataStream& data, const qint64& offset,
+		const qint64& len, const char* const buf)
 {
 	data.device()->seek(offset);
 
-	char *magic = new char[len];
+	char* magic = new char[len];
 	bool res = data.readRawData(magic, len) != -1
 		&& memcmp(magic, buf, len) == 0;
 	delete[] magic;
@@ -60,7 +58,7 @@ bool compare(QDataStream &data, const qint64 &offset,
 	return res;
 }
 
-ImageFormat getImageFormat(const QString &filepath)
+ImageFormat getImageFormat(const QString& filepath)
 {
 	QFile img(filepath);
 	img.open(QIODevice::ReadOnly);
@@ -71,7 +69,7 @@ ImageFormat getImageFormat(const QString &filepath)
 	return format;
 }
 
-ImageFormat getImgFormat(QDataStream &data)
+ImageFormat getImgFormat(QDataStream& data)
 {
 	for (int i = 0; i != kCheckFormat.size(); ++i) {
 		if (kCheckFormat[i](data))
@@ -80,12 +78,12 @@ ImageFormat getImgFormat(QDataStream &data)
 	return ImageFormat::unknown;
 }
 
-const char *imageFormatToStr(const ImageFormat &format)
+const char* imageFormatToStr(const ImageFormat& format)
 {
 	return kFormatStr[format];
 }
 
-bool isBmp(const QString &image)
+bool isBmp(const QString& image)
 {
 	QFile img(image);
 	if (!img.open(QIODevice::ReadOnly))
@@ -97,7 +95,7 @@ bool isBmp(const QString &image)
 	return ret;
 }
 
-bool isBmp(QDataStream &data)
+bool isBmp(QDataStream& data)
 {
 	qint64 pos = data.device()->pos();
 	bool ret = compare(data, 0, 2, "\x42\x4D");
@@ -106,7 +104,7 @@ bool isBmp(QDataStream &data)
 	return ret;
 }
 
-bool isGif(const QString &image)
+bool isGif(const QString& image)
 {
 	QFile img(image);
 	if (!img.open(QIODevice::ReadOnly))
@@ -118,7 +116,7 @@ bool isGif(const QString &image)
 	return ret;
 }
 
-bool isGif(QDataStream &data)
+bool isGif(QDataStream& data)
 {
 	qint64 pos = data.device()->pos();
 	bool ret = compare(data, 0, 4, "\x47\x49\x46\x38");
@@ -127,7 +125,7 @@ bool isGif(QDataStream &data)
 	return ret;
 }
 
-bool isJpeg(const QString &image)
+bool isJpeg(const QString& image)
 {
 	QFile img(image);
 	if (!img.open(QIODevice::ReadOnly))
@@ -139,7 +137,7 @@ bool isJpeg(const QString &image)
 	return ret;
 }
 
-bool isJpeg(QDataStream &data)
+bool isJpeg(QDataStream& data)
 {
 	qint64 pos = data.device()->pos();
 	bool ret = compare(data, 0, 2, "\xFF\xD8");
@@ -148,7 +146,7 @@ bool isJpeg(QDataStream &data)
 	return ret;
 }
 
-bool isPng(const QString &image)
+bool isPng(const QString& image)
 {
 	QFile img(image);
 	img.open(QIODevice::ReadOnly);
@@ -159,7 +157,7 @@ bool isPng(const QString &image)
 	return ret;
 }
 
-bool isPng(QDataStream &data)
+bool isPng(QDataStream& data)
 {
 	qint64 pos = data.device()->pos();
 	bool ret = compare(data, 0, 8, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A");
@@ -168,7 +166,7 @@ bool isPng(QDataStream &data)
 	return ret;
 }
 
-bool isWebp(const QString &image)
+bool isWebp(const QString& image)
 {
 	QFile img(image);
 	img.open(QIODevice::ReadOnly);
@@ -180,7 +178,7 @@ bool isWebp(const QString &image)
 	return ret;
 }
 
-bool isWebp(QDataStream &data)
+bool isWebp(QDataStream& data)
 {
 	qint64 pos = data.device()->pos();
 	bool ret = compare(data, 0, 4, "\x52\x49\x46\x46")
@@ -195,170 +193,170 @@ ImageInfo::ImageInfo()
 }
 
 
-ImageInfo::ImageInfo(const ImageInfo &rhs) : m_size(rhs.m_size),
-	m_lastModified(rhs.m_lastModified), m_format(rhs.m_format),
-	m_width(rhs.m_width), m_height(rhs.m_height), m_depth(rhs.m_depth)
+ImageInfo::ImageInfo(const ImageInfo& rhs) : _size(rhs._size),
+	_lastModified(rhs._lastModified), _format(rhs._format),
+	_width(rhs._width), _height(rhs._height), _depth(rhs._depth)
 {
-	m_path = new char[strlen(rhs.m_path) + 1];
-	strcpy(m_path, rhs.m_path);
-	m_filename = m_path + strlen(m_path) - strlen(rhs.m_filename);
-	m_extension = m_path + strlen(m_path) - strlen(rhs.m_extension);
+	_path = new char[strlen(rhs._path) + 1];
+	strcpy(_path, rhs._path);
+	_filename = _path + strlen(_path) - strlen(rhs._filename);
+	_extension = _path + strlen(_path) - strlen(rhs._extension);
 }
 
-ImageInfo ImageInfo::operator=(const ImageInfo &rhs)
+ImageInfo ImageInfo::operator=(const ImageInfo& rhs)
 {
 	if (this == &rhs)
 		return *this;
 
-	char *newdata = new char[strlen(rhs.m_path) + 1];
-	if (m_path) {
-		delete[] m_path;
-		m_path = m_filename = m_extension = nullptr;
+	char* newdata = new char[strlen(rhs._path) + 1];
+	if (_path) {
+		delete[] _path;
+		_path = _filename = _extension = nullptr;
 	}
-	strcpy(m_path, rhs.m_path);
-	m_filename = m_path + strlen(m_path) - strlen(rhs.m_filename);
-	m_extension = m_path + strlen(m_path) - strlen(rhs.m_extension);
-	m_size = rhs.m_size;
-	m_lastModified = rhs.m_lastModified;
-	m_format = rhs.m_format;
-	m_width = rhs.m_width;
-	m_height = rhs.m_height;
-	m_depth = rhs.m_depth;
+	strcpy(_path, rhs._path);
+	_filename = _path + strlen(_path) - strlen(rhs._filename);
+	_extension = _path + strlen(_path) - strlen(rhs._extension);
+	_size = rhs._size;
+	_lastModified = rhs._lastModified;
+	_format = rhs._format;
+	_width = rhs._width;
+	_height = rhs._height;
+	_depth = rhs._depth;
 
 	return *this;
 }
 
-ImageInfo::ImageInfo(ImageInfo &&rhs) noexcept : m_path(rhs.m_path),
-	m_filename(rhs.m_filename), m_extension(rhs.m_extension),
-	m_size(rhs.m_size), m_lastModified(rhs.m_lastModified),
-	m_format(rhs.m_format), m_width(rhs.m_width), m_height(rhs.m_height),
-	m_depth(rhs.m_depth)
+ImageInfo::ImageInfo(ImageInfo&& rhs) noexcept : _path(rhs._path),
+	_filename(rhs._filename), _extension(rhs._extension),
+	_size(rhs._size), _lastModified(rhs._lastModified),
+	_format(rhs._format), _width(rhs._width), _height(rhs._height),
+	_depth(rhs._depth)
 {
-	rhs.m_path = rhs.m_filename = rhs.m_extension = nullptr;
+	rhs._path = rhs._filename = rhs._extension = nullptr;
 }
 
-ImageInfo ImageInfo::operator=(ImageInfo &&rhs) noexcept
+ImageInfo ImageInfo::operator=(ImageInfo&& rhs) noexcept
 {
 	if (this == &rhs)
 		return *this;
 
-	m_path = rhs.m_path;
-	m_filename = rhs.m_filename;
-	m_extension = rhs.m_extension;
-	m_size = rhs.m_size;
-	m_lastModified = rhs.m_lastModified;
-	m_format = rhs.m_format;
-	m_width = rhs.m_width;
-	m_height = rhs.m_height;
-	m_depth = rhs.m_depth;
+	_path = rhs._path;
+	_filename = rhs._filename;
+	_extension = rhs._extension;
+	_size = rhs._size;
+	_lastModified = rhs._lastModified;
+	_format = rhs._format;
+	_width = rhs._width;
+	_height = rhs._height;
+	_depth = rhs._depth;
 
-	rhs.m_path = rhs.m_filename = rhs.m_extension = nullptr;
+	rhs._path = rhs._filename = rhs._extension = nullptr;
 
 	return *this;
 }
 
 ImageInfo::~ImageInfo()
 {
-	if (m_path)
-		delete[] m_path;
+	if (_path)
+		delete[] _path;
 }
 
 /* TODO: check the encode. */
-bool ImageInfo::browse(const QString &image)
+bool ImageInfo::browse(const QString& image)
 {
 	QFileInfo info(image);
 	if (!info.exists() || !info.isReadable()
 			|| getImageFormat(image) == ImageFormat::unknown)
 		return false;
 
-	if (m_path) {
-		delete[] m_path;
-		m_path = m_filename = m_extension = nullptr;
+	if (_path) {
+		delete[] _path;
+		_path = _filename = _extension = nullptr;
 	}
 
 	QByteArray path = info.canonicalFilePath().toUtf8();
 	QByteArray filename = info.fileName().toUtf8();
 	QByteArray extension = info.suffix().toUtf8();
 
-	m_path = new char[path.size() + 1];
-	strcpy(m_path, path);
-	m_filename = m_path + path.size() - filename.size();
-	m_extension = m_filename + filename.size() - extension.size();
+	_path = new char[path.size() + 1];
+	strcpy(_path, path);
+	_filename = _path + path.size() - filename.size();
+	_extension = _filename + filename.size() - extension.size();
 
-	m_size = info.size();
-	m_lastModified = info.lastModified().toMSecsSinceEpoch();
+	_size = info.size();
+	_lastModified = info.lastModified().toMSecsSinceEpoch();
 
-	m_format = getImageFormat(image);
+	_format = getImageFormat(image);
 
-	QImage img(image, imageFormatToStr(m_format));
-	m_width = img.width();
-	m_height = img.height();
-	m_depth = img.depth();
+	QImage img(image, imageFormatToStr(_format));
+	_width = img.width();
+	_height = img.height();
+	_depth = img.depth();
 
 	return true;
 }
 
 QString ImageInfo::absPath() const
 {
-	return m_path;
+	return _path;
 }
 
 QString ImageInfo::filename() const
 {
-	return m_filename;
+	return _filename;
 }
 
 QString ImageInfo::extension() const
 {
-	return m_extension;
+	return _extension;
 }
 
 ImageFormat ImageInfo::format() const
 {
-	return m_format;
+	return _format;
 }
 
 qint64 ImageInfo::size() const
 {
-	return m_size;
+	return _size;
 }
 
 int ImageInfo::width() const
 {
-	return m_width;
+	return _width;
 }
 
 int ImageInfo::height() const
 {
-	return m_height;
+	return _height;
 }
 
 QSize ImageInfo::dimensions() const
 {
-	return QSize(m_width, m_height);
+	return QSize(_width, _height);
 }
 
 qint64 ImageInfo::pixels() const
 {
-	return m_width * m_height;
+	return _width * _height;
 }
 
 qint64 ImageInfo::lastModified() const
 {
-	return m_lastModified;
+	return _lastModified;
 }
 
 int ImageInfo::depth() const
 {
-	return m_depth;
+	return _depth;
 }
 
-bool operator==(const ImageInfo &lhs, const ImageInfo &rhs)
+bool operator==(const ImageInfo& lhs, const ImageInfo& rhs)
 {
-	return strcmp(lhs.m_path, rhs.m_path) == 0;
+	return strcmp(lhs._path, rhs._path) == 0;
 }
 
-bool operator!=(const ImageInfo &lhs, const ImageInfo &rhs)
+bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs)
 {
 	return !(lhs == rhs);
 }

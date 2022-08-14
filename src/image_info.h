@@ -26,14 +26,14 @@ enum class ImageFormat {
  *
  * @return The image format
  */
-ImageFormat getImageFormat(const QString &image);
+ImageFormat getImageFormat(const QString& image);
 
 /**
  * @brief Get the format of the image data stream IMAGE
  *
  * @return The image format
  */
-ImageFormat getImgFormat(QDataStream &image);
+ImageFormat getImgFormat(QDataStream& image);
 
 /**
  * @brief Covert the ImageFormat to string
@@ -41,68 +41,68 @@ ImageFormat getImgFormat(QDataStream &image);
  * @return The pointer to the format string, do NOT modify or delete it, make a
  *         deep copy of it if you want to modify it
  */
-const char *imageFormatToStr(const ImageFormat &format);
+const char* imageFormatToStr(const ImageFormat& format);
 
 /**
  * @brief Check if the file @filepath is a bmp file
  */
-bool isBmp(const QString &filepath);
+bool isBmp(const QString& filepath);
 
 /**
  * @brief Check if the file @filepath is a bmp file
  */
-bool isBmp(QDataStream &data);
+bool isBmp(QDataStream& data);
 
 /**
  * @brief Check if the file @filepath is a gif file
  */
-bool isGif(const QString &filepath);
+bool isGif(const QString& filepath);
 
 /**
  * @brief Check if the file @filepath is a gif file
  */
-bool isGif(QDataStream &data);
+bool isGif(QDataStream& data);
 
 /**
  * @brief Check if the file @filepath is a jpeg file
  */
-bool isJpeg(const QString &filepath);
+bool isJpeg(const QString& filepath);
 
 /**
  * @brief Check if the file @filepath is a jpeg file
  */
-bool isJpeg(QDataStream &data);
+bool isJpeg(QDataStream& data);
 
 /**
  * @brief Check if the file @filepath is a png file
  */
-bool isPng(const QString &filepath);
+bool isPng(const QString& filepath);
 
 /**
  * @brief Check if the file @filepath is a png file
  */
-bool isPng(QDataStream &data);
+bool isPng(QDataStream& data);
 
 /**
  * @brief Check if the file @filepath is a webp file
  */
-bool isWebp(const QString &filepath);
+bool isWebp(const QString& filepath);
 
 /**
  * @brief Check if the file @filepath is a webp file
  */
-bool isWebp(QDataStream &data);
+bool isWebp(QDataStream& data);
 
 class ImageInfo {
-	friend bool operator==(const ImageInfo &lhs, const ImageInfo &rhs);
-	friend bool operator!=(const ImageInfo &lhs, const ImageInfo &rhs);
+	friend bool operator==(const ImageInfo& lhs, const ImageInfo& rhs);
+	friend bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs);
 
 public:
 	ImageInfo();
-	ImageInfo(const ImageInfo &rhs);
-	ImageInfo operator=(const ImageInfo &rhs);
-	ImageInfo(ImageInfo &&rhs) noexcept;
-	ImageInfo operator=(ImageInfo &&rhs) noexcept;
+	ImageInfo(const ImageInfo& rhs);
+	ImageInfo operator=(const ImageInfo& rhs);
+	ImageInfo(ImageInfo&& rhs) noexcept;
+	ImageInfo operator=(ImageInfo&& rhs) noexcept;
 	~ImageInfo();
 
 	/**
@@ -113,7 +113,7 @@ public:
 	 * @return True when succeeded, false when the image is not exist, is not
 	 *         an image file, or you don't have the permission to open it
 	 */
-	bool browse(const QString &image);
+	bool browse(const QString& image);
 
 	/**
 	 * @brief Get the absolute path of the image
@@ -172,19 +172,19 @@ public:
 	int depth() const;
 
 private:
-	char *m_path = nullptr;
-	char *m_filename = nullptr;
-	char *m_extension = nullptr;
-	qint64 m_size = 0;
-	qint64 m_lastModified = 0;
-	ImageFormat m_format = ImageFormat::unknown;
-	int m_width = 0;
-	int m_height = 0;
-	int m_depth = 0;
+	char* _path = nullptr;
+	char* _filename = nullptr;
+	char* _extension = nullptr;
+	qint64 _size = 0;
+	qint64 _lastModified = 0;
+	ImageFormat _format = ImageFormat::unknown;
+	int _width = 0;
+	int _height = 0;
+	int _depth = 0;
 };
 
-bool operator==(const ImageInfo &lhs, const ImageInfo &rhs);
-bool operator!=(const ImageInfo &lhs, const ImageInfo &rhs);
+bool operator==(const ImageInfo& lhs, const ImageInfo& rhs);
+bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs);
 
 }  /* img_view */
 
@@ -193,7 +193,7 @@ namespace std
 
 template<>
 struct hash<img_view::ImageInfo> {
-	std::size_t operator()(const img_view::ImageInfo &key) const
+	std::size_t operator()(const img_view::ImageInfo& key) const
 	{
 		return hash<QString>{}(key.absPath())
 			^ (hash<qint64>{}(key.lastModified()) << 1);
