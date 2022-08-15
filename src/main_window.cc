@@ -19,7 +19,7 @@
 
 namespace img_view {
 
-QString MainWindow::m_lastOpenPos = "";
+QString MainWindow::_lastOpenPos = "";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent),
 	_ui(new ui::MainWindowUi)
@@ -88,8 +88,8 @@ void MainWindow::onFileOpen()
 	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
 		QString image = dialog.selectedFiles().constFirst();
-		m_lastOpenPos = dialog.directory().absolutePath();
-		_book.open(m_lastOpenPos);
+		_lastOpenPos = dialog.directory().absolutePath();
+		_book.open(_lastOpenPos);
 		_book.setCurPage(image);
 		if (_paper->browse(image))
 			_paper->draw();
@@ -199,8 +199,8 @@ void MainWindow::initImgFileDialog(QFileDialog* dialog,
 				: pic_locations.last());
 	}
 
-	if (!m_lastOpenPos.isEmpty())
-		dialog->setDirectory(m_lastOpenPos);
+	if (!_lastOpenPos.isEmpty())
+		dialog->setDirectory(_lastOpenPos);
 	QStringList mime_type_filters;
 	for (const QByteArray& mime_type_name : Paper::supportedMimeTypes())
 		mime_type_filters.append(mime_type_name);

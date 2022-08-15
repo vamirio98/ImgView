@@ -172,11 +172,11 @@ void MainWindowUi::createActions(QMainWindow* ImgView)
 
 void MainWindowUi::setupMenubarUi(QMainWindow* ImgView)
 {
-	m_menubar = new QMenuBar(ImgView);
-	m_menubar->setObjectName(QString::fromUtf8("menubar"));
-	m_menubar->setGeometry(0, 0, sInitWidth, 26);
-	//m_menubar->setStyleSheet("QMenuBar { background: #D8D8D8 }");
-	ImgView->setMenuBar(m_menubar);
+	_menubar = new QMenuBar(ImgView);
+	_menubar->setObjectName(QString::fromUtf8("menubar"));
+	_menubar->setGeometry(0, 0, sInitWidth, 26);
+	//_menubar->setStyleSheet("QMenuBar { background: #D8D8D8 }");
+	ImgView->setMenuBar(_menubar);
 
 	setupFileMenuUi(ImgView);
 	setupViewMenuUi(ImgView);
@@ -189,7 +189,7 @@ void MainWindowUi::setupMenubarUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupFileMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_fileMenu->menuAction());
+	_menubar->addAction(_fileMenu->menuAction());
 
 	_fileMenu->addAction(_fileOpen);
 	_fileMenu->addAction(_fileClose);
@@ -205,7 +205,7 @@ void MainWindowUi::setupFileMenuUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupViewMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_viewMenu->menuAction());
+	_menubar->addAction(_viewMenu->menuAction());
 
 	_viewMenu->addAction(_viewLibrary);
 	_viewMenu->addAction(_viewPageList);
@@ -224,7 +224,7 @@ void MainWindowUi::setupViewMenuUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupImageMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_imageMenu->menuAction());
+	_menubar->addAction(_imageMenu->menuAction());
 
 	_imageMenu->addAction(_imageOriginSize);
 	_imageMenu->addAction(_imageFitToWindow);
@@ -259,7 +259,7 @@ void MainWindowUi::setupImageMenuUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupJumpMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_jumpMenu->menuAction());
+	_menubar->addAction(_jumpMenu->menuAction());
 
 	_jumpMenu->addAction(_jumpPrevPage);
 	_jumpMenu->addAction(_jumpNextPage);
@@ -274,7 +274,7 @@ void MainWindowUi::setupJumpMenuUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupPageMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_pageMenu->menuAction());
+	_menubar->addAction(_pageMenu->menuAction());
 
 	_pageMenu->addAction(_pageOnePage);
 	_pageMenu->addAction(_pageTwoPage);
@@ -323,7 +323,7 @@ void MainWindowUi::setupPageMenuUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupOptionMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_optionMenu->menuAction());
+	_menubar->addAction(_optionMenu->menuAction());
 
 	_optionMenu->addAction(_optionSettings);
 	_optionMenu->addAction(_optionConfigureKeyboardShortcut);
@@ -331,7 +331,7 @@ void MainWindowUi::setupOptionMenuUi(QMainWindow* ImgView)
 
 void MainWindowUi::setupHelpMenuUi(QMainWindow* ImgView)
 {
-	m_menubar->addAction(_helpMenu->menuAction());
+	_menubar->addAction(_helpMenu->menuAction());
 
 	_helpMenu->addAction(_helpMenuHelp);
 	_helpMenu->addAction(_helpShortcutHelp);
@@ -455,7 +455,7 @@ void MainWindowUi::setupToolbarUi(QMainWindow* ImgView)
 	_toolbar = new QToolBar(ImgView);
 	_toolbar->setObjectName(str("tool_bar"));
 	_toolbar->setMovable(false);
-	//m_toolbar->setStyleSheet("QToolBar { background: #D8D8D8 }");
+	//_toolbar->setStyleSheet("QToolBar { background: #D8D8D8 }");
 	ImgView->addToolBar(Qt::ToolBarArea::TopToolBarArea, _toolbar);
 }
 
@@ -466,19 +466,19 @@ void MainWindowUi::setupNavigationUi(QMainWindow* ImgView)
 	_navigation = new QDockWidget(ImgView);
 	_navigation->setAllowedAreas(Qt::LeftDockWidgetArea);
 	_navigation->setFeatures(QDockWidget::NoDockWidgetFeatures);
-	//m_navigation->setStyleSheet("QDockWidget { background: #E0E0E0 }");
+	//_navigation->setStyleSheet("QDockWidget { background: #E0E0E0 }");
 	/* TODO: adjust the ui. */
 	_navigation->setVisible(false);
 	ImgView->addDockWidget(Qt::LeftDockWidgetArea, _navigation);
 
-	QAction* m_navi_book = new QAction(ImgView);
+	QAction* _naviBook = new QAction(ImgView);
 	QIcon book_icon;
 	book_icon.addFile(str(":/images/book.png"), QSize(),
 			QIcon::Normal, QIcon::Off);
-	m_navi_book->setIcon(book_icon);
-	_navigation->addAction(m_navi_book);
-	QAction* m_navi_books = new QAction(ImgView);
-	QAction* m_navi_history = new QAction(ImgView);
+	_naviBook->setIcon(book_icon);
+	_navigation->addAction(_naviBook);
+	QAction* _naviBooks = new QAction(ImgView);
+	QAction* _naviHistory = new QAction(ImgView);
 }
 
 /* TODO: adjust the ui. */

@@ -60,7 +60,7 @@ private:
 			const QFileDialog::AcceptMode accept_mode);
 
 private:
-	static QString m_lastOpenPos;
+	static QString _lastOpenPos;
 	ui::MainWindowUi* _ui = nullptr;
 	Paper* _paper = nullptr;
 	Book _book;

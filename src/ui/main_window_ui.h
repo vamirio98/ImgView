@@ -24,7 +24,7 @@ namespace img_view::ui {
 class MainWindowUi {
 public:
 	/* Menu bar. */
-	QMenuBar* m_menubar = nullptr;
+	QMenuBar* _menubar = nullptr;
 
 	/* Menus. */
 	QMenu* _fileMenu = nullptr;

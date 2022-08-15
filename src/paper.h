@@ -157,7 +157,7 @@ private:
 	QScrollArea* _scrollArea = nullptr;
 
 	ImageInfo _imageInfo;
-	LruCache _cache;
+	LruCache<ImageInfo, cv::Mat> _cache;
 	QWidget* _container = nullptr;
 	AntialiasImage* _image = nullptr;
 	QLabel* _movie = nullptr;
@@ -170,7 +170,7 @@ private:
 	 */
 	double _initScaleFactor = 1.0;
 	/* Scale factor which control the image size, the actual size of an image
-	 * is (originSize * m_initScaleFactor * m_scaleFactor).
+	 * is (originSize * _initScaleFactor * _scaleFactor).
 	 */
 	double _scaleFactor = 1.0;
 

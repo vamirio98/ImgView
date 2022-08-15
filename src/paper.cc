@@ -22,7 +22,6 @@
 
 #include "debug.h"
 #include "image_info.h"
-#include "book.h"
 
 namespace img_view {
 
