@@ -107,7 +107,7 @@ bool Book::setCurPage(const QString& pagename)
 {
 	auto iter = std::find_if(_pageList.cbegin(), _pageList.cend(),
 			[&pagename](const ImageInfo& info) {
-			return info.filename() == pagename; });
+			return info.absPath() == pagename; });
 	if (iter == _pageList.cend())
 		return false;
 	_pageNum = iter - _pageList.cbegin();

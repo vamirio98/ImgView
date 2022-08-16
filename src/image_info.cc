@@ -208,11 +208,11 @@ ImageInfo ImageInfo::operator=(const ImageInfo& rhs)
 	if (this == &rhs)
 		return *this;
 
-	char* newdata = new char[strlen(rhs._path) + 1];
 	if (_path) {
 		delete[] _path;
 		_path = _filename = _extension = nullptr;
 	}
+	_path = new char[strlen(rhs._path) + 1];
 	strcpy(_path, rhs._path);
 	_filename = _path + strlen(_path) - strlen(rhs._filename);
 	_extension = _path + strlen(_path) - strlen(rhs._extension);
