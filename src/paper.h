@@ -146,6 +146,11 @@ private:
 	 */
 	bool drawDynamicImage();
 
+	/**
+	 * @brief Convert cv::Mat to QImage.
+	 */
+	static QImage mat2Qimage(const cv::Mat& src);
+
 protected:
 	void wheelEvent(QWheelEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;

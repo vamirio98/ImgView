@@ -121,27 +121,34 @@ bool Paper::drawStaticImage()
 	_movie->hide();
 	_image->show();
 
-	cv::Mat image_mat = _cache.get(_imageInfo);
-	if (image_mat.empty()) {
-		image_mat = cv::imread(_imageInfo.absPath().toUtf8().data());
-		if (image_mat.empty())
+	cv::Mat src = _cache.get(_imageInfo);
+	if (src.empty()) {
+		src = cv::imread(_imageInfo.absPath().toUtf8().data());
+		if (src.empty())
 			return false;
-		_cache.put(_imageInfo, image_mat);
+		_cache.put(_imageInfo, src);
 	}
 
-	cv::Mat tmp_mat = image_mat;
+	cv::Mat tmp = src;
 	double factor = _initScaleFactor *  _scaleFactor;
 	if (factor != 1.0) {
-		cv::resize(image_mat, tmp_mat, cv::Size(0, 0), factor, factor,
+		cv::resize(src, tmp, cv::Size(0, 0), factor, factor,
 				factor < 1 ? cv::INTER_AREA : cv::INTER_CUBIC);
 	}
-	QImage image(tmp_mat.data, tmp_mat.cols, tmp_mat.rows, tmp_mat.step,
-			QImage::Format_BGR888);
-	_container->resize(image.size());
-	_image->resize(image.size());
-	_image->setImage(image);
+	QImage dest = mat2Qimage(tmp);
+	_container->resize(dest.size());
+	_image->resize(dest.size());
+	_image->setImage(dest);
 
 	return true;
+}
+
+QImage Paper::mat2Qimage(const cv::Mat& src)
+{
+	QImage dest(static_cast<const uchar*>(src.data), src.cols, src.rows,
+			src.step, QImage::Format_BGR888);
+	dest.bits(); /* Enforce a deep copy. */
+	return dest;
 }
 
 bool Paper::drawDynamicImage()
@@ -201,6 +208,9 @@ void Paper::limitToWindow()
 	QSize image_size = _imageInfo.dimensions();
 	_initScaleFactor = _scaleFactor = 1.0;
 
+	gDebug() << "Original w:" << _imageInfo.width()
+		<< "h:" << _imageInfo.height();
+
 	if (image_size.width() < window_size.width()
 			&& image_size.height() < window_size.height())
 		return;
@@ -211,6 +221,9 @@ void Paper::limitToWindow()
 	/* The image may be a little larger than the window if the constant is
 	 * 1.0. */
 	_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
+
+	gDebug() << "New w:" << _imageInfo.width() * _initScaleFactor
+		<< "h:" << _imageInfo.height() * _initScaleFactor;
 }
 
 void Paper::adjustScrollBarPos(QScrollBar* scroll_bar, const double& factor)
