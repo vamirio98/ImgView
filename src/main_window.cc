@@ -91,7 +91,7 @@ void MainWindow::onFileOpen()
 		_lastOpenPos = dialog.directory().absolutePath();
 		_book.open(_lastOpenPos);
 		_book.setCurPage(image);
-		if (_paper->browse(image))
+		if (_paper->browse(_book.curPage()))
 			_paper->draw();
 	}
 }
@@ -116,14 +116,14 @@ void MainWindow::onHelpAbout()
 void MainWindow::onToPrevPage()
 {
 	_paper->erase();
-	if (_paper->browse(_book.toPrevPage().absPath()))
+	if (_paper->browse(_book.toPrevPage()))
 		_paper->draw();
 }
 
 void MainWindow::onToNextPage()
 {
 	_paper->erase();
-	if (_paper->browse(_book.toNextPage().absPath()))
+	if (_paper->browse(_book.toNextPage()))
 		_paper->draw();
 }
 

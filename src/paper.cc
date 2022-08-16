@@ -96,6 +96,12 @@ bool Paper::browse(const QString& image)
 				!= kSupportedFormats.end();
 }
 
+bool Paper::browse(const ImageInfo& info)
+{
+	_imageInfo = info;
+	return !_imageInfo.empty();
+}
+
 bool Paper::draw()
 {
 	limitToWindow();
@@ -147,7 +153,7 @@ QImage Paper::mat2Qimage(const cv::Mat& src)
 {
 	QImage dest(static_cast<const uchar*>(src.data), src.cols, src.rows,
 			src.step, QImage::Format_BGR888);
-	dest.bits(); /* Enforce a deep copy. */
+	dest.bits(); /* Enforce a deep copy, avoid reading an invalid address. */
 	return dest;
 }
 
@@ -208,9 +214,6 @@ void Paper::limitToWindow()
 	QSize image_size = _imageInfo.dimensions();
 	_initScaleFactor = _scaleFactor = 1.0;
 
-	gDebug() << "Original w:" << _imageInfo.width()
-		<< "h:" << _imageInfo.height();
-
 	if (image_size.width() < window_size.width()
 			&& image_size.height() < window_size.height())
 		return;
@@ -222,8 +225,8 @@ void Paper::limitToWindow()
 	 * 1.0. */
 	_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
 
-	gDebug() << "New w:" << _imageInfo.width() * _initScaleFactor
-		<< "h:" << _imageInfo.height() * _initScaleFactor;
+	gDebug() << "New W:" << _imageInfo.width() * _initScaleFactor
+		<< "H:" << _imageInfo.height() * _initScaleFactor;
 }
 
 void Paper::adjustScrollBarPos(QScrollBar* scroll_bar, const double& factor)

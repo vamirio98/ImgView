@@ -49,6 +49,11 @@ public:
 	bool browse(const QString& image);
 
 	/**
+	 * @brief Browse iamge information.
+	 */
+	bool browse(const ImageInfo& info);
+
+	/**
 	 * @brief Draw image.
 	 *
 	 * @return True when succeeding.

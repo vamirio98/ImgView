@@ -171,6 +171,11 @@ public:
 	 */
 	int depth() const;
 
+	/**
+	 * @brief Check if the image information is empty.
+	 */
+	bool empty() const;
+
 private:
 	char* _path = nullptr;
 	char* _filename = nullptr;

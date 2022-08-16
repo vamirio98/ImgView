@@ -9,6 +9,9 @@
 #include <QImage>
 #include <QVector>
 #include <QMap>
+#include <opencv2/opencv.hpp>
+
+#include "debug.h"
 
 namespace img_view {
 
@@ -288,10 +291,30 @@ bool ImageInfo::browse(const QString& image)
 
 	_format = getImageFormat(image);
 
-	QImage img(image, imageFormatToStr(_format));
-	_width = img.width();
-	_height = img.height();
-	_depth = img.depth();
+	if (_format == ImageFormat::gif) {
+		QImage img(_path, imageFormatToStr(_format));
+		_width = img.width();
+		_height = img.height();
+		_depth = img.depth();
+	} else {
+		cv::Mat img = cv::imread(_path);
+		_width = img.cols;
+		_height = img.rows;
+		switch (img.depth()) {
+		case CV_8U:
+			_depth = 8 * img.channels();
+			break;
+		case CV_16U:
+			_depth = 16 * img.channels();
+			break;
+		default:
+			_depth = 0;
+			break;
+		}
+	}
+
+	gDebug() << "File:" << _filename << "W:" << _width << "H:" << _height
+		<< "D:" << _depth;
 
 	return true;
 }
@@ -349,6 +372,11 @@ qint64 ImageInfo::lastModified() const
 int ImageInfo::depth() const
 {
 	return _depth;
+}
+
+bool ImageInfo::empty() const
+{
+	return _path == nullptr;
 }
 
 bool operator==(const ImageInfo& lhs, const ImageInfo& rhs)
