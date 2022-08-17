@@ -56,8 +56,9 @@ void AntialiasImage::setImage(const QImage& image)
 void AntialiasImage::paintEvent(QPaintEvent*)
 {
 	QPainter painter(this);
-	painter.setRenderHint(QPainter::Antialiasing, true);
-	painter.drawImage(rect(), _image);
+	painter.setRenderHints(QPainter::Antialiasing
+	                       | QPainter::SmoothPixmapTransform, true);
+	painter.drawImage(QRectF(rect()), _image);
 }
 
 
