@@ -50,12 +50,12 @@ public:
 	/**
 	 * @brief Get the log level.
 	 */
-	const LogLvSet& lv() const;
+	const LogLvSet& lvSet() const;
 
 	/**
 	 * @brief Get the file log level.
 	 */
-	const LogLvSet& fileLv() const;
+	const LogLvSet& fileLvSet() const;
 
 	/**
 	 * @brief Get the lock.
@@ -63,7 +63,7 @@ public:
 	QReadWriteLock& locker() const;
 
 	/**
-	 * @brief Convert the LogLevel @level to string
+	 * @brief Convert the LogLv LV to string
 	 */
 	QString logLvToStr(const LogLv& lv);
 
@@ -79,8 +79,8 @@ private:
 private:
 	static Logger* _instance;
 	static QFile _logFile;          /* The log file. */
-	static LogLvSet _logLv;         /* The log level. */
-	static LogLvSet _fileLv;        /* The file log level. */
+	static LogLvSet _logLvSet;      /* The log level. */
+	static LogLvSet _fileLvSet;     /* The file log level. */
 	mutable QReadWriteLock _locker; /* To avoid read and write races. */
 }; /* Logger */
 

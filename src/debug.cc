@@ -15,8 +15,8 @@ namespace img_view {
 
 Debug::Debug(const LogLv& lv) : _lv(lv), _valid(true)
 {
-	if ((Logger::instance()->lv() & _lv)
-			|| (Logger::instance()->fileLv() & _lv)) {
+	if ((Logger::instance()->lvSet() & _lv)
+			|| (Logger::instance()->fileLvSet() & _lv)) {
 		_ts.setString(&_msg);
 		_ts << QDateTime::fromMSecsSinceEpoch(
 				QDateTime::currentMSecsSinceEpoch()
@@ -28,9 +28,9 @@ Debug::Debug(const LogLv& lv) : _lv(lv), _valid(true)
 Debug::~Debug()
 {
 	if (_valid) {
-		if (Logger::instance()->lv() & _lv)
+		if (Logger::instance()->lvSet() & _lv)
 			std::cout << _msg.toUtf8().data() << std::endl;
-		if (Logger::instance()->fileLv() & _lv) {
+		if (Logger::instance()->fileLvSet() & _lv) {
 			QWriteLocker locker(&(Logger::instance()->locker()));
 			Logger::instance()->appendToFile(_msg);
 			locker.unlock();

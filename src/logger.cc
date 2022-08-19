@@ -13,8 +13,8 @@ namespace img_view
 
 Logger* Logger::_instance = nullptr;
 QFile Logger::_logFile = QFile();        /* The log file. */
-LogLvSet Logger::_logLv = LogLv::Off;    /* The log level. */
-LogLvSet Logger::_fileLv = LogLv::Off;   /* The file log level. */
+LogLvSet Logger::_logLvSet = LogLv::Off;    /* The log level. */
+LogLvSet Logger::_fileLvSet = LogLv::Off;   /* The file log level. */
 
 Logger::Logger()
 {
@@ -56,10 +56,10 @@ void Logger::setLogLv(const LogLv& lv)
 	std::vector<LogLv> allLevels{ LogLv::Debug, LogLv::Info, LogLv::Warn,
 		LogLv::Error, LogLv::Fatal };
 	if (lv == LogLv::All) {
-		_logLv = LogLv::All;
+		_logLvSet = LogLv::All;
 	} else {
 		for (const LogLv& level : allLevels)
-			_logLv |= level >= lv ? level : LogLv::Off;
+			_logLvSet |= level >= lv ? level : LogLv::Off;
 	}
 }
 
@@ -68,21 +68,21 @@ void Logger::setFileLogLv(const LogLv& lv)
 	std::vector<LogLv> allLevels{ LogLv::Debug, LogLv::Info, LogLv::Warn,
 		LogLv::Error, LogLv::Fatal };
 	if (lv == LogLv::All) {
-		_fileLv = LogLv::All;
+		_fileLvSet = LogLv::All;
 	} else {
 		for (const LogLv& level : allLevels)
-			_fileLv |= level >= lv ? level : LogLv::Off;
+			_fileLvSet |= level >= lv ? level : LogLv::Off;
 	}
 }
 
-const LogLvSet& Logger::lv() const
+const LogLvSet& Logger::lvSet() const
 {
-	return _logLv;
+	return _logLvSet;
 }
 
-const LogLvSet& Logger::fileLv() const
+const LogLvSet& Logger::fileLvSet() const
 {
-	return _fileLv;
+	return _fileLvSet;
 }
 
 QReadWriteLock& Logger::locker() const
