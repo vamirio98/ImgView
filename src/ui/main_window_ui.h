@@ -7,15 +7,11 @@
 #define MAIN_WINDOW_UI_H
 
 #include <QMainWindow>
-#include <QWidget>
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
 #include <QToolBar>
 #include <QDockWidget>
-#include <QLabel>
-#include <QGridLayout>
-#include <QScrollArea>
 
 #include "paper.h"
 
@@ -27,76 +23,76 @@ public:
 	QMenuBar* _menubar = nullptr;
 
 	/* Menus. */
-	QMenu* _fileMenu = nullptr;
-	QMenu* _viewMenu = nullptr;
-	QMenu* _imageMenu = nullptr;
-	QMenu* _jumpMenu = nullptr;
-	QMenu* _pageMenu = nullptr;
-	QMenu* _optionMenu = nullptr;
-	QMenu* _helpMenu = nullptr;
+	QMenu* _file = nullptr;
+	QMenu* _view = nullptr;
+	QMenu* _image = nullptr;
+	QMenu* _jump = nullptr;
+	QMenu* _page = nullptr;
+	QMenu* _option = nullptr;
+	QMenu* _help = nullptr;
 
 	/* File menu. */
-	QAction* _fileOpen = nullptr;
-	QAction* _fileClose = nullptr;
-	QMenu* _fileRecentBooks = nullptr;
-	QAction* _fileOpenFileLocation = nullptr;
-	QAction* _fileSaveAs = nullptr;
-	QAction* _filePrint = nullptr;
-	QAction* _fileExit = nullptr;
+	QAction* _open = nullptr;
+	QAction* _close = nullptr;
+	QMenu* _recentBooks = nullptr;
+	QAction* _openFileLoc = nullptr;
+	QAction* _saveAs = nullptr;
+	QAction* _print = nullptr;
+	QAction* _exit = nullptr;
 
 	/* View menu. */
-	QAction* _viewLibrary = nullptr;
-	QAction* _viewPageList = nullptr;
-	QAction* _viewHistory = nullptr;
-	QAction* _viewInformation = nullptr;
-	QAction* _viewAction = nullptr;
-	QAction* _viewSideBar = nullptr;
+	QAction* _library = nullptr;
+	QAction* _pageList = nullptr;
+	QAction* _history = nullptr;
+	QAction* _info = nullptr;
+	QAction* _action = nullptr;
+	QAction* _sideBar = nullptr;
 
 	/* Image menu. */
-	QActionGroup* _imageSizeGroup = nullptr;
-	QAction* _imageOriginSize = nullptr;
-	QAction* _imageFitToWindow = nullptr;
-	QAction* _imageFitHeightToWindow = nullptr;
-	QAction* _imageFitWidthToWindow = nullptr;
-	QActionGroup* _imageBackgroundColorGroup = nullptr;
-	QAction* _imageDarkBackground = nullptr;
-	QAction* _imageLightBackground = nullptr;
-	QAction* _imageCustomBackground = nullptr;
+	QActionGroup* _sizeGroup = nullptr;
+	QAction* _originSize = nullptr;
+	QAction* _fitToWindow = nullptr;
+	QAction* _fitHeightToWindow = nullptr;
+	QAction* _fitWidthToWindow = nullptr;
+	QActionGroup* _bgColorGroup = nullptr;
+	QAction* _darkBg = nullptr;
+	QAction* _lightBg = nullptr;
+	QAction* _customBg = nullptr;
 
 	/* Jump menu. */
-	QAction* _jumpPrevPage = nullptr;
-	QAction* _jumpNextPage = nullptr;
-	QAction* _jumpFirstPage = nullptr;
-	QAction* _jumpLastPage = nullptr;
-	QAction* _jumpPrevBook = nullptr;
-	QAction* _jumpNextBook = nullptr;
-	QAction* _jumpPrevLocation = nullptr;
-	QAction* _jumpNextLocation = nullptr;
+	QAction* _prevPage = nullptr;
+	QAction* _nextPage = nullptr;
+	QAction* _firstPage = nullptr;
+	QAction* _lastPage = nullptr;
+	QAction* _prevBook = nullptr;
+	QAction* _nextBook = nullptr;
+	QAction* _prevLoc = nullptr;
+	QAction* _nextLoc = nullptr;
 
 	/* Page menu. */
-	QActionGroup* _pagePageNumGroup = nullptr;
-	QAction* _pageOnePage = nullptr;
-	QAction* _pageTwoPage = nullptr;
-	QActionGroup* _pageReadDirectionGroup = nullptr;
-	QAction* _pageRightToLeft = nullptr;
-	QAction* _pageLeftToRight = nullptr;
-	QActionGroup* _pageSortOptionGroup = nullptr;
-	QAction* _pageNameAscending = nullptr;
-	QAction* _pageNameDescending = nullptr;
-	QAction* _pageDateAscending = nullptr;
-	QAction* _pageDateDescending = nullptr;
-	QAction* _pageSizeAscending = nullptr;
-	QAction* _pageSizeDescending = nullptr;
-	QAction* _pageShuffle = nullptr;
+	QActionGroup* _pageNumGroup = nullptr;
+	QAction* _onePage = nullptr;
+	QAction* _twoPage = nullptr;
+	QActionGroup* _readDirectionGroup = nullptr;
+	QAction* _rightToLeft = nullptr;
+	QAction* _leftToRight = nullptr;
+	QActionGroup* _sortGroup = nullptr;
+	QAction* _nameAscending = nullptr;
+	QAction* _nameDescending = nullptr;
+	QAction* _dateAscending = nullptr;
+	QAction* _dateDescending = nullptr;
+	QAction* _sizeAscending = nullptr;
+	QAction* _sizeDescending = nullptr;
+	QAction* _shuffle = nullptr;
 
 	/* Option menu. */
-	QAction* _optionSettings = nullptr;
-	QAction* _optionConfigureKeyboardShortcut = nullptr;
+	QAction* _settings = nullptr;
+	QAction* _configKeyboardShortcut = nullptr;
 
 	/* Help menu. */
-	QAction* _helpMenuHelp = nullptr;
-	QAction* _helpShortcutHelp = nullptr;
-	QAction* _helpAbout = nullptr;
+	QAction* _menuHelp = nullptr;
+	QAction* _shortcutHelp = nullptr;
+	QAction* _about = nullptr;
 
 	/* Tool bar. */
 	QToolBar* _toolbar = nullptr;
@@ -106,13 +102,13 @@ public:
 
 	/* Left navigation area. */
 	QDockWidget* _navigation = nullptr;
-	QAction* _naviBook = nullptr;
-	QAction* _naviBooks = nullptr;
-	QAction* _naviHistory = nullptr;
+	QAction* _bookNavi = nullptr;
+	QAction* _booksNavi = nullptr;
+	QAction* _historyNavi = nullptr;
 
 	/* Right information area. */
-	QDockWidget* _info = nullptr;
-	QAction* _infoDetail = nullptr;
+	QDockWidget* _infoPanel = nullptr;
+	QAction* _detail = nullptr;
 
 public:
 	void setupUi(QMainWindow* ImgView);
@@ -120,6 +116,7 @@ public:
 
 private:
 	void createActions(QMainWindow* ImgView);
+
 	void setupMenubarUi(QMainWindow* ImgView);
 	void setupFileMenuUi(QMainWindow* ImgView);
 	void setupViewMenuUi(QMainWindow* ImgView);
@@ -128,6 +125,7 @@ private:
 	void setupPageMenuUi(QMainWindow* ImgView);
 	void setupOptionMenuUi(QMainWindow* ImgView);
 	void setupHelpMenuUi(QMainWindow* ImgView);
+
 	void retranslateFileMenuUi();
 	void retranslateViewMenuUi();
 	void retranslateImageMenuUi();
@@ -135,10 +133,11 @@ private:
 	void retranslatePageMenuUi();
 	void retranslateOptionMenuUi();
 	void retranslateHelpMenuUi();
+
 	void setupCentralWidgetUi(QMainWindow* ImgView);
 	void setupToolbarUi(QMainWindow* ImgView);
 	void setupNavigationUi(QMainWindow* ImgView);
-	void setupInfoUi(QMainWindow* ImgView);
+	void setupInfoPanelUi(QMainWindow* ImgView);
 };
 
 }  /* img_view::ui */

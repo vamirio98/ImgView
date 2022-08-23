@@ -110,8 +110,8 @@ public:
 	static const QList<QByteArray>& supportedMimeTypes();
 
 signals:
-	void toPrevPage();
-	void toNextPage();
+	void prevOne();
+	void nextOne();
 
 private:
 	/**

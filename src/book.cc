@@ -33,6 +33,7 @@ bool Book::open(const QString& book)
 	QStringList filelist = dir.entryList(QDir::Files | QDir::Readable,
 			QDir::Name);
 	QString filepath;
+	/* TODO: uncorrect sequence. */
 	for (const QString& filename : filelist) {
 		filepath = dir.filePath(filename);
 		ImageInfo info;

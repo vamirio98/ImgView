@@ -87,8 +87,8 @@ public:
 	bool isLastPage() const;
 	bool isFirstBook() const;
 	bool isLastBook() const;
-	bool isFirstLocation() const;
-	bool isLastLocation() const;
+	bool isFirstLoc() const;
+	bool isLastLoc() const;
 	PageNum pageNum() const;
 	ReadDirection readDirection() const;
 	bool splitWidePage() const;
@@ -116,8 +116,8 @@ public:
 	void setIsLastPage(const bool isLastPage);
 	void setIsFirstBook(const bool isFirstBook);
 	void setIsLastBook(const bool isLastBook);
-	void setIsFirstLocation(const bool isFirstLocation);
-	void setIsLastLocation(const bool isLastLocation);
+	void setIsFirstLoc(const bool isFirstLocation);
+	void setIsLastLoc(const bool isLastLocation);
 	void setPageNum(const PageNum& pageNum);
 	void setReadDirection(const ReadDirection& readDirection);
 	void setSplitWidePage(const bool splitWidePage);
@@ -146,8 +146,8 @@ signals:
 	void isLastPageChanged();
 	void isFirstBookChanged();
 	void isLastBookChanged();
-	void isFirstLocationChanged();
-	void isLastLocationChanged();
+	void isFirstLocChanged();
+	void isLastLocChanged();
 	void pageNumChanged();
 	void readDirectionChanged();
 	void splitWidePageChanged();
@@ -180,8 +180,8 @@ private:
 	bool _isLastPage = true;
 	bool _isFirstBook = true;
 	bool _isLastBook = true;
-	bool _isFirstLocation = true;
-	bool _isLastLocation = true;
+	bool _isFirstLoc = true;
+	bool _isLastLoc = true;
 
 	/* Pages options. */
 	PageNum _pageNum = PageNum::OnePage;

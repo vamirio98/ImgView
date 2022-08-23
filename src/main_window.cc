@@ -6,12 +6,11 @@
 #include "main_window.h"
 
 #include <QStandardPaths>
-#include <QImageReader>
 #include <QImageWriter>
 #include <QMessageBox>
 #include <QApplication>
-#include <QColorSpace>
 #include <QShortcut>
+#include <QProcess>
 
 #include "ui/main_window_ui.h"
 #include "debug.h"
@@ -34,160 +33,189 @@ void MainWindow::init()
 {
 	_ui->setupUi(this);
 	_paper = _ui->_paper;
+
 	setupSlots();
 	setupShortCut();
-	checkFileCloseEnabled();
-	checkRecentBooksEnabled();
-	checkFileSaveAsEnabled();
-	checkFilePrintEnabled();
-	checkJumpPrevPageEnabled();
-	checkJumpNextPageEnabled();
-	checkJumpFirstPageEnabled();
-	checkJumpLastPageEnabled();
-	checkJumpPrevBookEnabled();
-	checkJumpNextBookEnabled();
-	checkJumpPrevLocationEnabled();
-	checkJumpNextLocationEnabled();
-}
 
-bool MainWindow::loadFile(const QString& filename)
-{
-	gDebug() << "Loading file" << filename;
-
-	QFileInfo info(filename);
-	if (!info.exists())
-		return false;
-	if (info.isDir()) {
-		_book.open(info.canonicalFilePath());
-	} else {
-		_book.open(info.canonicalPath());
-		_book.setCurPage(info.canonicalFilePath());
-	}
-	return !_book.empty() && _paper->browse(filename);
+	toggleClose();
+	toggleRecentBooks();
+	toggleOpenFileLoc();
+	toggleSaveAs();
+	togglePrint();
+	togglePrevPage();
+	toggleNextPage();
+	toggleFirstPage();
+	toggleLastPage();
+	togglePrevBook();
+	toggleNextBook();
+	togglePrevLoc();
+	toggleNextLoc();
 }
 
 void MainWindow::setupSlots()
 {
-	connect(_ui->_fileOpen, &QAction::triggered,
-			this, &MainWindow::onFileOpen);
-	connect(_ui->_fileClose, &QAction::triggered,
-			this, &MainWindow::onFileClose);
-	connect(_ui->_fileExit, &QAction::triggered,
-			this, &MainWindow::onFileExit);
+	connect(_ui->_open, &QAction::triggered,
+			this, &MainWindow::onOpen);
+	connect(_ui->_close, &QAction::triggered,
+			this, &MainWindow::onClose);
+	connect(_ui->_openFileLoc, &QAction::triggered,
+			this, &MainWindow::onOpenFileLoc);
+	connect(_ui->_exit, &QAction::triggered,
+			this, &MainWindow::onExit);
 
-	connect(_paper, &Paper::toPrevPage, this, &MainWindow::onToPrevPage);
-	connect(_paper, &Paper::toNextPage, this, &MainWindow::onToNextPage);
+	connect(&gOpt, &Options::showChanged,
+			this, &MainWindow::toggleClose);
+	connect(&gOpt, &Options::showChanged,
+			this, &MainWindow::toggleOpenFileLoc);
+	connect(&gOpt, &Options::showChanged,
+			this, &MainWindow::togglePrint);
+	connect(&gOpt, &Options::showChanged,
+			this, &MainWindow::toggleSaveAs);
 
-	connect(_ui->_helpAbout, &QAction::triggered,
-			this, &MainWindow::onHelpAbout);
+	connect(_paper, &Paper::prevOne, this, &MainWindow::showPrevPage);
+	connect(_paper, &Paper::nextOne, this, &MainWindow::showNextPage);
+
+	connect(_ui->_about, &QAction::triggered,
+			this, &MainWindow::onAbout);
 }
 
-void MainWindow::onFileOpen()
+void MainWindow::onOpen()
 {
 	QFileDialog dialog(this, tr("Open"));
-	initImgFileDialog(&dialog, QFileDialog::AcceptOpen);
+	initFileDialog(&dialog, QFileDialog::AcceptOpen);
 	if (dialog.exec() == QDialog::Accepted) {
-		QString image = dialog.selectedFiles().constFirst();
-		_lastOpenPos = dialog.directory().absolutePath();
-		_book.open(_lastOpenPos);
-		_book.setCurPage(image);
-		if (_paper->browse(_book.curPage()))
+		QString imagePath = dialog.selectedFiles().constFirst();
+		QString bookPath = dialog.directory().absolutePath();
+		if (_book.empty() || bookPath != _lastOpenPos) {
+			_lastOpenPos = bookPath;
+			if (!_book.open(_lastOpenPos)) {
+				QMessageBox::warning(this, tr("Error"),
+						tr("Can't open directory %1").arg(bookPath));
+			}
+		}
+		if (_book.setCurPage(imagePath) && _paper->browse(_book.curPage())) {
 			_paper->draw();
+			gOpt.setShow(true);
+		} else {
+			QMessageBox::warning(this, tr("Error"),
+					tr("Can't open file %1").arg(imagePath));
+		}
 	}
 }
 
-void MainWindow::onFileClose()
+void MainWindow::onClose()
 {
 	_paper->erase();
+	_book.close();
+	gOpt.setShow(false);
 }
 
-void MainWindow::onFileExit()
+void MainWindow::onOpenFileLoc()
+{
+#if defined(_WIN32)
+	QString exploerer("explorer.exe");
+	QStringList param{ "/select,",
+	                   QDir::toNativeSeparators(_book.curPage().absPath()) };
+	QProcess::execute(exploerer, param);
+#endif
+}
+
+void MainWindow::onExit()
 {
 	qApp->quit();
 }
 
-void MainWindow::onHelpAbout()
+void MainWindow::onAbout()
 {
 	QMessageBox::about(this, tr("About ImgView"),
 			tr("<p>A simple image viewer programmed in C++, based on Qt "
 				"toolkit.</p>"));
 }
 
-void MainWindow::onToPrevPage()
+void MainWindow::showPrevPage()
 {
+	if (_book.empty())
+		return;
 	_paper->erase();
 	if (_paper->browse(_book.toPrevPage()))
 		_paper->draw();
 }
 
-void MainWindow::onToNextPage()
+void MainWindow::showNextPage()
 {
+	if (_book.empty())
+		return;
 	_paper->erase();
 	if (_paper->browse(_book.toNextPage()))
 		_paper->draw();
 }
 
-void MainWindow::checkFileCloseEnabled()
+void MainWindow::toggleClose()
 {
-	_ui->_fileClose->setEnabled(gOpt.show());
+	_ui->_close->setEnabled(gOpt.show());
 }
 
-void MainWindow::checkRecentBooksEnabled()
+void MainWindow::toggleRecentBooks()
 {
-	_ui->_fileRecentBooks->setEnabled(gOpt.hasHistory());
+	_ui->_recentBooks->setEnabled(gOpt.hasHistory());
 }
 
-void MainWindow::checkFileSaveAsEnabled()
+void MainWindow::toggleOpenFileLoc()
 {
-	_ui->_fileSaveAs->setEnabled(gOpt.show());
+	_ui->_openFileLoc->setEnabled(gOpt.show());
 }
 
-void MainWindow::checkFilePrintEnabled()
+void MainWindow::toggleSaveAs()
 {
-	_ui->_filePrint->setEnabled(gOpt.show());
+	_ui->_saveAs->setEnabled(gOpt.show());
 }
 
-void MainWindow::checkJumpPrevPageEnabled()
+void MainWindow::togglePrint()
 {
-	_ui->_jumpPrevPage->setEnabled(gOpt.show() && !gOpt.isFirstPage());
+	_ui->_print->setEnabled(gOpt.show());
 }
 
-void MainWindow::checkJumpNextPageEnabled()
+void MainWindow::togglePrevPage()
 {
-	_ui->_jumpNextPage->setEnabled(gOpt.show() && !gOpt.isLastPage());
+	_ui->_prevPage->setEnabled(gOpt.show() && !gOpt.isFirstPage());
 }
 
-void MainWindow::checkJumpFirstPageEnabled()
+void MainWindow::toggleNextPage()
 {
-	_ui->_jumpFirstPage->setEnabled(gOpt.show() && !gOpt.isFirstPage());
+	_ui->_nextPage->setEnabled(gOpt.show() && !gOpt.isLastPage());
 }
 
-void MainWindow::checkJumpLastPageEnabled()
+void MainWindow::toggleFirstPage()
 {
-	_ui->_jumpLastPage->setEnabled(gOpt.show() && !gOpt.isLastPage());
+	_ui->_firstPage->setEnabled(gOpt.show() && !gOpt.isFirstPage());
 }
 
-void MainWindow::checkJumpPrevBookEnabled()
+void MainWindow::toggleLastPage()
 {
-	_ui->_jumpPrevBook->setEnabled(gOpt.show() && !gOpt.isFirstBook());
+	_ui->_lastPage->setEnabled(gOpt.show() && !gOpt.isLastPage());
 }
 
-void MainWindow::checkJumpNextBookEnabled()
+void MainWindow::togglePrevBook()
 {
-	_ui->_jumpNextBook->setEnabled(gOpt.show() && !gOpt.isLastBook());
+	_ui->_prevBook->setEnabled(gOpt.show() && !gOpt.isFirstBook());
 }
 
-void MainWindow::checkJumpPrevLocationEnabled()
+void MainWindow::toggleNextBook()
 {
-	_ui->_jumpPrevLocation->setEnabled(!gOpt.isFirstLocation());
+	_ui->_nextBook->setEnabled(gOpt.show() && !gOpt.isLastBook());
 }
 
-void MainWindow::checkJumpNextLocationEnabled()
+void MainWindow::togglePrevLoc()
 {
-	_ui->_jumpNextLocation->setEnabled(!gOpt.isLastLocation());
+	_ui->_prevLoc->setEnabled(!gOpt.isFirstLoc());
 }
 
-void MainWindow::initImgFileDialog(QFileDialog* dialog,
+void MainWindow::toggleNextLoc()
+{
+	_ui->_nextLoc->setEnabled(!gOpt.isLastLoc());
+}
+
+void MainWindow::initFileDialog(QFileDialog* dialog,
 		const QFileDialog::AcceptMode accept_mode)
 {
 	static bool first_dialog = true;

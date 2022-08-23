@@ -272,7 +272,7 @@ void Paper::wheelEvent(QWheelEvent* event)
 	if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
 		step > 0 ? zoomIn(0.1) : zoomOut(0.1);
 	} else {
-		emit (step > 0 ? toPrevPage() : toNextPage());
+		emit (step > 0 ? prevOne() : nextOne());
 	}
 
 	event->accept();

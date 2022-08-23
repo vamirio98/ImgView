@@ -93,14 +93,14 @@ bool Options::isLastBook() const
 	return _isLastBook;
 }
 
-bool Options::isFirstLocation() const
+bool Options::isFirstLoc() const
 {
-	return _isFirstLocation;
+	return _isFirstLoc;
 }
 
-bool Options::isLastLocation() const
+bool Options::isLastLoc() const
 {
-	return _isLastLocation;
+	return _isLastLoc;
 }
 
 PageNum Options::pageNum() const
@@ -275,19 +275,19 @@ void Options::setIsLastBook(const bool isLastBook)
 	}
 }
 
-void Options::setIsFirstLocation(const bool isFirstLocation)
+void Options::setIsFirstLoc(const bool isFirstLocation)
 {
-	if (isFirstLocation != _isFirstLocation) {
-		_isFirstLocation = isFirstLocation;
-		emit isFirstLocationChanged();
+	if (isFirstLocation != _isFirstLoc) {
+		_isFirstLoc = isFirstLocation;
+		emit isFirstLocChanged();
 	}
 }
 
-void Options::setIsLastLocation(const bool isLastLocation)
+void Options::setIsLastLoc(const bool isLastLocation)
 {
-	if (isLastLocation != _isLastLocation) {
-		_isLastLocation = isLastLocation;
-		emit isLastLocationChanged();
+	if (isLastLocation != _isLastLoc) {
+		_isLastLoc = isLastLocation;
+		emit isLastLocChanged();
 	}
 }
 

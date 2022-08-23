@@ -26,37 +26,38 @@ public:
 	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
 	void init();
-	bool loadFile(const QString& filename);
 
 private slots:
-	void onFileOpen();
-	void onFileClose();
-	void onFileExit();
-	void onHelpAbout();
+	void onOpen();
+	void onClose();
+	void onOpenFileLoc();
+	void onExit();
+	void onAbout();
 	void onCtrlPlus();
 	void onCtrlMinus();
-	void onToPrevPage();
-	void onToNextPage();
+	void showPrevPage();
+	void showNextPage();
 
-	/* Check and set actions' activation. */
-	void checkFileCloseEnabled();
-	void checkRecentBooksEnabled();
-	void checkFileSaveAsEnabled();
-	void checkFilePrintEnabled();
-	void checkJumpPrevPageEnabled();
-	void checkJumpNextPageEnabled();
-	void checkJumpFirstPageEnabled();
-	void checkJumpLastPageEnabled();
-	void checkJumpPrevBookEnabled();
-	void checkJumpNextBookEnabled();
-	void checkJumpPrevLocationEnabled();
-	void checkJumpNextLocationEnabled();
+	/* Toogle actions' activation. */
+	void toggleClose();
+	void toggleRecentBooks();
+	void toggleOpenFileLoc();
+	void toggleSaveAs();
+	void togglePrint();
+	void togglePrevPage();
+	void toggleNextPage();
+	void toggleFirstPage();
+	void toggleLastPage();
+	void togglePrevBook();
+	void toggleNextBook();
+	void togglePrevLoc();
+	void toggleNextLoc();
 
 private:
 	void setupSlots();
 	void setupShortCut();
 
-	static void initImgFileDialog(QFileDialog* dialog,
+	static void initFileDialog(QFileDialog* dialog,
 			const QFileDialog::AcceptMode accept_mode);
 
 private:
