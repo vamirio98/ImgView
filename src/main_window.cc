@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QShortcut>
 #include <QProcess>
+#include <qmessagebox.h>
 
 #include "ui/main_window_ui.h"
 #include "debug.h"
@@ -19,6 +20,14 @@
 namespace img_view {
 
 QString MainWindow::_lastOpenPos = "";
+
+#if defined (_WIN32)
+	QString MainWindow::_fileBrowserProgram = "explorer.exe";
+	QString MainWindow::_fileBrowserParam = "/select,";
+#else
+	QString MainWindow::_fileBrowserProgram = "";
+	QString MainWindow::_fileBrowserParam = "";
+#endif
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent),
 	_ui(new ui::MainWindowUi)
@@ -55,28 +64,28 @@ void MainWindow::init()
 void MainWindow::setupSlots()
 {
 	connect(_ui->_open, &QAction::triggered,
-			this, &MainWindow::onOpen);
+	        this, &MainWindow::onOpen);
 	connect(_ui->_close, &QAction::triggered,
-			this, &MainWindow::onClose);
+	        this, &MainWindow::onClose);
 	connect(_ui->_openFileLoc, &QAction::triggered,
-			this, &MainWindow::onOpenFileLoc);
+	        this, &MainWindow::onOpenFileLoc);
 	connect(_ui->_exit, &QAction::triggered,
-			this, &MainWindow::onExit);
+	        this, &MainWindow::onExit);
 
 	connect(&gOpt, &Options::showChanged,
-			this, &MainWindow::toggleClose);
+	        this, &MainWindow::toggleClose);
 	connect(&gOpt, &Options::showChanged,
-			this, &MainWindow::toggleOpenFileLoc);
+	        this, &MainWindow::toggleOpenFileLoc);
 	connect(&gOpt, &Options::showChanged,
-			this, &MainWindow::togglePrint);
+	        this, &MainWindow::togglePrint);
 	connect(&gOpt, &Options::showChanged,
-			this, &MainWindow::toggleSaveAs);
+	        this, &MainWindow::toggleSaveAs);
 
 	connect(_paper, &Paper::prevOne, this, &MainWindow::showPrevPage);
 	connect(_paper, &Paper::nextOne, this, &MainWindow::showNextPage);
 
 	connect(_ui->_about, &QAction::triggered,
-			this, &MainWindow::onAbout);
+	        this, &MainWindow::onAbout);
 }
 
 void MainWindow::onOpen()
@@ -90,7 +99,8 @@ void MainWindow::onOpen()
 			_lastOpenPos = bookPath;
 			if (!_book.open(_lastOpenPos)) {
 				QMessageBox::warning(this, tr("Error"),
-						tr("Can't open directory %1").arg(bookPath));
+				                     tr("Can't open directory %1")
+				                     .arg(bookPath));
 			}
 		}
 		if (_book.setCurPage(imagePath) && _paper->browse(_book.curPage())) {
@@ -98,7 +108,7 @@ void MainWindow::onOpen()
 			gOpt.setShow(true);
 		} else {
 			QMessageBox::warning(this, tr("Error"),
-					tr("Can't open file %1").arg(imagePath));
+			                     tr("Can't open file %1").arg(imagePath));
 		}
 	}
 }
@@ -112,12 +122,12 @@ void MainWindow::onClose()
 
 void MainWindow::onOpenFileLoc()
 {
+	QStringList param{ _fileBrowserParam };
 #if defined(_WIN32)
-	QString exploerer("explorer.exe");
-	QStringList param{ "/select,",
-	                   QDir::toNativeSeparators(_book.curPage().absPath()) };
-	QProcess::execute(exploerer, param);
+	param += QDir::toNativeSeparators(_book.curPage().absPath());
 #endif
+	if (!_fileBrowserProgram.isEmpty())
+		QProcess::execute(_fileBrowserProgram, param);
 }
 
 void MainWindow::onExit()
@@ -216,46 +226,41 @@ void MainWindow::toggleNextLoc()
 }
 
 void MainWindow::initFileDialog(QFileDialog* dialog,
-		const QFileDialog::AcceptMode accept_mode)
+		const QFileDialog::AcceptMode acceptMode)
 {
-	static bool first_dialog = true;
-	if (first_dialog) {
-		first_dialog = false;
-		const QStringList pic_locations =
-			QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-		dialog->setDirectory(pic_locations.isEmpty() ? QDir::currentPath()
-				: pic_locations.last());
+	if (_lastOpenPos.isEmpty()) {
+		const QStringList picturesLoc = QStandardPaths::standardLocations(
+		                                QStandardPaths::PicturesLocation);
+		_lastOpenPos = picturesLoc.isEmpty() ? QDir::currentPath()
+		               : picturesLoc.last();
 	}
+	dialog->setDirectory(_lastOpenPos);
 
-	if (!_lastOpenPos.isEmpty())
-		dialog->setDirectory(_lastOpenPos);
-	QStringList mime_type_filters;
-	for (const QByteArray& mime_type_name : Paper::supportedMimeTypes())
-		mime_type_filters.append(mime_type_name);
-	mime_type_filters.append("application/octet-stream");  /* All files. */
-	mime_type_filters.sort();
-	dialog->setMimeTypeFilters(mime_type_filters);
-	dialog->setAcceptMode(accept_mode);
-	if (accept_mode == QFileDialog::AcceptSave)
+	QStringList mimeTypeFilters{ "application/octet-stream" }; /* All files. */
+	dialog->setMimeTypeFilters(mimeTypeFilters);
+	dialog->setAcceptMode(acceptMode);
+	if (acceptMode == QFileDialog::AcceptSave)
 		dialog->setDefaultSuffix("jpg");
 }
 
 void MainWindow::setupShortCut()
 {
-	QShortcut* zoom_in = new QShortcut(QKeySequence::ZoomIn, this);
-	connect(zoom_in, &QShortcut::activated, this, &MainWindow::onCtrlPlus);
-	QShortcut* zoom_out = new QShortcut(QKeySequence::ZoomOut, this);
-	connect(zoom_out, &QShortcut::activated, this, &MainWindow::onCtrlMinus);
+	QShortcut* zoomIn = new QShortcut(QKeySequence::ZoomIn, this);
+	connect(zoomIn, &QShortcut::activated, this, &MainWindow::onCtrlPlus);
+	QShortcut* zoomOut = new QShortcut(QKeySequence::ZoomOut, this);
+	connect(zoomOut, &QShortcut::activated, this, &MainWindow::onCtrlMinus);
 }
 
 void MainWindow::onCtrlPlus()
 {
-	_paper->zoomIn(0.01);
+	if (!_paper->empty())
+		_paper->zoomIn(0.01);
 }
 
 void MainWindow::onCtrlMinus()
 {
-	_paper->zoomOut(0.01);
+	if (!_paper->empty())
+		_paper->zoomOut(0.01);
 }
 
 }  /* img_view */

@@ -90,6 +90,11 @@ Paper::~Paper()
 {
 }
 
+bool Paper::empty() const
+{
+	return !_show;
+}
+
 bool Paper::browse(const QString& image)
 {
 	return _imageInfo.browse(image)
@@ -106,7 +111,8 @@ bool Paper::browse(const ImageInfo& info)
 bool Paper::draw()
 {
 	limitToWindow();
-	return isStaticImage() ? drawStaticImage() : drawDynamicImage();
+	_show = isStaticImage() ? drawStaticImage() : drawDynamicImage();
+	return _show;
 }
 
 void Paper::erase()
@@ -120,6 +126,7 @@ void Paper::erase()
 			delete movie;
 		}
 	}
+	_show = false;
 }
 
 /* TODO: open file which path contains Chinese character. */
@@ -201,12 +208,14 @@ void Paper::scale(const double& factor)
 	_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
 		: (factor < kMinScaleFactor ? kMinScaleFactor : factor);
 
-	isStaticImage() ? drawStaticImage() : drawDynamicImage();
+	_show = isStaticImage() ? drawStaticImage() : drawDynamicImage();
 
-	adjustScrollBarPos(_scrollArea->horizontalScrollBar(),
-			_scaleFactor / prev_factor);
-	adjustScrollBarPos(_scrollArea->verticalScrollBar(),
-			_scaleFactor / prev_factor);
+	if (_show) {
+		adjustScrollBarPos(_scrollArea->horizontalScrollBar(),
+		                   _scaleFactor / prev_factor);
+		adjustScrollBarPos(_scrollArea->verticalScrollBar(),
+		                   _scaleFactor / prev_factor);
+	}
 }
 
 void Paper::limitToWindow()
@@ -270,7 +279,8 @@ void Paper::wheelEvent(QWheelEvent* event)
 	 */
 	int step = event->angleDelta().y() / 120;
 	if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
-		step > 0 ? zoomIn(0.1) : zoomOut(0.1);
+		if (!empty())
+			step > 0 ? zoomIn(0.1) : zoomOut(0.1);
 	} else {
 		emit (step > 0 ? prevOne() : nextOne());
 	}

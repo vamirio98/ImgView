@@ -62,6 +62,8 @@ private:
 
 private:
 	static QString _lastOpenPos;
+	static QString _fileBrowserProgram;
+	static QString _fileBrowserParam;
 	ui::MainWindowUi* _ui = nullptr;
 	Paper* _paper = nullptr;
 	Book _book;

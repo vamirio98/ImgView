@@ -42,6 +42,11 @@ public:
 	~Paper();
 
 	/**
+	 * @brief Check if the Paper is empty (no picture shown).
+	 */
+	bool empty() const;
+
+	/**
 	 * @brief Browse iamge and get its information.
 	 *
 	 * @return True when succeeding.
@@ -166,6 +171,7 @@ protected:
 private:
 	QScrollArea* _scrollArea = nullptr;
 
+	bool _show = false;  /* Whether a image shown. */
 	ImageInfo _imageInfo;
 	LruCache<ImageInfo, cv::Mat> _cache;
 	QWidget* _container = nullptr;
