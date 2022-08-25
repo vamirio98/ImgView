@@ -204,7 +204,7 @@ void Paper::zoomOut(const double& step)
 
 void Paper::scale(const double& factor)
 {
-	double prev_factor = _scaleFactor;
+	double prevFactor = _scaleFactor;
 	_scaleFactor = factor > kMaxScaleFactor ? kMaxScaleFactor
 		: (factor < kMinScaleFactor ? kMinScaleFactor : factor);
 
@@ -212,37 +212,37 @@ void Paper::scale(const double& factor)
 
 	if (_show) {
 		adjustScrollBarPos(_scrollArea->horizontalScrollBar(),
-		                   _scaleFactor / prev_factor);
+		                   _scaleFactor / prevFactor);
 		adjustScrollBarPos(_scrollArea->verticalScrollBar(),
-		                   _scaleFactor / prev_factor);
+		                   _scaleFactor / prevFactor);
 	}
 }
 
 void Paper::limitToWindow()
 {
-	QSize window_size = size();
-	QSize image_size = _imageInfo.dimensions();
+	QSize windowSize = size();
+	QSize imageSize = _imageInfo.dimensions();
 	_initScaleFactor = _scaleFactor = 1.0;
 
-	if (image_size.width() < window_size.width()
-			&& image_size.height() < window_size.height())
+	if (imageSize.width() < windowSize.width()
+			&& imageSize.height() < windowSize.height())
 		return;
 
-	double w_ratio = 1.0 * window_size.width() / image_size.width();
-	double h_ratio = 1.0 * window_size.height() / image_size.height();
+	double wRatio = 1.0 * windowSize.width() / imageSize.width();
+	double hRatio = 1.0 * windowSize.height() / imageSize.height();
 
 	/* The image may be a little larger than the window if the constant is
 	 * 1.0. */
-	_initScaleFactor = 0.99 * (w_ratio < h_ratio ? w_ratio : h_ratio);
+	_initScaleFactor = 0.99 * (wRatio < hRatio ? wRatio : hRatio);
 
 	gDebug() << "New W:" << _imageInfo.width() * _initScaleFactor
 		<< "H:" << _imageInfo.height() * _initScaleFactor;
 }
 
-void Paper::adjustScrollBarPos(QScrollBar* scroll_bar, const double& factor)
+void Paper::adjustScrollBarPos(QScrollBar* scrollBar, const double& factor)
 {
-	scroll_bar->setValue(static_cast<int>(scroll_bar->value() * factor
-				+ (factor - 1) * scroll_bar->pageStep() / 2));
+	scrollBar->setValue(static_cast<int>(scrollBar->value() * factor
+				+ (factor - 1) * scrollBar->pageStep() / 2));
 }
 
 void Paper::move(const double& dx, const double& dy)

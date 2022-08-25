@@ -123,10 +123,10 @@ private:
 	 * @brief Adjust the scroll bar position according to the image size, keep
 	 *        the display area is the same part of the image
 	 *
-	 * @param scroll_bar Scroll bar to be changed
+	 * @param scrollBar Scroll bar to be changed
 	 * @param factor The radio of the current size and origin size
 	 */
-	void adjustScrollBarPos(QScrollBar* scroll_bar, const double& factor);
+	void adjustScrollBarPos(QScrollBar* scrollBar, const double& factor);
 
 	/**
 	 * @brief Check if the current image is a static image
