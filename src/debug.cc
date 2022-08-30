@@ -5,61 +5,60 @@
  */
 #include "debug.h"
 
-#include <vector>
-#include <cstdio>
 #include <cstdarg>
+#include <cstdio>
+#include <vector>
 
 #include <QDateTime>
 
-namespace img_view {
-
-Debug::Debug(const LogLv& lv) : _lv(lv), _valid(true)
+namespace img_view
 {
-	if ((Logger::instance()->lvSet() & _lv)
-			|| (Logger::instance()->fileLvSet() & _lv)) {
-		_ts.setString(&_msg);
-		_ts << QDateTime::fromMSecsSinceEpoch(
-				QDateTime::currentMSecsSinceEpoch()
-				).toString("MM/dd hh:mm:ss.zzz")
-			<< " - " << Logger::instance()->logLvToStr((_lv)) << " - ";
-	}
-}
 
-Debug::~Debug()
-{
-	if (_valid) {
-		if (Logger::instance()->lvSet() & _lv)
-			std::cout << _msg.toUtf8().data() << std::endl;
-		if (Logger::instance()->fileLvSet() & _lv) {
-			QWriteLocker locker(&(Logger::instance()->locker()));
-			Logger::instance()->appendToFile(_msg);
-			locker.unlock();
+	Debug::Debug(const LogLv& lv) : _lv(lv), _valid(true)
+	{
+		if ((Logger::instance()->lvSet() & _lv) ||
+		    (Logger::instance()->fileLvSet() & _lv)) {
+			_ts.setString(&_msg);
+			_ts << QDateTime::fromMSecsSinceEpoch(
+			           QDateTime::currentMSecsSinceEpoch()
+			       )
+			           .toString("MM/dd hh:mm:ss.zzz")
+			    << " - " << Logger::instance()->logLvToStr((_lv)) << " - ";
 		}
 	}
-}
 
-Debug::Debug(Debug&& rhs) : _lv(rhs._lv), _valid(true),
-	_msg(std::move(rhs._msg))
-{
-	_ts.setString(&_msg);
-	rhs._valid = false;
-}
-
-auto Debug::addMsg() -> Debug&&
-{
-	return std::move(*this);
-}
-
-void Debug::addMsg(const char* format, ...)
-{
-	if (!_msg.isEmpty()) {
-		va_list args;
-		va_start(args, format);
-		char* msgBuf = new char[MAX_MSG_LEN];
-		vsnprintf(msgBuf, MAX_MSG_LEN, format, args);
-		_ts << msgBuf;
-		delete[] msgBuf;
+	Debug::~Debug()
+	{
+		if (_valid) {
+			if (Logger::instance()->lvSet() & _lv)
+				std::cout << _msg.toUtf8().data() << std::endl;
+			if (Logger::instance()->fileLvSet() & _lv) {
+				QWriteLocker locker(&(Logger::instance()->locker()));
+				Logger::instance()->appendToFile(_msg);
+				locker.unlock();
+			}
+		}
 	}
-}
 
-}  /* img_view */
+	Debug::Debug(Debug&& rhs)
+	    : _lv(rhs._lv), _valid(true), _msg(std::move(rhs._msg))
+	{
+		_ts.setString(&_msg);
+		rhs._valid = false;
+	}
+
+	auto Debug::addMsg() -> Debug&& { return std::move(*this); }
+
+	void Debug::addMsg(const char* format, ...)
+	{
+		if (!_msg.isEmpty()) {
+			va_list args;
+			va_start(args, format);
+			char* msgBuf = new char[MAX_MSG_LEN];
+			vsnprintf(msgBuf, MAX_MSG_LEN, format, args);
+			_ts << msgBuf;
+			delete[] msgBuf;
+		}
+	}
+
+} // namespace img_view

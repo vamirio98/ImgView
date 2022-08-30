@@ -1,0 +1,28 @@
+BasedOnStyle: LLVM
+Language: Cpp
+
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Right
+AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Left
+
+AllowAllArgumentsOnNextLine: true
+
+AlwaysBreakTemplateDeclarations: Yes
+
+BreakStringLiterals: false
+BreakBeforeBraces: Linux
+
+ColumnLimit: 80
+
+Cpp11BracedListStyle: true
+
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+NamespaceIndentation: All
+
+PointerAlignment: Left
+
+TabWidth: 4
+UseTab: ForIndentation

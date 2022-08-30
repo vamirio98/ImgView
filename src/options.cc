@@ -10,381 +10,294 @@
 namespace img_view
 {
 
-Options gOpt;
+	Options gOpt;
 
-Options::Options()
-{
-	_imageBgColor = new char[7];
-	strcpy(_imageBgColor, "000000");  /* White. */
-}
-
-Options::~Options()
-{
-	delete[] _imageBgColor;
-}
-
-bool Options::show() const
-{
-	return _show;
-}
-
-bool Options::hasHistory() const
-{
-	return _hasHistory;
-}
-
-bool Options::showLibrary() const
-{
-	return _showLibrary;
-}
-
-bool Options::showPageList() const
-{
-	return _showPageList;
-}
-
-bool Options::showHistory() const
-{
-	return _showHistory;
-}
-
-bool Options::showInfo() const
-{
-	return _showInfo;
-}
-
-bool Options::showAction() const
-{
-	return _showAction;
-}
-
-bool Options::showSideBar() const
-{
-	return _showSideBar;
-}
-
-ImageSize Options::imageSize() const
-{
-	return _imageSize;
-}
-
-const char* Options::imageBgColor() const
-{
-	return _imageBgColor;
-}
-
-bool Options::isFirstPage() const
-{
-	return _isFirstPage;
-}
-
-bool Options::isLastPage() const
-{
-	return _isLastPage;
-}
-
-bool Options::isFirstBook() const
-{
-	return _isFirstBook;
-}
-
-bool Options::isLastBook() const
-{
-	return _isLastBook;
-}
-
-bool Options::isFirstLoc() const
-{
-	return _isFirstLoc;
-}
-
-bool Options::isLastLoc() const
-{
-	return _isLastLoc;
-}
-
-PageNum Options::pageNum() const
-{
-	return _pageNum;
-}
-
-ReadDirection Options::readDirection() const
-{
-	return _readDirection;
-}
-
-bool Options::splitWidePage() const
-{
-	return _splitWidePage;
-}
-
-bool Options::firstPageAlone() const
-{
-	return _firstPageAlone;
-}
-
-bool Options::lastPageAlone() const
-{
-	return _lastPageAlone;
-}
-
-Sort Options::sortPage() const
-{
-	return _sortPage;
-}
-
-ListStyle Options::pageListStyle() const
-{
-	return _pageListStyle;
-}
-
-Sort Options::sortBook() const
-{
-	return _sortBook;
-}
-
-ListStyle Options::bookListStyle() const
-{
-	return _bookListStyle;
-}
-
-bool Options::minImage() const
-{
-	return _minImage;
-}
-
-bool Options::maxImage() const
-{
-	return _maxImage;
-}
-
-bool Options::keepScale() const
-{
-	return _keepScale;
-}
-
-void Options::setShow(const bool show)
-{
-	if (show != _show) {
-		_show = show;
-		emit showChanged();
+	Options::Options()
+	{
+		_imageBgColor = new char[7];
+		strcpy(_imageBgColor, "000000"); /* White. */
 	}
-}
 
-void Options::setHasHistory(const bool hasHistory)
-{
-	if (hasHistory != _hasHistory) {
-		_hasHistory = hasHistory;
-		emit hasHistoryChanged();
+	Options::~Options() { delete[] _imageBgColor; }
+
+	bool Options::show() const { return _show; }
+
+	bool Options::hasHistory() const { return _hasHistory; }
+
+	bool Options::showLibrary() const { return _showLibrary; }
+
+	bool Options::showPageList() const { return _showPageList; }
+
+	bool Options::showHistory() const { return _showHistory; }
+
+	bool Options::showInfo() const { return _showInfo; }
+
+	bool Options::showAction() const { return _showAction; }
+
+	bool Options::showSideBar() const { return _showSideBar; }
+
+	ImageSize Options::imageSize() const { return _imageSize; }
+
+	const char* Options::imageBgColor() const { return _imageBgColor; }
+
+	bool Options::isFirstPage() const { return _isFirstPage; }
+
+	bool Options::isLastPage() const { return _isLastPage; }
+
+	bool Options::isFirstBook() const { return _isFirstBook; }
+
+	bool Options::isLastBook() const { return _isLastBook; }
+
+	bool Options::isFirstLoc() const { return _isFirstLoc; }
+
+	bool Options::isLastLoc() const { return _isLastLoc; }
+
+	PageNum Options::pageNum() const { return _pageNum; }
+
+	ReadDirection Options::readDirection() const { return _readDirection; }
+
+	bool Options::splitWidePage() const { return _splitWidePage; }
+
+	bool Options::firstPageAlone() const { return _firstPageAlone; }
+
+	bool Options::lastPageAlone() const { return _lastPageAlone; }
+
+	Sort Options::sortPage() const { return _sortPage; }
+
+	ListStyle Options::pageListStyle() const { return _pageListStyle; }
+
+	Sort Options::sortBook() const { return _sortBook; }
+
+	ListStyle Options::bookListStyle() const { return _bookListStyle; }
+
+	bool Options::minImage() const { return _minImage; }
+
+	bool Options::maxImage() const { return _maxImage; }
+
+	bool Options::keepScale() const { return _keepScale; }
+
+	void Options::setShow(const bool show)
+	{
+		if (show != _show) {
+			_show = show;
+			emit showChanged();
+		}
 	}
-}
 
-void Options::setShowLibrary(const bool showLibrary)
-{
-	if (showLibrary != _showLibrary) {
-		_showLibrary = showLibrary;
-		emit showLibraryChanged();
+	void Options::setHasHistory(const bool hasHistory)
+	{
+		if (hasHistory != _hasHistory) {
+			_hasHistory = hasHistory;
+			emit hasHistoryChanged();
+		}
 	}
-}
 
-void Options::setShowPageList(const bool showPageList)
-{
-	if (showPageList != _showPageList) {
-		_showPageList = showPageList;
-		emit showPageListChanged();
+	void Options::setShowLibrary(const bool showLibrary)
+	{
+		if (showLibrary != _showLibrary) {
+			_showLibrary = showLibrary;
+			emit showLibraryChanged();
+		}
 	}
-}
 
-void Options::setShowHistory(const bool showHistory)
-{
-	if (showHistory != _showHistory) {
-		_showHistory = showHistory;
-		emit showHistoryChanged();
+	void Options::setShowPageList(const bool showPageList)
+	{
+		if (showPageList != _showPageList) {
+			_showPageList = showPageList;
+			emit showPageListChanged();
+		}
 	}
-}
 
-void Options::setShowInfo(const bool showInfo)
-{
-	if (showInfo != _showInfo) {
-		_showInfo = showInfo;
-		emit showInfoChanged();
+	void Options::setShowHistory(const bool showHistory)
+	{
+		if (showHistory != _showHistory) {
+			_showHistory = showHistory;
+			emit showHistoryChanged();
+		}
 	}
-}
 
-void Options::setShowAction(const bool showAction)
-{
-	if (showAction != _showAction) {
-		_showAction = showAction;
-		emit showActionChanged();
+	void Options::setShowInfo(const bool showInfo)
+	{
+		if (showInfo != _showInfo) {
+			_showInfo = showInfo;
+			emit showInfoChanged();
+		}
 	}
-}
 
-void Options::setShowSideBar(const bool showSideBar)
-{
-	if (showSideBar != _showSideBar) {
-		_showSideBar = showSideBar;
-		emit showSideBarChanged();
+	void Options::setShowAction(const bool showAction)
+	{
+		if (showAction != _showAction) {
+			_showAction = showAction;
+			emit showActionChanged();
+		}
 	}
-}
 
-void Options::setImageSize(const ImageSize& imageSize)
-{
-	if (imageSize != _imageSize) {
-		_imageSize = imageSize;
-		emit imageSizeChanged();
+	void Options::setShowSideBar(const bool showSideBar)
+	{
+		if (showSideBar != _showSideBar) {
+			_showSideBar = showSideBar;
+			emit showSideBarChanged();
+		}
 	}
-}
 
-void Options::setImageBgColor(const char* imageBgColor)
-{
-	if (strcmp(imageBgColor, _imageBgColor)) {
-		strcpy(_imageBgColor, imageBgColor);
-		emit imageBgColorChanged();
+	void Options::setImageSize(const ImageSize& imageSize)
+	{
+		if (imageSize != _imageSize) {
+			_imageSize = imageSize;
+			emit imageSizeChanged();
+		}
 	}
-}
 
-void Options::setIsFirstPage(const bool isFirstPage)
-{
-	if (isFirstPage != _isFirstPage) {
-		_isFirstPage = isFirstPage;
-		emit isFirstPageChanged();
+	void Options::setImageBgColor(const char* imageBgColor)
+	{
+		if (strcmp(imageBgColor, _imageBgColor)) {
+			strcpy(_imageBgColor, imageBgColor);
+			emit imageBgColorChanged();
+		}
 	}
-}
 
-void Options::setIsLastPage(const bool isLastPage)
-{
-	if (isLastPage != _isLastPage) {
-		_isLastPage = isLastPage;
-		emit isLastPageChanged();
+	void Options::setIsFirstPage(const bool isFirstPage)
+	{
+		if (isFirstPage != _isFirstPage) {
+			_isFirstPage = isFirstPage;
+			emit isFirstPageChanged();
+		}
 	}
-}
 
-void Options::setIsFirstBook(const bool isFirstBook)
-{
-	if (isFirstBook != _isFirstBook) {
-		_isFirstBook = isFirstBook;
-		emit isFirstBookChanged();
+	void Options::setIsLastPage(const bool isLastPage)
+	{
+		if (isLastPage != _isLastPage) {
+			_isLastPage = isLastPage;
+			emit isLastPageChanged();
+		}
 	}
-}
 
-void Options::setIsLastBook(const bool isLastBook)
-{
-	if (isLastBook != _isLastBook) {
-		_isLastBook = isLastBook;
-		emit isLastBookChanged();
+	void Options::setIsFirstBook(const bool isFirstBook)
+	{
+		if (isFirstBook != _isFirstBook) {
+			_isFirstBook = isFirstBook;
+			emit isFirstBookChanged();
+		}
 	}
-}
 
-void Options::setIsFirstLoc(const bool isFirstLocation)
-{
-	if (isFirstLocation != _isFirstLoc) {
-		_isFirstLoc = isFirstLocation;
-		emit isFirstLocChanged();
+	void Options::setIsLastBook(const bool isLastBook)
+	{
+		if (isLastBook != _isLastBook) {
+			_isLastBook = isLastBook;
+			emit isLastBookChanged();
+		}
 	}
-}
 
-void Options::setIsLastLoc(const bool isLastLocation)
-{
-	if (isLastLocation != _isLastLoc) {
-		_isLastLoc = isLastLocation;
-		emit isLastLocChanged();
+	void Options::setIsFirstLoc(const bool isFirstLocation)
+	{
+		if (isFirstLocation != _isFirstLoc) {
+			_isFirstLoc = isFirstLocation;
+			emit isFirstLocChanged();
+		}
 	}
-}
 
-void Options::setPageNum(const PageNum& pageNum)
-{
-	if (pageNum != _pageNum) {
-		_pageNum = pageNum;
-		emit pageNumChanged();
+	void Options::setIsLastLoc(const bool isLastLocation)
+	{
+		if (isLastLocation != _isLastLoc) {
+			_isLastLoc = isLastLocation;
+			emit isLastLocChanged();
+		}
 	}
-}
 
-void Options::setReadDirection(const ReadDirection& readDirection)
-{
-	if (readDirection != _readDirection) {
-		_readDirection = readDirection;
-		emit readDirectionChanged();
+	void Options::setPageNum(const PageNum& pageNum)
+	{
+		if (pageNum != _pageNum) {
+			_pageNum = pageNum;
+			emit pageNumChanged();
+		}
 	}
-}
 
-void Options::setSplitWidePage(const bool splitWidePage)
-{
-	if (splitWidePage != _splitWidePage) {
-		_splitWidePage = splitWidePage;
-		emit splitWidePageChanged();
+	void Options::setReadDirection(const ReadDirection& readDirection)
+	{
+		if (readDirection != _readDirection) {
+			_readDirection = readDirection;
+			emit readDirectionChanged();
+		}
 	}
-}
 
-void Options::setFirstPageAlone(const bool firstPageAlone)
-{
-	if (firstPageAlone != _firstPageAlone) {
-		_firstPageAlone = firstPageAlone;
-		emit firstPageAloneChanged();
+	void Options::setSplitWidePage(const bool splitWidePage)
+	{
+		if (splitWidePage != _splitWidePage) {
+			_splitWidePage = splitWidePage;
+			emit splitWidePageChanged();
+		}
 	}
-}
 
-void Options::setLastPageAlone(const bool lastPageAlone)
-{
-	if (lastPageAlone != _lastPageAlone) {
-		_lastPageAlone = lastPageAlone;
-		emit lastPageAloneChanged();
+	void Options::setFirstPageAlone(const bool firstPageAlone)
+	{
+		if (firstPageAlone != _firstPageAlone) {
+			_firstPageAlone = firstPageAlone;
+			emit firstPageAloneChanged();
+		}
 	}
-}
 
-void Options::setSortPage(const Sort& sortPage)
-{
-	if (sortPage != _sortPage) {
-		_sortPage = sortPage;
-		emit sortPageChanged();
+	void Options::setLastPageAlone(const bool lastPageAlone)
+	{
+		if (lastPageAlone != _lastPageAlone) {
+			_lastPageAlone = lastPageAlone;
+			emit lastPageAloneChanged();
+		}
 	}
-}
 
-void Options::setPageListStyle(const ListStyle& pageListStyle)
-{
-	if (pageListStyle != _pageListStyle) {
-		_pageListStyle = pageListStyle;
-		emit pageListStyleChanged();
+	void Options::setSortPage(const Sort& sortPage)
+	{
+		if (sortPage != _sortPage) {
+			_sortPage = sortPage;
+			emit sortPageChanged();
+		}
 	}
-}
 
-void Options::setSortBook(const Sort& sortBook)
-{
-	if (sortBook != _sortBook) {
-		_sortBook = sortBook;
-		emit sortBookChanged();
+	void Options::setPageListStyle(const ListStyle& pageListStyle)
+	{
+		if (pageListStyle != _pageListStyle) {
+			_pageListStyle = pageListStyle;
+			emit pageListStyleChanged();
+		}
 	}
-}
 
-void Options::setBookListStyle(const ListStyle& bookListStyle)
-{
-	if (bookListStyle != _bookListStyle) {
-		_bookListStyle = bookListStyle;
-		emit bookListStyleChanged();
+	void Options::setSortBook(const Sort& sortBook)
+	{
+		if (sortBook != _sortBook) {
+			_sortBook = sortBook;
+			emit sortBookChanged();
+		}
 	}
-}
 
-void Options::setMinImage(const bool minImage)
-{
-	if (minImage != _minImage) {
-		_minImage = minImage;
-		emit minImageChanged();
+	void Options::setBookListStyle(const ListStyle& bookListStyle)
+	{
+		if (bookListStyle != _bookListStyle) {
+			_bookListStyle = bookListStyle;
+			emit bookListStyleChanged();
+		}
 	}
-}
 
-void Options::setMaxImage(const bool maxImage)
-{
-	if (maxImage != _maxImage) {
-		_maxImage = maxImage;
-		emit maxImageChanged();
+	void Options::setMinImage(const bool minImage)
+	{
+		if (minImage != _minImage) {
+			_minImage = minImage;
+			emit minImageChanged();
+		}
 	}
-}
 
-void Options::setKeepScale(const bool keepScale)
-{
-	if (keepScale != _keepScale) {
-		_keepScale = keepScale;
-		emit keepScaleChanged();
+	void Options::setMaxImage(const bool maxImage)
+	{
+		if (maxImage != _maxImage) {
+			_maxImage = maxImage;
+			emit maxImageChanged();
+		}
 	}
-}
 
-} /* img_view */
+	void Options::setKeepScale(const bool keepScale)
+	{
+		if (keepScale != _keepScale) {
+			_keepScale = keepScale;
+			emit keepScaleChanged();
+		}
+	}
+
+} // namespace img_view
