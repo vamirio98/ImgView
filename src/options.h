@@ -8,6 +8,8 @@
 
 #include <QObject>
 
+#include "lru_cache.h"
+
 namespace img_view
 {
 
@@ -64,8 +66,13 @@ namespace img_view
 		~Options();
 
 	  public:
+		// Load saved config.
+		bool load();
+		// Save current config.
+		bool save() const;
 		bool show() const;
 		bool hasHistory() const;
+		LruCache<QString, QString>& recentBooks();
 		bool showLibrary() const;
 		bool showPageList() const;
 		bool showHistory() const;
@@ -155,6 +162,7 @@ namespace img_view
 	  private:
 		bool _show = false; /* Show image or not. */
 		bool _hasHistory = false;
+		LruCache<QString, QString> _recentBooks;
 
 		/* Component visibility. */
 		bool _showLibrary = false;

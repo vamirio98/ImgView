@@ -7,12 +7,23 @@
 
 #include <cstring>
 
+#include <QApplication>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <qjsondocument.h>
+#include <qjsonobject.h>
+
+#include "debug.h"
+#include "lru_cache.h"
+
 namespace img_view
 {
 
 	Options gOpt;
 
-	Options::Options()
+	Options::Options() : _recentBooks(10)
 	{
 		_imageBgColor = new char[7];
 		strcpy(_imageBgColor, "000000"); /* White. */
@@ -20,9 +31,56 @@ namespace img_view
 
 	Options::~Options() { delete[] _imageBgColor; }
 
+	bool Options::load()
+	{
+		QFile configFile(QApplication::applicationDirPath() + "/ImgView.ini");
+		if (!configFile.open(QIODevice::ReadOnly)) {
+			gWarn() << "cannot open config file ImgView.ini.";
+			return false;
+		}
+
+		QByteArray data = configFile.readAll();
+		QJsonObject json(QJsonDocument::fromJson(data).object());
+		if (json.contains("recentBooks") && json["recentBooks"].isArray()) {
+			QJsonArray books = json["recentBooks"].toArray();
+			for (int i = books.size() - 1; i >= 0; --i) {
+				QString bookAndImage = books[i].toString();
+				int delimiterPos = bookAndImage.indexOf('|');
+				_recentBooks.put(
+				    bookAndImage.first(delimiterPos),
+				    bookAndImage.last(bookAndImage.size() - delimiterPos - 1)
+				);
+			}
+			setHasHistory(true);
+		}
+
+		return true;
+	}
+
+	bool Options::save() const
+	{
+		// Recent books.
+		QJsonArray recentBooks;
+		for (auto book = _recentBooks.data().crbegin();
+		     book != _recentBooks.data().crend(); ++book)
+			recentBooks.push_back(book->first + "|" + book->second);
+		QJsonObject data;
+		data["recentBooks"] = recentBooks;
+
+		QFile configFile(QApplication::applicationDirPath() + "/ImgView.ini");
+		if (!configFile.open(QIODevice::WriteOnly)) {
+			gError() << "cannot open config file ImgView.ini.";
+			return false;
+		}
+		configFile.write(QJsonDocument(data).toJson());
+		return true;
+	}
+
 	bool Options::show() const { return _show; }
 
 	bool Options::hasHistory() const { return _hasHistory; }
+
+	LruCache<QString, QString>& Options::recentBooks() { return _recentBooks; }
 
 	bool Options::showLibrary() const { return _showLibrary; }
 

@@ -12,6 +12,7 @@
 #include <QShortcut>
 #include <QStandardPaths>
 #include <qaction.h>
+#include <qapplication.h>
 #include <qmessagebox.h>
 
 #include "debug.h"
@@ -32,7 +33,7 @@ namespace img_view
 #endif
 
 	MainWindow::MainWindow(QWidget* parent)
-	    : QMainWindow(parent), _ui(new ui::MainWindowUi), _recentOpenBooks(10)
+	    : QMainWindow(parent), _ui(new ui::MainWindowUi)
 	{
 	}
 
@@ -42,7 +43,7 @@ namespace img_view
 	{
 		_ui->setupUi(this);
 		_paper = _ui->_paper;
-		for (int i = 0; i != _recentOpenBooks.capacity(); ++i) {
+		for (int i = 0; i != gOpt.recentBooks().capacity(); ++i) {
 			QAction* action = new QAction(this);
 			action->setVisible(false);
 			connect(
@@ -55,6 +56,7 @@ namespace img_view
 		setupSlots();
 		setupShortCut();
 
+		gOpt.load();
 		toggleClose();
 		toggleRecentBooks();
 		toggleOpenFileLoc();
@@ -72,6 +74,7 @@ namespace img_view
 
 	void MainWindow::setupSlots()
 	{
+		connect(qApp, &QApplication::aboutToQuit, this, &MainWindow::onQuit);
 		connect(_ui->_open, &QAction::triggered, this, &MainWindow::onOpen);
 		connect(_ui->_close, &QAction::triggered, this, &MainWindow::onClose);
 		connect(
@@ -97,6 +100,8 @@ namespace img_view
 		connect(_ui->_about, &QAction::triggered, this, &MainWindow::onAbout);
 	}
 
+	void MainWindow::onQuit() { gOpt.save(); }
+
 	void MainWindow::onOpen()
 	{
 		QFileDialog dialog(this, tr("Open"));
@@ -115,9 +120,7 @@ namespace img_view
 			    _paper->browse(_book.curPage())) {
 				_paper->draw();
 				gOpt.setShow(true);
-				updateRecentOpenList(
-				    _book.absPath(), _book.curPage().absPath()
-				);
+				updateRecentBooks(_book.absPath(), _book.curPage().absPath());
 			} else {
 				QMessageBox::warning(
 				    this, tr("ImgView"),
@@ -162,7 +165,7 @@ namespace img_view
 		_paper->erase();
 		if (_paper->browse(_book.toPrevPage())) {
 			_paper->draw();
-			updateRecentOpenList(_book.absPath(), _book.curPage().absPath());
+			updateRecentBooks(_book.absPath(), _book.curPage().absPath());
 		}
 	}
 
@@ -173,7 +176,7 @@ namespace img_view
 		_paper->erase();
 		if (_paper->browse(_book.toNextPage())) {
 			_paper->draw();
-			updateRecentOpenList(_book.absPath(), _book.curPage().absPath());
+			updateRecentBooks(_book.absPath(), _book.curPage().absPath());
 		}
 	}
 
@@ -182,6 +185,8 @@ namespace img_view
 	void MainWindow::toggleRecentBooks()
 	{
 		_ui->_recentBooks->setEnabled(gOpt.hasHistory());
+		if (gOpt.hasHistory())
+			updateRecentBooksUi();
 	}
 
 	void MainWindow::toggleOpenFileLoc()
@@ -305,9 +310,7 @@ namespace img_view
 			    _paper->browse(_book.curPage())) {
 				_paper->draw();
 				gOpt.setShow(true);
-				updateRecentOpenList(
-				    _book.absPath(), _book.curPage().absPath()
-				);
+				updateRecentBooks(_book.absPath(), _book.curPage().absPath());
 			} else {
 				QMessageBox::warning(
 				    this, tr("ImgView"),
@@ -318,25 +321,29 @@ namespace img_view
 	}
 
 	void
-	MainWindow::updateRecentOpenList(const QString& book, const QString& image)
+	MainWindow::updateRecentBooks(const QString& book, const QString& image)
 	{
-		QString cacheImage = _recentOpenBooks.get(book);
+		QString cacheImage = gOpt.recentBooks().get(book);
 		if (cacheImage.isEmpty() || cacheImage != image)
-			_recentOpenBooks.put(book, image);
+			gOpt.recentBooks().put(book, image);
+		updateRecentBooksUi();
 
+		if (!gOpt.hasHistory())
+			gOpt.setHasHistory(true);
+	}
+
+	void MainWindow::updateRecentBooksUi()
+	{
 		int num = 0;
-		for (auto book = _recentOpenBooks.data().rbegin();
-		     book != _recentOpenBooks.data().rend(); ++book) {
+		for (auto book = gOpt.recentBooks().data().crbegin();
+		     book != gOpt.recentBooks().data().crend(); ++book) {
 			_recentBooksActions.at(num)->setText(book->first);
 			_recentBooksActions.at(num)->setData(book->second);
 			_recentBooksActions.at(num)->setVisible(true);
 			++num;
-			gDebug() << book->first << book->second;
 		}
 		for (int i = num; i != _recentBooksActions.size(); ++i)
 			_recentBooksActions.at(i)->setVisible(false);
-
-		gOpt.setHasHistory(true);
 	}
 
 } // namespace img_view

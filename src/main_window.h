@@ -32,6 +32,7 @@ namespace img_view
 		void init();
 
 	  private slots:
+		void onQuit();
 		void onOpen();
 		void onClose();
 		void onRecentBooks();
@@ -65,7 +66,8 @@ namespace img_view
 		bool openBook(const QString& bookPath);
 		void closeBook();
 		/* Update book and page together. */
-		void updateRecentOpenList(const QString& book, const QString& image);
+		void updateRecentBooks(const QString& book, const QString& image);
+		void updateRecentBooksUi();
 
 		static void initFileDialog(
 		    QFileDialog* dialog, const QFileDialog::AcceptMode acceptMode
@@ -75,7 +77,6 @@ namespace img_view
 		static QString _lastOpenPos;
 		static QString _fileBrowserProgram;
 		static QString _fileBrowserParam;
-		LruCache<QString, QString> _recentOpenBooks;
 		QList<QAction*> _recentBooksActions;
 
 		ui::MainWindowUi* _ui = nullptr;
