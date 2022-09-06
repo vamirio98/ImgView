@@ -9,6 +9,7 @@
 #include <QImage>
 #include <QMap>
 #include <QVector>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
 #include "debug.h"
@@ -194,7 +195,7 @@ namespace img_view
 	ImageInfo::ImageInfo() {}
 
 	ImageInfo::ImageInfo(const ImageInfo& rhs)
-	    : _size(rhs._size), _lastModified(rhs._lastModified),
+	    : _hasBasicInfo(rhs._hasBasicInfo), _hasDetailInfo(rhs._hasDetailInfo), _size(rhs._size), _lastModified(rhs._lastModified),
 	      _format(rhs._format), _width(rhs._width), _height(rhs._height),
 	      _depth(rhs._depth)
 	{
@@ -213,6 +214,8 @@ namespace img_view
 			delete[] _path;
 			_path = _filename = _extension = nullptr;
 		}
+		_hasBasicInfo = rhs._hasBasicInfo;
+		_hasDetailInfo = rhs._hasDetailInfo;
 		_path = new char[strlen(rhs._path) + 1];
 		strcpy(_path, rhs._path);
 		_filename = _path + strlen(_path) - strlen(rhs._filename);
@@ -228,7 +231,7 @@ namespace img_view
 	}
 
 	ImageInfo::ImageInfo(ImageInfo&& rhs) noexcept
-	    : _path(rhs._path), _filename(rhs._filename),
+	    : _hasBasicInfo(rhs._hasBasicInfo), _hasDetailInfo(rhs._hasDetailInfo), _path(rhs._path), _filename(rhs._filename),
 	      _extension(rhs._extension), _size(rhs._size),
 	      _lastModified(rhs._lastModified), _format(rhs._format),
 	      _width(rhs._width), _height(rhs._height), _depth(rhs._depth)
@@ -241,6 +244,8 @@ namespace img_view
 		if (this == &rhs)
 			return *this;
 
+		_hasBasicInfo = rhs._hasBasicInfo;
+		_hasDetailInfo = rhs._hasDetailInfo;
 		_path = rhs._path;
 		_filename = rhs._filename;
 		_extension = rhs._extension;
@@ -262,14 +267,20 @@ namespace img_view
 			delete[] _path;
 	}
 
-	/* TODO: check the encode. */
-	bool ImageInfo::browse(const QString& image)
+	bool ImageInfo::getAllInfo(const QString& image)
+	{
+		return getBasicInfo(image) && getDetailInfo();
+	}
+
+	bool ImageInfo::getBasicInfo(const QString& image)
 	{
 		QFileInfo info(image);
 		if (!info.exists() || !info.isReadable() ||
 		    getImageFormat(image) == ImageFormat::unknown)
 			return false;
 
+		// Should update detail info after update basic info.
+		_hasDetailInfo = false;
 		if (_path) {
 			delete[] _path;
 			_path = _filename = _extension = nullptr;
@@ -288,6 +299,17 @@ namespace img_view
 		_lastModified = info.lastModified().toMSecsSinceEpoch();
 
 		_format = getImageFormat(image);
+
+		_hasBasicInfo = true;
+
+		return true;
+	}
+
+	/* TODO: check the encode. */
+	bool ImageInfo::getDetailInfo()
+	{
+		if (!hasBasicInfo())
+			return false;
 
 		if (_format == ImageFormat::gif) {
 			QImage img(_path, imageFormatToStr(_format));
@@ -311,11 +333,14 @@ namespace img_view
 			}
 		}
 
-		gDebug() << "File:" << _filename << "W:" << _width << "H:" << _height
-		         << "D:" << _depth;
+		_hasDetailInfo = true;
 
 		return true;
 	}
+
+	bool ImageInfo::hasBasicInfo() const { return _hasBasicInfo; }
+
+	bool ImageInfo::hasDetailInfo() const { return _hasDetailInfo; }
 
 	QString ImageInfo::absPath() const { return _path; }
 
@@ -339,7 +364,7 @@ namespace img_view
 
 	int ImageInfo::depth() const { return _depth; }
 
-	bool ImageInfo::empty() const { return _path == nullptr; }
+	bool ImageInfo::empty() const { return !(hasBasicInfo() && hasDetailInfo()); }
 
 	bool operator==(const ImageInfo& lhs, const ImageInfo& rhs)
 	{

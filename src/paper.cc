@@ -80,7 +80,7 @@ namespace img_view
 
 	bool Paper::browse(const QString& image)
 	{
-		return _imageInfo.browse(image) &&
+		return _imageInfo.getAllInfo(image) &&
 		       kSupportedFormats.find(imageFormatToStr(_imageInfo.format())) !=
 		           kSupportedFormats.end();
 	}

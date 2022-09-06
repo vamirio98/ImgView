@@ -101,14 +101,41 @@ namespace img_view
 		~ImageInfo();
 
 		/**
-		 * @brief Browse the image and get its infomation
+		 * @brief Get all infomation of specified image.
 		 *
-		 * @param iamge The filepath of the image browsed
+		 * @param iamge The filepath of the sepcified image.
 		 *
 		 * @return True when succeeded, false when the image is not exist, is
 		 * not an image file, or you don't have the permission to open it
 		 */
-		bool browse(const QString& image);
+		bool getAllInfo(const QString& image);
+
+		/**
+		 * @brief Get basic information of specified image.
+		 *
+		 * The basic information contains path (filename, extension), size,
+		 * last modified timestamp and format.
+		 *
+		 * @param image The filepath of the sepcified image.
+		 *
+		 * @return True when succeeded, false when the image is not exist, is
+		 * not an image file, or you don't have the permission to open it
+		 */
+		bool getBasicInfo(const QString& image);
+
+		/**
+		 * @brief Get detail information of current image, should be called
+		 *        only after getBasicInfo() is called.
+		 *
+		 * The detail infomation contains
+		 *
+		 * @return True when succeeded, false when don't have bassic info.
+		 */
+		bool getDetailInfo();
+
+		bool hasBasicInfo() const;
+
+		bool hasDetailInfo() const;
 
 		/**
 		 * @brief Get the absolute path of the image
@@ -172,6 +199,8 @@ namespace img_view
 		bool empty() const;
 
 	  private:
+		bool _hasBasicInfo = false;
+		bool _hasDetailInfo = false;
 		char* _path = nullptr;
 		char* _filename = nullptr;
 		char* _extension = nullptr;

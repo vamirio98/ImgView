@@ -34,7 +34,7 @@ namespace img_view
 		for (const QString& filename : filelist) {
 			filepath = dir.filePath(filename);
 			ImageInfo info;
-			if (!info.browse(filepath))
+			if (!info.getBasicInfo(filepath))
 				continue;
 			_pageList.emplace_back(info);
 		}
@@ -69,7 +69,12 @@ namespace img_view
 
 	qint64 Book::lastModified() const { return _info.lastModified(); }
 
-	const ImageInfo& Book::curPage() const { return _pageList.at(_pageNum); }
+	const ImageInfo& Book::curPage()
+	{
+		if (!_pageList.at(_pageNum).hasDetailInfo())
+			_pageList[_pageNum].getDetailInfo();
+		return _pageList.at(_pageNum);
+	}
 
 	bool Book::setCurPage(const QString& pagename)
 	{
@@ -85,45 +90,60 @@ namespace img_view
 		return true;
 	}
 
-	const ImageInfo& Book::prevPage() const
+	const ImageInfo& Book::prevPage()
 	{
-		return _pageList.at(_pageNum - (_pageNum == 0 ? 0 : 1));
+		int aimPageNum = _pageNum - (_pageNum == 0 ? 0 : 1);
+		if (!_pageList.at(aimPageNum).hasDetailInfo())
+			_pageList[aimPageNum].getDetailInfo();
+		return _pageList.at(aimPageNum);
 	}
 
-	const ImageInfo& Book::nextPage() const
+	const ImageInfo& Book::nextPage()
 	{
-		return _pageList.at(
-		    _pageNum + (_pageNum == _pageList.size() - 1 ? 0 : 1)
-		);
+		int aimPageNum = _pageNum + (_pageNum == _pageList.size() - 1 ? 0 : 1);
+		if (!_pageList.at(aimPageNum).hasDetailInfo())
+			_pageList[aimPageNum].getDetailInfo();
+		return _pageList.at(aimPageNum);
 	}
 
-	QList<ImageInfo> Book::prevPages(int num) const
+	QList<ImageInfo> Book::prevPages(int num)
 	{
 		QList<ImageInfo> ret;
 		int i = _pageNum - num >= 0 ? _pageNum - num : 0;
-		for (; i != _pageNum && num > 0; ++i, --num)
+		for (; i != _pageNum && num > 0; ++i, --num) {
+			if (!_pageList.at(i).hasDetailInfo())
+				_pageList[i].getDetailInfo();
 			ret.push_back(_pageList.at(i));
+		}
 		return ret;
 	}
 
-	QList<ImageInfo> Book::nextPages(int num) const
+	QList<ImageInfo> Book::nextPages(int num)
 	{
 		QList<ImageInfo> ret;
-		for (int i = _pageNum + 1; i != _pageList.size() && num > 0; ++i, --num)
+		for (int i = _pageNum + 1; i != _pageList.size() && num > 0;
+		     ++i, --num) {
+			if (!_pageList.at(i).hasDetailInfo())
+				_pageList[i].getDetailInfo();
 			ret.push_back(_pageList.at(i));
+		}
 		return ret;
 	}
 
 	const ImageInfo& Book::toPrevPage()
 	{
-		return _pageNum == 0 ? _pageList.at(_pageNum)
-		                     : _pageList.at(--_pageNum);
+		_pageNum -= _pageNum == 0 ? 0 : 1;
+		if (!_pageList.at(_pageNum).hasDetailInfo())
+			_pageList[_pageNum].getDetailInfo();
+		return _pageList.at(_pageNum);
 	}
 
 	const ImageInfo& Book::toNextPage()
 	{
-		return _pageNum == _pageList.size() - 1 ? _pageList.at(_pageNum)
-		                                        : _pageList.at(++_pageNum);
+		_pageNum += _pageNum == _pageList.size() - 1 ? 0 : 1;
+		if (!_pageList.at(_pageNum).hasDetailInfo())
+			_pageList[_pageNum].getDetailInfo();
+		return _pageList.at(_pageNum);
 	}
 
 	const ImageInfo& Book::toPage(int num)
@@ -131,6 +151,8 @@ namespace img_view
 		_pageNum = num < 0
 		               ? 0
 		               : (num >= _pageList.size() ? _pageList.size() - 1 : num);
+		if (!_pageList.at(_pageNum).hasDetailInfo())
+			_pageList[_pageNum].getDetailInfo();
 		return _pageList.at(_pageNum);
 	}
 

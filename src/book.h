@@ -98,7 +98,7 @@ namespace img_view
 		/**
 		 * @brief The information of the current page (image)
 		 */
-		const ImageInfo& curPage() const;
+		const ImageInfo& curPage();
 
 		/**
 		 * @brief Set the current page (image file) to specified page
@@ -115,7 +115,7 @@ namespace img_view
 		 * @return The previous page's information, if the current page is the
 		 *         first page, return its information.
 		 */
-		const ImageInfo& prevPage() const;
+		const ImageInfo& prevPage();
 
 		/**
 		 * @brief Get the next page's information.
@@ -123,7 +123,7 @@ namespace img_view
 		 * @return The next page's information, if the current page is the last
 		 *         page, return its information.
 		 */
-		const ImageInfo& nextPage() const;
+		const ImageInfo& nextPage();
 
 		/**
 		 * @brief Get at most NUM pages' information before the current page.
@@ -131,9 +131,9 @@ namespace img_view
 		 * @param num The number of pages to get.
 		 *
 		 * @return Information of the pages before the current page, if the
-		 * current page is the first page, return an empty list.
+		 *         current page is the first page, return an empty list.
 		 */
-		QList<ImageInfo> prevPages(int num) const;
+		QList<ImageInfo> prevPages(int num);
 
 		/**
 		 * @brief Get at most NUM pages' information after the current page.
@@ -141,9 +141,9 @@ namespace img_view
 		 * @param num The number of pages to get.
 		 *
 		 * @return Information of the pages after the current page, if the
-		 * current page is the last page, return an empty list.
+		 *         current page is the last page, return an empty list.
 		 */
-		QList<ImageInfo> nextPages(int num) const;
+		QList<ImageInfo> nextPages(int num);
 
 		/**
 		 * @brief Move to the previous page(image), if the current page is
