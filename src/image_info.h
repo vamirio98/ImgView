@@ -13,221 +13,221 @@
 namespace img_view
 {
 
-	enum class ImageFormat { unknown = 0, bmp, gif, jpeg, png, webp };
+enum class ImageFormat { unknown = 0, bmp, gif, jpeg, png, webp };
+
+/**
+ * @brief Get the format of the IMAGE
+ *
+ * @return The image format
+ */
+ImageFormat getImageFormat(const QString& image);
+
+/**
+ * @brief Get the format of the image data stream IMAGE
+ *
+ * @return The image format
+ */
+ImageFormat getImgFormat(QDataStream& image);
+
+/**
+ * @brief Covert the ImageFormat to string
+ *
+ * @return The pointer to the format string, do NOT modify or delete it,
+ * make a deep copy of it if you want to modify it
+ */
+const char* imageFormatToStr(const ImageFormat& format);
+
+/**
+ * @brief Check if the file @filepath is a bmp file
+ */
+bool isBmp(const QString& filepath);
+
+/**
+ * @brief Check if the file @filepath is a bmp file
+ */
+bool isBmp(QDataStream& data);
+
+/**
+ * @brief Check if the file @filepath is a gif file
+ */
+bool isGif(const QString& filepath);
+
+/**
+ * @brief Check if the file @filepath is a gif file
+ */
+bool isGif(QDataStream& data);
+
+/**
+ * @brief Check if the file @filepath is a jpeg file
+ */
+bool isJpeg(const QString& filepath);
+
+/**
+ * @brief Check if the file @filepath is a jpeg file
+ */
+bool isJpeg(QDataStream& data);
+
+/**
+ * @brief Check if the file @filepath is a png file
+ */
+bool isPng(const QString& filepath);
+
+/**
+ * @brief Check if the file @filepath is a png file
+ */
+bool isPng(QDataStream& data);
+
+/**
+ * @brief Check if the file @filepath is a webp file
+ */
+bool isWebp(const QString& filepath);
+
+/**
+ * @brief Check if the file @filepath is a webp file
+ */
+bool isWebp(QDataStream& data);
+
+class ImageInfo
+{
+	friend bool operator==(const ImageInfo& lhs, const ImageInfo& rhs);
+	friend bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs);
+
+  public:
+	ImageInfo();
+	ImageInfo(const ImageInfo& rhs);
+	ImageInfo operator=(const ImageInfo& rhs);
+	ImageInfo(ImageInfo&& rhs) noexcept;
+	ImageInfo operator=(ImageInfo&& rhs) noexcept;
+	~ImageInfo();
 
 	/**
-	 * @brief Get the format of the IMAGE
+	 * @brief Get all infomation of specified image.
 	 *
-	 * @return The image format
-	 */
-	ImageFormat getImageFormat(const QString& image);
-
-	/**
-	 * @brief Get the format of the image data stream IMAGE
+	 * @param iamge The filepath of the sepcified image.
 	 *
-	 * @return The image format
+	 * @return True when succeeded, false when the image is not exist, is
+	 * not an image file, or you don't have the permission to open it
 	 */
-	ImageFormat getImgFormat(QDataStream& image);
+	bool getAllInfo(const QString& image);
 
 	/**
-	 * @brief Covert the ImageFormat to string
+	 * @brief Get basic information of specified image.
 	 *
-	 * @return The pointer to the format string, do NOT modify or delete it,
-	 * make a deep copy of it if you want to modify it
+	 * The basic information contains path (filename, extension), size,
+	 * last modified timestamp and format.
+	 *
+	 * @param image The filepath of the sepcified image.
+	 *
+	 * @return True when succeeded, false when the image is not exist, is
+	 * not an image file, or you don't have the permission to open it
 	 */
-	const char* imageFormatToStr(const ImageFormat& format);
+	bool getBasicInfo(const QString& image);
 
 	/**
-	 * @brief Check if the file @filepath is a bmp file
+	 * @brief Get detail information of current image, should be called
+	 *        only after getBasicInfo() is called.
+	 *
+	 * The detail infomation contains
+	 *
+	 * @return True when succeeded, false when don't have bassic info.
 	 */
-	bool isBmp(const QString& filepath);
+	bool getDetailInfo();
+
+	bool hasBasicInfo() const;
+
+	bool hasDetailInfo() const;
 
 	/**
-	 * @brief Check if the file @filepath is a bmp file
+	 * @brief Get the absolute path of the image
 	 */
-	bool isBmp(QDataStream& data);
+	QString absPath() const;
 
 	/**
-	 * @brief Check if the file @filepath is a gif file
+	 * @brief Get the image filename
 	 */
-	bool isGif(const QString& filepath);
+	QString filename() const;
 
 	/**
-	 * @brief Check if the file @filepath is a gif file
+	 * @brief Get the image file extension
 	 */
-	bool isGif(QDataStream& data);
+	QString extension() const;
 
 	/**
-	 * @brief Check if the file @filepath is a jpeg file
+	 * @brief Get the image MIME format
 	 */
-	bool isJpeg(const QString& filepath);
+	ImageFormat format() const;
 
 	/**
-	 * @brief Check if the file @filepath is a jpeg file
+	 * @brief Get the image file size in bytes
 	 */
-	bool isJpeg(QDataStream& data);
+	qint64 size() const;
 
 	/**
-	 * @brief Check if the file @filepath is a png file
+	 * @brief Get the image width in pixels
 	 */
-	bool isPng(const QString& filepath);
+	int width() const;
 
 	/**
-	 * @brief Check if the file @filepath is a png file
+	 * @brief Get the image height in pixels
 	 */
-	bool isPng(QDataStream& data);
+	int height() const;
 
 	/**
-	 * @brief Check if the file @filepath is a webp file
+	 * @brief Get the dimensions of the image
 	 */
-	bool isWebp(const QString& filepath);
+	QSize dimensions() const;
 
 	/**
-	 * @brief Check if the file @filepath is a webp file
+	 * @brief Get the image size in pixels
 	 */
-	bool isWebp(QDataStream& data);
+	qint64 pixels() const;
 
-	class ImageInfo
-	{
-		friend bool operator==(const ImageInfo& lhs, const ImageInfo& rhs);
-		friend bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs);
+	/**
+	 * @brief Get the image last modified timestamp as the number of
+	 *        milliseconds that have passed since 1970-01-01T00:00:00.000
+	 */
+	qint64 lastModified() const;
 
-	  public:
-		ImageInfo();
-		ImageInfo(const ImageInfo& rhs);
-		ImageInfo operator=(const ImageInfo& rhs);
-		ImageInfo(ImageInfo&& rhs) noexcept;
-		ImageInfo operator=(ImageInfo&& rhs) noexcept;
-		~ImageInfo();
+	/**
+	 * @brief Get the image depth
+	 */
+	int depth() const;
 
-		/**
-		 * @brief Get all infomation of specified image.
-		 *
-		 * @param iamge The filepath of the sepcified image.
-		 *
-		 * @return True when succeeded, false when the image is not exist, is
-		 * not an image file, or you don't have the permission to open it
-		 */
-		bool getAllInfo(const QString& image);
+	/**
+	 * @brief Check if the image information is empty.
+	 */
+	bool empty() const;
 
-		/**
-		 * @brief Get basic information of specified image.
-		 *
-		 * The basic information contains path (filename, extension), size,
-		 * last modified timestamp and format.
-		 *
-		 * @param image The filepath of the sepcified image.
-		 *
-		 * @return True when succeeded, false when the image is not exist, is
-		 * not an image file, or you don't have the permission to open it
-		 */
-		bool getBasicInfo(const QString& image);
+  private:
+	bool _hasBasicInfo = false;
+	bool _hasDetailInfo = false;
+	char* _path = nullptr;
+	char* _filename = nullptr;
+	char* _extension = nullptr;
+	qint64 _size = 0;
+	qint64 _lastModified = 0;
+	ImageFormat _format = ImageFormat::unknown;
+	int _width = 0;
+	int _height = 0;
+	int _depth = 0;
+};
 
-		/**
-		 * @brief Get detail information of current image, should be called
-		 *        only after getBasicInfo() is called.
-		 *
-		 * The detail infomation contains
-		 *
-		 * @return True when succeeded, false when don't have bassic info.
-		 */
-		bool getDetailInfo();
-
-		bool hasBasicInfo() const;
-
-		bool hasDetailInfo() const;
-
-		/**
-		 * @brief Get the absolute path of the image
-		 */
-		QString absPath() const;
-
-		/**
-		 * @brief Get the image filename
-		 */
-		QString filename() const;
-
-		/**
-		 * @brief Get the image file extension
-		 */
-		QString extension() const;
-
-		/**
-		 * @brief Get the image MIME format
-		 */
-		ImageFormat format() const;
-
-		/**
-		 * @brief Get the image file size in bytes
-		 */
-		qint64 size() const;
-
-		/**
-		 * @brief Get the image width in pixels
-		 */
-		int width() const;
-
-		/**
-		 * @brief Get the image height in pixels
-		 */
-		int height() const;
-
-		/**
-		 * @brief Get the dimensions of the image
-		 */
-		QSize dimensions() const;
-
-		/**
-		 * @brief Get the image size in pixels
-		 */
-		qint64 pixels() const;
-
-		/**
-		 * @brief Get the image last modified timestamp as the number of
-		 *        milliseconds that have passed since 1970-01-01T00:00:00.000
-		 */
-		qint64 lastModified() const;
-
-		/**
-		 * @brief Get the image depth
-		 */
-		int depth() const;
-
-		/**
-		 * @brief Check if the image information is empty.
-		 */
-		bool empty() const;
-
-	  private:
-		bool _hasBasicInfo = false;
-		bool _hasDetailInfo = false;
-		char* _path = nullptr;
-		char* _filename = nullptr;
-		char* _extension = nullptr;
-		qint64 _size = 0;
-		qint64 _lastModified = 0;
-		ImageFormat _format = ImageFormat::unknown;
-		int _width = 0;
-		int _height = 0;
-		int _depth = 0;
-	};
-
-	bool operator==(const ImageInfo& lhs, const ImageInfo& rhs);
-	bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs);
+bool operator==(const ImageInfo& lhs, const ImageInfo& rhs);
+bool operator!=(const ImageInfo& lhs, const ImageInfo& rhs);
 
 } // namespace img_view
 
 namespace std
 {
 
-	template <>
-	struct hash<img_view::ImageInfo> {
-		std::size_t operator()(const img_view::ImageInfo& key) const
-		{
-			return hash<QString>{}(key.absPath()) ^
-			       (hash<qint64>{}(key.lastModified()) << 1);
-		}
-	};
+template <>
+struct hash<img_view::ImageInfo> {
+	std::size_t operator()(const img_view::ImageInfo& key) const
+	{
+		return hash<QString>{}(key.absPath()) ^
+		       (hash<qint64>{}(key.lastModified()) << 1);
+	}
+};
 
 } // namespace std
 

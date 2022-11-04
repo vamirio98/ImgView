@@ -20,7 +20,6 @@ Cpp11BracedListStyle: true
 
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
-NamespaceIndentation: All
 
 PointerAlignment: Left
 

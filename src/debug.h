@@ -28,36 +28,36 @@
 namespace img_view
 {
 
-	class Debug
-	{
-		template <typename T>
-		friend Debug operator<<(Debug&& os, const T& x);
-
-	  public:
-		Debug(const LogLv& lv);
-		~Debug();
-		Debug(const Debug& rhs) = delete;
-		Debug& operator=(const Debug& rhs) = delete;
-		Debug(Debug&& rhs);
-		Debug&& operator=(const Debug&& rhs) = delete;
-
-		Debug&& addMsg();
-		void addMsg(const char* format, ...);
-
-	  private:
-		LogLv _lv;
-		QString _msg;
-		QTextStream _ts;
-		bool _valid;
-	}; /* Debug */
-
+class Debug
+{
 	template <typename T>
-	class img_view::Debug operator<<(class img_view::Debug&& os, const T& x)
-	{
-		if (!os._msg.isEmpty())
-			os._ts << x << " ";
-		return std::move(os);
-	}
+	friend Debug operator<<(Debug&& os, const T& x);
+
+  public:
+	Debug(const LogLv& lv);
+	~Debug();
+	Debug(const Debug& rhs) = delete;
+	Debug& operator=(const Debug& rhs) = delete;
+	Debug(Debug&& rhs);
+	Debug&& operator=(const Debug&& rhs) = delete;
+
+	Debug&& addMsg();
+	void addMsg(const char* format, ...);
+
+  private:
+	LogLv _lv;
+	QString _msg;
+	QTextStream _ts;
+	bool _valid;
+}; /* Debug */
+
+template <typename T>
+img_view::Debug operator<<(img_view::Debug&& os, const T& x)
+{
+	if (!os._msg.isEmpty())
+		os._ts << x << " ";
+	return std::move(os);
+}
 
 } // namespace img_view
 

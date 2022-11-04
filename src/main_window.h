@@ -16,73 +16,73 @@
 namespace img_view
 {
 
-	namespace ui
-	{
-		class MainWindowUi;
-	} // namespace ui
+namespace ui
+{
+class MainWindowUi;
+} // namespace ui
 
-	class MainWindow : public QMainWindow
-	{
+class MainWindow : public QMainWindow
+{
 
-		Q_OBJECT
+	Q_OBJECT
 
-	  public:
-		explicit MainWindow(QWidget* parent = nullptr);
-		~MainWindow();
-		void init();
+  public:
+	explicit MainWindow(QWidget* parent = nullptr);
+	~MainWindow();
+	void init();
 
-	  private slots:
-		void onQuit();
-		void onOpen();
-		void onClose();
-		void onRecentBooks();
-		void onOpenFileLoc();
-		void onExit();
-		void onAbout();
-		void onCtrlPlus();
-		void onCtrlMinus();
-		void showPrevPage();
-		void showNextPage();
+  private slots:
+	void onQuit();
+	void onOpen();
+	void onClose();
+	void onRecentBooks();
+	void onOpenFileLoc();
+	void onExit();
+	void onAbout();
+	void onCtrlPlus();
+	void onCtrlMinus();
+	void showPrevPage();
+	void showNextPage();
 
-		/* Toogle actions' activation. */
-		void toggleClose();
-		void toggleRecentBooks();
-		void toggleOpenFileLoc();
-		void toggleSaveAs();
-		void togglePrint();
-		void togglePrevPage();
-		void toggleNextPage();
-		void toggleFirstPage();
-		void toggleLastPage();
-		void togglePrevBook();
-		void toggleNextBook();
-		void togglePrevLoc();
-		void toggleNextLoc();
+	/* Toogle actions' activation. */
+	void toggleClose();
+	void toggleRecentBooks();
+	void toggleOpenFileLoc();
+	void toggleSaveAs();
+	void togglePrint();
+	void togglePrevPage();
+	void toggleNextPage();
+	void toggleFirstPage();
+	void toggleLastPage();
+	void togglePrevBook();
+	void toggleNextBook();
+	void togglePrevLoc();
+	void toggleNextLoc();
 
-	  private:
-		void setupSlots();
-		void setupShortCut();
+  private:
+	void setupSlots();
+	void setupShortCut();
 
-		bool openBook(const QString& bookPath);
-		void closeBook();
-		/* Update book and page together. */
-		void updateRecentBooks(const QString& book, const QString& image);
-		void updateRecentBooksUi();
+	bool openBook(const QString& bookPath);
+	void closeBook();
+	/* Update book and page together. */
+	void updateRecentBooks(const QString& book, const QString& image);
+	void updateRecentBooksUi();
 
-		static void initFileDialog(
-		    QFileDialog* dialog, const QFileDialog::AcceptMode acceptMode
-		);
+	static void initFileDialog(
+	    QFileDialog* dialog, const QFileDialog::AcceptMode acceptMode
+	);
 
-	  private:
-		static QString _lastOpenPos;
-		static QString _fileBrowserProgram;
-		static QString _fileBrowserParam;
-		QList<QAction*> _recentBooksActions;
+  private:
+	static QString _lastOpenPos;
+	static QString _fileBrowserProgram;
+	static QString _fileBrowserParam;
+	QList<QAction*> _recentBooksActions;
 
-		ui::MainWindowUi* _ui = nullptr;
-		Paper* _paper = nullptr;
-		Book _book;
-	};
+	ui::MainWindowUi* _ui = nullptr;
+	Paper* _paper = nullptr;
+	Book _book;
+};
 
 } // namespace img_view
 
